@@ -1,8 +1,10 @@
 package com.keunsori.keunsoriserver.member;
 
 import jakarta.persistence.*;
+import lombok.Getter;
 
 @Entity
+@Getter
 public class Member {
 
     @Id @GeneratedValue
