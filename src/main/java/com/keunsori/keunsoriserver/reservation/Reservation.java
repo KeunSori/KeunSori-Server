@@ -3,9 +3,14 @@ package com.keunsori.keunsoriserver.reservation;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 
+import com.keunsori.keunsoriserver.member.Member;
 import com.keunsori.keunsoriserver.reservation.vo.ReservationType;
 import com.keunsori.keunsoriserver.reservation.vo.Session;
 
@@ -21,7 +26,7 @@ import lombok.NoArgsConstructor;
 public class Reservation {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "reservation_id")
     private Long id;
 
@@ -39,4 +44,8 @@ public class Reservation {
 
     @Column(name = "reservation_session")
     private Session session;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member member;
 }
