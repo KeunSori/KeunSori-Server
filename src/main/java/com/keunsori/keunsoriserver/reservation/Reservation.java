@@ -17,6 +17,7 @@ import com.keunsori.keunsoriserver.reservation.vo.Session;
 import java.sql.Time;
 import java.util.Date;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -48,4 +49,16 @@ public class Reservation {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
+
+    @Builder
+    private Reservation(Date date, Time startTime, Time endTime, ReservationType type,
+            Session session,
+            Member member) {
+        this.date = date;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.type = type;
+        this.session = session;
+        this.member = member;
+    }
 }
