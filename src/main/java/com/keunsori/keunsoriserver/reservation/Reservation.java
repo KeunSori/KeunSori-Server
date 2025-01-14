@@ -1,7 +1,6 @@
 package com.keunsori.keunsoriserver.reservation;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -60,5 +59,18 @@ public class Reservation {
         this.type = type;
         this.session = session;
         this.member = member;
+    }
+
+    /**
+     * Entity Method
+     **/
+
+    public void updateReservation(ReservationType type, Session session, Date reservationDate,
+            Time reservationStartTime, Time reservationEndTime) {
+        this.type = type;
+        this.session = session;
+        this.date = reservationDate;
+        this.startTime = reservationStartTime;
+        this.endTime = reservationEndTime;
     }
 }
