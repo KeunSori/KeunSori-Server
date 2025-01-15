@@ -18,9 +18,21 @@ public class Member {
 
     private String password;
 
+    private String name;
+
     @Enumerated(EnumType.STRING)
     private MemberStatus status;
 
-    private String name;
+
+
+    protected Member() {}
+
+    public Member(String studentId, String hongikgmail, String password, String name, MemberStatus status) {
+        this.studentId = studentId;
+        this.hongikgmail = hongikgmail;
+        this.password = password;
+        this.name = name;
+        this.status = status;
+    }
 
 }
