@@ -45,7 +45,7 @@ public class Reservation {
     @Column(name = "reservation_session")
     private Session session;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
