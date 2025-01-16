@@ -5,6 +5,7 @@ import com.keunsori.keunsoriserver.member.MemberStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @AllArgsConstructor
@@ -13,14 +14,14 @@ public class MemberResponseDto {
     private Long id;
     private String StudentId;
     private MemberStatus status;
-    private Date SubDate;
+    private LocalDateTime approvalDate;
 
     public static MemberResponseDto fromEntity(Member member){
         return new MemberResponseDto(
                 member.getId(),
                 member.getStudentId(),
                 member.getStatus(),
-                member.getSubDate()
+                member.getApprovalDate()
         );
     }
 }

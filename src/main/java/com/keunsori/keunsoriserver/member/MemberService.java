@@ -1,6 +1,5 @@
 package com.keunsori.keunsoriserver.member;
 
-import com.keunsori.keunsoriserver.member.Dto.MemberRequestDto;
 import com.keunsori.keunsoriserver.member.Dto.MemberResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,22 +17,18 @@ public class MemberService {
                 .toList();
     }
 
-    public Member findById(Long id){
-        return memberRepository.findById(id).orElse(null);
-    }
-
     @Transactional
-    public Member deleteMember(Long id){
+    public Member approveMember(Long id){
         Member member = memberRepository.findById(id)
-                .orElseThrow(()->new IllegalArgumentException("Member not found."));
-        memberRepository.delete(member);
+                .orElseThrow(()->new IllegalArgumentException("회원 정보를 찾을 수 없습니다."));
+        member.approve();
         return member;
     }
 
     @Transactional
-    public void approveMember(Long id){
+    public void deleteMember(Long id){
         Member member = memberRepository.findById(id)
-                .orElseThrow(()->new IllegalArgumentException("Member not found."));
-        member.approve();
+                .orElseThrow(()->new IllegalArgumentException("회원 정보를 찾을 수 없습니다."));
+        memberRepository.delete(member);
     }
 }

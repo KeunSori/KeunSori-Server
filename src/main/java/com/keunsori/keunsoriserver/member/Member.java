@@ -1,11 +1,11 @@
 package com.keunsori.keunsoriserver.member;
 
-import com.keunsori.keunsoriserver.member.Dto.MemberRequestDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -28,10 +28,12 @@ public class Member {
 
     private String name;
 
+    private LocalDateTime approvalDate;
+
     public void approve() {
-        if ("APPROVED".equalsIgnoreCase(String.valueOf(this.status))) {
-            throw new IllegalStateException("Member is already approved.");
+        if (this.status == MemberStatus.일반) {
+            throw new IllegalStateException("이미 가입이 승인된 회원입니다.");
         }
-        this.status = MemberStatus.valueOf("일반");
+        this.status = MemberStatus.일반;
     }
 }
