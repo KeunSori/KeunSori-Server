@@ -1,10 +1,10 @@
-package com.keunsori.keunsoriserver.sign_up;
+package com.keunsori.keunsoriserver.domain.member.sign_up;
 
-import com.keunsori.keunsoriserver.member.Member;
-import com.keunsori.keunsoriserver.member.MemberRepository;
-import com.keunsori.keunsoriserver.member.MemberStatus;
-import com.keunsori.keunsoriserver.sign_up.dto.SignUpRequestDTO;
-import com.keunsori.keunsoriserver.sign_up.dto.SignUpResponseDTO;
+import com.keunsori.keunsoriserver.domain.member.Member;
+import com.keunsori.keunsoriserver.domain.member.MemberRepository;
+import com.keunsori.keunsoriserver.domain.member.MemberStatus;
+import com.keunsori.keunsoriserver.domain.member.sign_up.dto.SignUpRequestDTO;
+import com.keunsori.keunsoriserver.domain.member.sign_up.dto.SignUpResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

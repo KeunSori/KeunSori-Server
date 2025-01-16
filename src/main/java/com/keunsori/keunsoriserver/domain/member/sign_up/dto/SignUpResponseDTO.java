@@ -1,4 +1,4 @@
-package com.keunsori.keunsoriserver.sign_up.dto;
+package com.keunsori.keunsoriserver.domain.member.sign_up.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

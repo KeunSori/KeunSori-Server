@@ -1,4 +1,4 @@
-package com.keunsori.keunsoriserver.sign_up.dto;
+package com.keunsori.keunsoriserver.domain.member.sign_up.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;

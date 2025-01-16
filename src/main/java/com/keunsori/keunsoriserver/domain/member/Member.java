@@ -1,4 +1,4 @@
-package com.keunsori.keunsoriserver.member;
+package com.keunsori.keunsoriserver.domain.member;
 
 import jakarta.persistence.*;
 import lombok.Getter;
