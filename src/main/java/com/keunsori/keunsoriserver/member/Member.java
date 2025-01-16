@@ -1,25 +1,20 @@
 package com.keunsori.keunsoriserver.member;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Entity
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
 public class Member {
 
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "member_id")
     private Long id;
 
-    @Column(name="student_id")
     private String studentId;
+    private String hongikgmail;
 
     private String password;
 
