@@ -17,18 +17,21 @@ public class Member extends BaseEntity {
     @Column(name = "member_id")
     private Long id;
 
-    @Column(name = "student_id")
+    @Column(length = 7)
     private String studentId;
 
+    @Column(length = 50)
     private String hongikgmail;
 
+    @Column(length = 200)
     private String password;
 
     @Enumerated(EnumType.STRING)
+    @Column(length = 20)
     private MemberStatus status;
 
+    @Column(length = 20)
     private String name;
 
-    @Column(name = "approval_date")
     private LocalDateTime approvalDate;
 }
