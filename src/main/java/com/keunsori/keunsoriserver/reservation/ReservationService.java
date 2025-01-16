@@ -3,6 +3,7 @@ package com.keunsori.keunsoriserver.reservation;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.keunsori.keunsoriserver.member.Member;
 import com.keunsori.keunsoriserver.reservation.dto.ReservationCreateRequest;
 import com.keunsori.keunsoriserver.reservation.dto.ReservationResponse;
 import com.keunsori.keunsoriserver.reservation.dto.ReservationUpdateRequest;
@@ -23,7 +24,8 @@ public class ReservationService {
 
     @Transactional
     public void createReservation(ReservationCreateRequest request) {
-        request.toEntity(null); // TODO : 로그인 구현 이후 현재 로그인한 멤버 조회
+        Reservation reservation = request.toEntity(null); // TODO : 로그인 구현 이후 현재 로그인한 멤버 조회
+        reservationRepository.save(reservation);
     }
 
     @Transactional
@@ -33,9 +35,10 @@ public class ReservationService {
     }
 
     @Transactional
-    public void updateReservation(Long reservationId, ReservationUpdateRequest request) throws Exception {
+    public void updateReservation(Long reservationId, ReservationUpdateRequest request)
+            throws Exception {
         Reservation reservation = reservationRepository.findById(reservationId)
-                .orElseThrow(()-> new Exception("존재하지 않는 예약 ID 입니다."));
+                .orElseThrow(() -> new Exception("존재하지 않는 예약 ID 입니다."));
         // TODO : 에러 메세지 클래스 작성, 커스텀 에러 클래스 작성
 
         // TODO : 현재 로그인한 유저의 예약인지 검증
@@ -48,5 +51,11 @@ public class ReservationService {
                 request.reservationStartTime(),
                 request.reservationEndTime()
         );
+    }
+
+    public List<ReservationResponse> findAllMyReservations() {
+        Member currentMember = new Member(); // TODO : 로그인 유저 가져오도록 변경
+        return reservationRepository.findAllByMember(currentMember)
+                .stream().map(ReservationResponse::of).toList();
     }
 }

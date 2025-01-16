@@ -28,8 +28,8 @@ public class ReservationController {
 
     @GetMapping("/list")
     public ResponseEntity<List<ReservationResponse>> findAllReservations() {
-        List<ReservationResponse> reservations = reservationService.findAllReservations();
-        return ResponseEntity.ok().body(reservations);
+        List<ReservationResponse> responses = reservationService.findAllReservations();
+        return ResponseEntity.ok().body(responses);
     }
 
     @PostMapping
@@ -49,5 +49,11 @@ public class ReservationController {
             @RequestBody ReservationUpdateRequest request) throws Exception {
         reservationService.updateReservation(reservationId, request);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/my")
+    public ResponseEntity<List<ReservationResponse>> findMyReservations() {
+        List<ReservationResponse> responses = reservationService.findAllMyReservations();
+        return ResponseEntity.ok().body(responses);
     }
 }
