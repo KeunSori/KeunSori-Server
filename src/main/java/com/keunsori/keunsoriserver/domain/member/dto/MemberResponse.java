@@ -1,9 +1,7 @@
-package com.keunsori.keunsoriserver.member.Dto;
+package com.keunsori.keunsoriserver.domain.member.dto;
 
-import com.keunsori.keunsoriserver.member.Member;
-import com.keunsori.keunsoriserver.member.MemberStatus;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import com.keunsori.keunsoriserver.domain.member.domain.vo.MemberStatus;
+import com.keunsori.keunsoriserver.domain.member.domain.Member;
 
 import java.time.LocalDateTime;
 

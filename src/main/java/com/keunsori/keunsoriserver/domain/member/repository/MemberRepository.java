@@ -1,5 +1,6 @@
-package com.keunsori.keunsoriserver.member;
+package com.keunsori.keunsoriserver.domain.member.repository;
 
+import com.keunsori.keunsoriserver.domain.member.domain.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 

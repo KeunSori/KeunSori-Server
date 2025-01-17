@@ -1,29 +1,40 @@
-package com.keunsori.keunsoriserver.member;
+package com.keunsori.keunsoriserver.domain.member.domain;
 
+import com.keunsori.keunsoriserver.domain.common.BaseEntity;
+import com.keunsori.keunsoriserver.domain.member.domain.vo.MemberStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
+
 import java.time.LocalDateTime;
+
 
 @Entity
 @Getter
-public class Member {
+public class Member extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "member_id")
     private Long id;
 
+    @Column(length = 7)
     private String studentId;
+
+    @Column(length = 50)
     private String hongikgmail;
 
+    @Column(length = 200)
     private String password;
 
     @Enumerated(EnumType.STRING)
+    @Column(length = 20)
     private MemberStatus status;
 
+    @Column(length = 20)
     private String name;
 
     private LocalDateTime approvalDate;
+
 
     public void approve() {
         if (this.status == MemberStatus.일반) {

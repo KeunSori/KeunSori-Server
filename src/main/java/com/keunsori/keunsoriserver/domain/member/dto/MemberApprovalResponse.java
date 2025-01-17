@@ -1,7 +1,7 @@
-package com.keunsori.keunsoriserver.member.Dto;
+package com.keunsori.keunsoriserver.domain.member.dto;
 
-import com.keunsori.keunsoriserver.member.Member;
-import com.keunsori.keunsoriserver.member.MemberStatus;
+import com.keunsori.keunsoriserver.domain.member.domain.vo.MemberStatus;
+import com.keunsori.keunsoriserver.domain.member.domain.Member;
 
 import java.time.LocalDateTime;
 
@@ -13,13 +13,13 @@ public record MemberApprovalResponse(
         LocalDateTime SubsriptionDate
 ) {
 
-    public static MemberResponse fromEntity(Member member) {
-        return new MemberResponse(
+    public static MemberApprovalResponse fromEntity(Member member) {
+        return new MemberApprovalResponse(
                 member.getId(),
                 member.getName(),
                 member.getStudentId(),
                 member.getStatus(),
-                member.getApprovalDate() //createDate로 바꿔야함
+                member.getCreateDate()
         );
     }
 
