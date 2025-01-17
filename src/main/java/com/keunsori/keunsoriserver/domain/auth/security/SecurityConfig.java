@@ -32,7 +32,7 @@ public class SecurityConfig  {
                 .authorizeHttpRequests(auth -> auth
                         // 인증 없이 로그인,회원가입은 가능.
                         .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/member/**").permitAll()
+                        .requestMatchers("https://keun-sori-web.vercel.app/signup").permitAll()
 
                         // 예약 관련된 건 일반 권한 필요
                         .requestMatchers("/reservation/**").hasAuthority("일반")

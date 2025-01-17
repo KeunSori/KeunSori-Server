@@ -1,7 +1,9 @@
 package com.keunsori.keunsoriserver.domain.auth.login;
 
+import com.keunsori.keunsoriserver.domain.auth.redis.RefreshTokenService;
 import com.keunsori.keunsoriserver.domain.member.MemberStatus;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,13 +12,18 @@ import org.springframework.stereotype.Component;
 import java.util.Date;
 
 @Component
-public class JwtTokenCreater {
+public class JwtTokenManager {
 
+    private final RefreshTokenService refreshTokenService;
     @Value("${jwt.secret}")
     private String secretKey;
 
     private final long accessTokenValidity = 30 * 60 * 1000L;         // AccessToken 만료시간: 30분
     private final long refreshTokenValidity = 7 * 24 * 60 * 60 * 1000L; // RefreshToken 만료시간: 1주일
+
+    public JwtTokenManager(RefreshTokenService refreshTokenService) {
+        this.refreshTokenService = refreshTokenService;
+    }
 
     // Access Token 생성
     public String generateAccessToken(String studentId, String name, MemberStatus status) {
@@ -25,7 +32,9 @@ public class JwtTokenCreater {
 
     // Refresh Token 생성
     public String generateRefreshToken(String studentId, String name, MemberStatus status) {
-        return createToken(studentId, name, status, refreshTokenValidity);
+        String refreshToken=createToken(studentId, name, status, refreshTokenValidity);
+        refreshTokenService.saveRefreshToken(studentId, refreshToken, refreshTokenValidity);
+        return refreshToken;
     }
 
     // 토큰 생성 로직
@@ -36,7 +45,7 @@ public class JwtTokenCreater {
 
         Date now = new Date();
         Date validity = new Date(now.getTime() + validityInMilliseconds);
-        claims.put("expiration", validity.getTime());
+
 
         return Jwts.builder()
                 .setClaims(claims)
@@ -51,7 +60,11 @@ public class JwtTokenCreater {
         try {
             Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
             return true;
-        } catch (Exception e) {
+        } catch (ExpiredJwtException e) {
+            System.out.println("토큰 만료");
+            return false;
+        }catch (Exception e) {
+            System.out.println("유효하지 않은 토큰");
             return false;
         }
     }
@@ -82,5 +95,10 @@ public class JwtTokenCreater {
                 .parseClaimsJws(token)
                 .getBody()
                 .get("status");
+    }
+
+    //로그아웃시 refresh token 삭제
+    public void removeRefreshToken(String studentId) {
+        refreshTokenService.deleteRefreshToken(studentId);
     }
 }

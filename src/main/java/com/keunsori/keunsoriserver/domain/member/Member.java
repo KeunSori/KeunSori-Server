@@ -2,10 +2,14 @@ package com.keunsori.keunsoriserver.domain.member;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+import static lombok.AccessLevel.PROTECTED;
 
 
 @Entity
 @Getter
+@NoArgsConstructor (access=PROTECTED)
 public class Member {
 
     @Id
@@ -23,9 +27,6 @@ public class Member {
     @Enumerated(EnumType.STRING)
     private MemberStatus status;
 
-
-
-    protected Member() {}
 
     public Member(String studentId, String hongikgmail, String password, String name, MemberStatus status) {
         this.studentId = studentId;
