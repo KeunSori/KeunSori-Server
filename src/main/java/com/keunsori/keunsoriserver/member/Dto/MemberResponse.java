@@ -6,22 +6,23 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
-@AllArgsConstructor
-@Getter
-public class MemberResponseDto {
-    private Long id;
-    private String StudentId;
-    private MemberStatus status;
-    private LocalDateTime approvalDate;
+public record MemberResponse(
+    Long id,
+    String name,
+    String StudentId,
+    MemberStatus status,
+    LocalDateTime approvalDate
+) {
 
-    public static MemberResponseDto fromEntity(Member member){
-        return new MemberResponseDto(
+    public static MemberResponse fromEntity(Member member) {
+        return new MemberResponse(
                 member.getId(),
+                member.getName(),
                 member.getStudentId(),
                 member.getStatus(),
                 member.getApprovalDate()
         );
     }
 }
+

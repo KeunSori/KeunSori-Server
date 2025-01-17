@@ -1,8 +1,7 @@
 package com.keunsori.keunsoriserver.member;
 
-import com.keunsori.keunsoriserver.member.Dto.MemberResponseDto;
+import com.keunsori.keunsoriserver.member.Dto.MemberResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,8 +14,8 @@ public class MemberController {
     private MemberService memberService;
 
     @GetMapping("/list")
-    public ResponseEntity<List<MemberResponseDto>> findAll(){
-        List<MemberResponseDto> memberList = memberService.findAll();
+    public ResponseEntity<List<MemberResponse>> findAll(){
+        List<MemberResponse> memberList = memberService.findAll();
         return ResponseEntity.ok().body(memberList);
     }
 

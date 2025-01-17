@@ -1,6 +1,6 @@
 package com.keunsori.keunsoriserver.member;
 
-import com.keunsori.keunsoriserver.member.Dto.MemberResponseDto;
+import com.keunsori.keunsoriserver.member.Dto.MemberResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,8 +12,8 @@ import java.util.List;
 public class MemberService {
     private MemberRepository memberRepository;
 
-    public List<MemberResponseDto> findAll(){
-        return memberRepository.findAll().stream().map(MemberResponseDto::fromEntity)
+    public List<MemberResponse> findAll(){
+        return memberRepository.findAll().stream().map(MemberResponse::fromEntity)
                 .toList();
     }
 
