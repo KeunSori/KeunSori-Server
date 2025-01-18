@@ -1,7 +1,7 @@
 package com.keunsori.keunsoriserver.domain.auth.login;
 
 import com.keunsori.keunsoriserver.domain.auth.redis.RefreshTokenService;
-import com.keunsori.keunsoriserver.domain.member.MemberStatus;
+import com.keunsori.keunsoriserver.domain.member.domain.vo.MemberStatus;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -18,8 +18,22 @@ public class JwtTokenManager {
     @Value("${jwt.secret}")
     private String secretKey;
 
-    private final long accessTokenValidity = 30 * 60 * 1000L;         // AccessToken 만료시간: 30분
-    private final long refreshTokenValidity = 7 * 24 * 60 * 60 * 1000L; // RefreshToken 만료시간: 1주일
+    @Value("${jwt.header:Authorization}")
+    private String header;
+
+    @Value("${jwt.prefix:Bearer}")
+    private String prefix;
+
+    public String getHeader(){
+        return header;
+    }
+
+    public String getPrefix(){
+        return prefix;
+    }
+
+    private static final long ACCESS_TOKEN_TIME_VALIDITY = 30 * 60 * 1000L;         // AccessToken 만료시간: 30분
+    private static final long REFRESH_TOKEN_TIME_VALIDITY = 7 * 24 * 60 * 60 * 1000L; // RefreshToken 만료시간: 1주일
 
     public JwtTokenManager(RefreshTokenService refreshTokenService) {
         this.refreshTokenService = refreshTokenService;
@@ -27,13 +41,13 @@ public class JwtTokenManager {
 
     // Access Token 생성
     public String generateAccessToken(String studentId, String name, MemberStatus status) {
-        return createToken(studentId, name, status, accessTokenValidity);
+        return createToken(studentId, name, status, ACCESS_TOKEN_TIME_VALIDITY);
     }
 
     // Refresh Token 생성
     public String generateRefreshToken(String studentId, String name, MemberStatus status) {
-        String refreshToken=createToken(studentId, name, status, refreshTokenValidity);
-        refreshTokenService.saveRefreshToken(studentId, refreshToken, refreshTokenValidity);
+        String refreshToken=createToken(studentId, name, status, REFRESH_TOKEN_TIME_VALIDITY);
+        refreshTokenService.saveRefreshToken(studentId, refreshToken, REFRESH_TOKEN_TIME_VALIDITY);
         return refreshToken;
     }
 

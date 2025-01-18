@@ -1,5 +1,6 @@
-package com.keunsori.keunsoriserver.domain.member;
+package com.keunsori.keunsoriserver.domain.member.domain;
 
+import com.keunsori.keunsoriserver.domain.member.domain.vo.MemberStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -1,13 +1,12 @@
 package com.keunsori.keunsoriserver.domain.auth.login;
 
-import com.keunsori.keunsoriserver.domain.auth.login.dto.LoginRequest;
-import com.keunsori.keunsoriserver.domain.auth.login.dto.LoginResponse;
+import com.keunsori.keunsoriserver.domain.auth.login.dto.request.LoginRequest;
+import com.keunsori.keunsoriserver.domain.auth.login.dto.response.LoginResponse;
 import com.keunsori.keunsoriserver.domain.auth.redis.RefreshTokenService;
-import com.keunsori.keunsoriserver.domain.member.Member;
-import com.keunsori.keunsoriserver.domain.member.MemberRepository;
-import com.keunsori.keunsoriserver.domain.member.MemberStatus;
+import com.keunsori.keunsoriserver.domain.member.domain.Member;
+import com.keunsori.keunsoriserver.domain.member.repository.MemberRepository;
 import com.keunsori.keunsoriserver.global.exception.AuthException;
-import com.keunsori.keunsoriserver.global.exception.MemberNotFoundException;
+import com.keunsori.keunsoriserver.global.exception.MemberException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -22,15 +21,15 @@ public class LoginService {
     private final RefreshTokenService refreshTokenService;
 
     @Transactional
-    public LoginResponse login(LoginRequest loginRequest) throws MemberNotFoundException, AuthException.InvalidPasswordException {
+    public LoginResponse login(LoginRequest loginRequest) {
 
         //학번으로 사용자 조회
-        Member member= memberRepository.findByStudentId(loginRequest.getStudentId())
-                .orElseThrow(()->new MemberNotFoundException("존재하지 않는 학번입니다."));
+        Member member= memberRepository.findByStudentId(loginRequest.studentId())
+                .orElseThrow(()->new MemberException.MemberNotFoundException("존재하지 않는 학번입니다."));
 
         //비밀번호 일치하는지 검증
-        if(!passwordEncoder.matches(loginRequest.getPassword(), member.getPassword())){
-            throw new AuthException.InvalidPasswordException("비밀번호가 일치하지 않습니다.");
+        if(!passwordEncoder.matches(loginRequest.password(), member.getPassword())){
+            throw new AuthException("비밀번호가 일치하지 않습니다.");
         }
 
         //Access Token, Refresh Token 생성
@@ -45,8 +44,7 @@ public class LoginService {
         //Refresh Token Redis에 저장
         refreshTokenService.saveRefreshToken(member.getStudentId(), refreshToken, 7*24*60*60*1000L);
 
-        return new LoginResponse(member.getStudentId(),member.getName(),
-                MemberStatus.일반,
+        return new LoginResponse(
                 accessToken,
                 refreshToken,
                 String.valueOf(jwtTokenManager.getExpirationTime(accessToken)));

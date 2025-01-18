@@ -5,3 +5,12 @@ spring:
     group:
       local: "local,datasource"
 
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+jwt:
+  secret: 'o<hdIPL&L7c4`i)<17@>MRI3P%s-oZh
+  header: Authorization
+  prefix: Bearer

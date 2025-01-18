@@ -21,6 +21,9 @@ public class MemberException extends RuntimeException {
         }
     }
 
+    public static class MemberNotFoundException extends MemberException {
+        public MemberNotFoundException(String message) { super(message); }
+    }
 
 
 }

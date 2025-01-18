@@ -1,6 +1,8 @@
-package com.keunsori.keunsoriserver.domain.member.sign_up;
+package com.keunsori.keunsoriserver.domain.member.sign_up.controller;
 
-import com.keunsori.keunsoriserver.domain.member.sign_up.dto.SignUpRequest;
+import com.keunsori.keunsoriserver.domain.member.sign_up.dto.request.SignUpRequest;
+import com.keunsori.keunsoriserver.domain.member.sign_up.dto.response.SignUpResponse;
+import com.keunsori.keunsoriserver.domain.member.sign_up.service.SignUpService;
 import com.keunsori.keunsoriserver.global.exception.MemberException;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -20,11 +22,11 @@ public class SignUpController {
     }
 
     @PostMapping
-    public ResponseEntity<?> registerMember(@Valid @RequestBody SignUpRequest signUpRequest) throws MemberException.IncorrectPasswordException, MemberException.InvalidHongikGmailException, MemberException.InvalidStudentIdException {
+    public ResponseEntity<SignUpResponse> registerMember(@Valid @RequestBody SignUpRequest signUpRequest) {
 
         //멤버 엔티티 빌드
-        signUpService.registerMember(signUpRequest);
-        return ResponseEntity.ok("회원가입 완료");
+        SignUpResponse response=signUpService.registerMember(signUpRequest);
+        return ResponseEntity.ok(response);
 
     }
 }

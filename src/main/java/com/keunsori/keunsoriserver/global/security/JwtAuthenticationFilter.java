@@ -1,4 +1,4 @@
-package com.keunsori.keunsoriserver.domain.auth.security;
+package com.keunsori.keunsoriserver.global.security;
 
 import com.keunsori.keunsoriserver.domain.auth.login.JwtTokenManager;
 import jakarta.servlet.FilterChain;
@@ -22,12 +22,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
         throws ServletException, IOException {
-        String authenticateddtoken =request.getHeader("Authorization");
+        String authenticatedtoken =request.getHeader(jwtTokenManager.getHeader());
         String token= null;
 
         //Bearer 제거해서 토큰만 추출
-        if(authenticateddtoken !=null && authenticateddtoken.startsWith("Bearer ")){
-            token= authenticateddtoken.substring(7);
+        if(authenticatedtoken !=null && authenticatedtoken.startsWith(jwtTokenManager.getPrefix())){
+            token= authenticatedtoken.substring(jwtTokenManager.getPrefix().length());
         }
 
         if(token!=null && jwtTokenManager.validateToken(token)){

@@ -36,11 +36,4 @@ public class GlobalExceptionHandler {
         ErrorMessage response=new ErrorMessage(HttpStatus.UNAUTHORIZED.value(),ex.getMessage());
         return new ResponseEntity<>(response,HttpStatus.UNAUTHORIZED);
     }
-
-    //MemberNotFoundException 예외처리(400)
-    @ExceptionHandler
-    public ResponseEntity<ErrorMessage> handleMemberNotFoundException(MemberNotFoundException ex) {
-        ErrorMessage response=new ErrorMessage(HttpStatus.BAD_REQUEST.value(),ex.getMessage());
-        return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
-    }
 }

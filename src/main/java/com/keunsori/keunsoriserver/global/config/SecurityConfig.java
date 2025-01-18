@@ -1,5 +1,6 @@
-package com.keunsori.keunsoriserver.domain.auth.security;
+package com.keunsori.keunsoriserver.global.config;
 
+import com.keunsori.keunsoriserver.global.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,7 +33,7 @@ public class SecurityConfig  {
                 .authorizeHttpRequests(auth -> auth
                         // 인증 없이 로그인,회원가입은 가능.
                         .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("https://keun-sori-web.vercel.app/signup").permitAll()
+                        .requestMatchers("/member/signup/").permitAll()
 
                         // 예약 관련된 건 일반 권한 필요
                         .requestMatchers("/reservation/**").hasAuthority("일반")

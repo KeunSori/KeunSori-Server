@@ -2,8 +2,8 @@ package com.keunsori.keunsoriserver.domain.auth.controller;
 
 import com.keunsori.keunsoriserver.domain.auth.redis.RefreshTokenService;
 import com.keunsori.keunsoriserver.domain.auth.login.JwtTokenManager;
-import com.keunsori.keunsoriserver.domain.auth.login.dto.LoginResponse;
-import com.keunsori.keunsoriserver.domain.member.MemberStatus;
+import com.keunsori.keunsoriserver.domain.auth.login.dto.response.LoginResponse;
+import com.keunsori.keunsoriserver.domain.member.domain.vo.MemberStatus;
 import com.keunsori.keunsoriserver.global.exception.AuthException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -25,16 +25,14 @@ public class AuthController {
         //Redis에 저장된 Refresh Token과 일치하는지 확인
         String storedRefreshToken=authService.getRefreshToken(studentId);
         if(storedRefreshToken==null || !storedRefreshToken.equals(refreshToken)){
-            throw new AuthException.InvalidRefreshTokenException("유효하지 않은 Refresh Token");
+            throw new AuthException("유효하지 않은 Refresh Token");
         }
 
         //새로운 AccessToken 생성
         String newAccessToken= jwtTokenManager.generateAccessToken(studentId, "Name", MemberStatus.일반);
 
         //새로운 Acess Token 반환
-        return ResponseEntity.ok(new LoginResponse(studentId,
-                "name",
-                MemberStatus.일반,
+        return ResponseEntity.ok(new LoginResponse(
                 newAccessToken,
                 refreshToken,
                 String.valueOf(jwtTokenManager.getExpirationTime(newAccessToken))));
