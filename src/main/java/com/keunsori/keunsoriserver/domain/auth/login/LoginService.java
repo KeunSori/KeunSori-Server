@@ -25,7 +25,7 @@ public class LoginService {
 
         //학번으로 사용자 조회
         Member member= memberRepository.findByStudentId(loginRequest.studentId())
-                .orElseThrow(()->new MemberException.MemberNotFoundException("존재하지 않는 학번입니다."));
+                .orElseThrow(()->new MemberException("존재하지 않는 학번입니다."));
 
         //비밀번호 일치하는지 검증
         if(!passwordEncoder.matches(loginRequest.password(), member.getPassword())){
@@ -42,7 +42,7 @@ public class LoginService {
         );
 
         //Refresh Token Redis에 저장
-        refreshTokenService.saveRefreshToken(member.getStudentId(), refreshToken, 7*24*60*60*1000L);
+        refreshTokenService.saveRefreshToken(member.getStudentId(), refreshToken, REFRESH_TOKEN_VALIDITY);
 
         return new LoginResponse(
                 accessToken,
