@@ -2,6 +2,7 @@ package com.keunsori.keunsoriserver.domain.auth.login;
 
 import com.keunsori.keunsoriserver.domain.auth.redis.RefreshTokenService;
 import com.keunsori.keunsoriserver.domain.member.domain.vo.MemberStatus;
+import com.keunsori.keunsoriserver.global.properties.JwtProperties;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -13,6 +14,8 @@ import java.util.Date;
 
 @Component
 public class JwtTokenManager {
+
+    private final JwtProperties jwtProperties;
 
     private final RefreshTokenService refreshTokenService;
     @Value("${jwt.secret}")
@@ -32,22 +35,22 @@ public class JwtTokenManager {
         return prefix;
     }
 
-    private static final long ACCESS_TOKEN_TIME_VALIDITY = 30 * 60 * 1000L;         // AccessToken 만료시간: 30분
-    private static final long REFRESH_TOKEN_TIME_VALIDITY = 7 * 24 * 60 * 60 * 1000L; // RefreshToken 만료시간: 1주일
+     // RefreshToken 만료시간: 1주일
 
-    public JwtTokenManager(RefreshTokenService refreshTokenService) {
+    public JwtTokenManager( RefreshTokenService refreshTokenService,JwtProperties jwtProperties) {
         this.refreshTokenService = refreshTokenService;
+        this.jwtProperties = jwtProperties;
     }
 
     // Access Token 생성
     public String generateAccessToken(String studentId, String name, MemberStatus status) {
-        return createToken(studentId, name, status, ACCESS_TOKEN_TIME_VALIDITY);
+        return createToken(studentId, name, status, jwtProperties.ACCESS_TOKEN_VALIDITY_TIME);
     }
 
     // Refresh Token 생성
     public String generateRefreshToken(String studentId, String name, MemberStatus status) {
-        String refreshToken=createToken(studentId, name, status, REFRESH_TOKEN_TIME_VALIDITY);
-        refreshTokenService.saveRefreshToken(studentId, refreshToken, REFRESH_TOKEN_TIME_VALIDITY);
+        String refreshToken=createToken(studentId, name, status, jwtProperties.REFRESH_TOKEN_VALIDITY_TIME);
+        refreshTokenService.saveRefreshToken(studentId, refreshToken, jwtProperties.REFRESH_TOKEN_VALIDITY_TIME);
         return refreshToken;
     }
 

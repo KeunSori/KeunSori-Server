@@ -7,6 +7,7 @@ import com.keunsori.keunsoriserver.domain.member.domain.Member;
 import com.keunsori.keunsoriserver.domain.member.repository.MemberRepository;
 import com.keunsori.keunsoriserver.global.exception.AuthException;
 import com.keunsori.keunsoriserver.global.exception.MemberException;
+import com.keunsori.keunsoriserver.global.properties.JwtProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ public class LoginService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenManager jwtTokenManager;
     private final RefreshTokenService refreshTokenService;
+    private final JwtProperties jwtProperties;
 
     @Transactional
     public LoginResponse login(LoginRequest loginRequest) {
@@ -42,7 +44,7 @@ public class LoginService {
         );
 
         //Refresh Token Redis에 저장
-        refreshTokenService.saveRefreshToken(member.getStudentId(), refreshToken, REFRESH_TOKEN_VALIDITY);
+        refreshTokenService.saveRefreshToken(member.getStudentId(), refreshToken, jwtProperties.REFRESH_TOKEN_VALIDITY_TIME);
 
         return new LoginResponse(
                 accessToken,

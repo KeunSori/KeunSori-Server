@@ -1,33 +1,41 @@
 package com.keunsori.keunsoriserver.domain.member.domain;
 
+import com.keunsori.keunsoriserver.domain.common.BaseEntity;
 import com.keunsori.keunsoriserver.domain.member.domain.vo.MemberStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import static lombok.AccessLevel.PROTECTED;
+import java.time.LocalDateTime;
 
 
 @Entity
 @Getter
-@NoArgsConstructor (access=PROTECTED)
-public class Member {
+@NoArgsConstructor
+public class Member extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "member_id")
     private Long id;
 
+    @Column(length = 7)
     private String studentId;
+
+    @Column(length = 50)
     private String hongikgmail;
 
+    @Column(length = 200)
     private String password;
 
-    private String name;
-
     @Enumerated(EnumType.STRING)
+    @Column(length = 20)
     private MemberStatus status;
 
+    @Column(length = 20)
+    private String name;
+
+    private LocalDateTime approvalDate;
 
     public Member(String studentId, String hongikgmail, String password, String name, MemberStatus status) {
         this.studentId = studentId;
@@ -36,5 +44,4 @@ public class Member {
         this.name = name;
         this.status = status;
     }
-
 }

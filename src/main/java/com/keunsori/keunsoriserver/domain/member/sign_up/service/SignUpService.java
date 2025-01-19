@@ -41,7 +41,7 @@ public class SignUpService {
         String encodePassword = passwordEncoder.encode(signUpRequest.password());
 
         //암호화된 비밀번호로 새로운 member 생성
-        Member member=new Member(signUpRequest.studentId(), signUpRequest.hongikgmail(), encodePassword, signUpRequest.name(), MemberStatus.대기);
+        Member member=new Member(signUpRequest.studentId(), signUpRequest.hongikgmail(), encodePassword, signUpRequest.name(), MemberStatus.승인대기);
 
         //Member 저장
         Member savedMember=memberRepository.save(member);
