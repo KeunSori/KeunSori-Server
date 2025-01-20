@@ -18,7 +18,7 @@ public class ReservationService {
 
     private final ReservationRepository reservationRepository;
 
-    public List<ReservationResponse> findAllReservations() {
+    public List<ReservationResponse> findReservationsByMonth(String yearMonth) {
         return reservationRepository.findAll().stream().map(ReservationResponse::of).toList();
     }
 
