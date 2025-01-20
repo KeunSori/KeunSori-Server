@@ -1,8 +1,9 @@
-package com.keunsori.keunsoriserver.reservation;
+package com.keunsori.keunsoriserver.reservation.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.keunsori.keunsoriserver.member.Member;
+import com.keunsori.keunsoriserver.reservation.domain.Reservation;
 
 import java.util.List;
 

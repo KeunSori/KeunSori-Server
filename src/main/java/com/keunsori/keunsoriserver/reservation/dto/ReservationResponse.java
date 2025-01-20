@@ -1,8 +1,8 @@
 package com.keunsori.keunsoriserver.reservation.dto;
 
-import com.keunsori.keunsoriserver.reservation.Reservation;
-import com.keunsori.keunsoriserver.reservation.vo.ReservationType;
-import com.keunsori.keunsoriserver.reservation.vo.Session;
+import com.keunsori.keunsoriserver.reservation.domain.Reservation;
+import com.keunsori.keunsoriserver.reservation.domain.vo.ReservationType;
+import com.keunsori.keunsoriserver.reservation.domain.vo.Session;
 
 import java.sql.Time;
 import java.util.Date;

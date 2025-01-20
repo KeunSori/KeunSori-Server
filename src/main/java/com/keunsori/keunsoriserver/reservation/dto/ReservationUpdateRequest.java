@@ -1,7 +1,7 @@
 package com.keunsori.keunsoriserver.reservation.dto;
 
-import com.keunsori.keunsoriserver.reservation.vo.ReservationType;
-import com.keunsori.keunsoriserver.reservation.vo.Session;
+import com.keunsori.keunsoriserver.reservation.domain.vo.ReservationType;
+import com.keunsori.keunsoriserver.reservation.domain.vo.Session;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.sql.Time;
