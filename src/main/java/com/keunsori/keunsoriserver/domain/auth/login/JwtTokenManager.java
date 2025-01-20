@@ -18,28 +18,19 @@ public class JwtTokenManager {
     private final JwtProperties jwtProperties;
 
     private final RefreshTokenService refreshTokenService;
-    @Value("${jwt.secret}")
-    private String secretKey;
-
-    @Value("${jwt.header:Authorization}")
-    private String header;
-
-    @Value("${jwt.prefix:Bearer}")
-    private String prefix;
-
-    public String getHeader(){
-        return header;
-    }
-
-    public String getPrefix(){
-        return prefix;
-    }
-
-     // RefreshToken 만료시간: 1주일
 
     public JwtTokenManager( RefreshTokenService refreshTokenService,JwtProperties jwtProperties) {
         this.refreshTokenService = refreshTokenService;
         this.jwtProperties = jwtProperties;
+    }
+
+
+    public String getHeader(){
+        return jwtProperties.getHeader();
+    }
+
+    public String getPrefix(){
+        return jwtProperties.getPrefix();
     }
 
     // Access Token 생성
@@ -68,14 +59,14 @@ public class JwtTokenManager {
                 .setClaims(claims)
                 .setIssuedAt(now)
                 .setExpiration(validity)
-                .signWith(SignatureAlgorithm.HS256, secretKey)
+                .signWith(SignatureAlgorithm.HS256, jwtProperties.getSecret())
                 .compact();
     }
 
     // 토큰 유효성 검증
     public boolean validateToken(String token) {
         try {
-            Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
+            Jwts.parser().setSigningKey(jwtProperties.getSecret()).parseClaimsJws(token);
             return true;
         } catch (ExpiredJwtException e) {
             System.out.println("토큰 만료");
@@ -89,7 +80,7 @@ public class JwtTokenManager {
     // 토큰 만료 시간 조회
     public Long getExpirationTime(String token) {
         return Jwts.parser()
-                .setSigningKey(secretKey)
+                .setSigningKey(jwtProperties.getSecret())
                 .parseClaimsJws(token)
                 .getBody()
                 .getExpiration()
@@ -99,7 +90,7 @@ public class JwtTokenManager {
     // 학번(StudentId) 조회
     public String getStudentIdFromToken(String token) {
         return Jwts.parser()
-                .setSigningKey(secretKey)
+                .setSigningKey(jwtProperties.getSecret())
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
@@ -108,7 +99,7 @@ public class JwtTokenManager {
     // 상태(Status) 조회
     public String getStatusFromToken(String token) {
         return (String) Jwts.parser()
-                .setSigningKey(secretKey)
+                .setSigningKey(jwtProperties.getSecret())
                 .parseClaimsJws(token)
                 .getBody()
                 .get("status");
