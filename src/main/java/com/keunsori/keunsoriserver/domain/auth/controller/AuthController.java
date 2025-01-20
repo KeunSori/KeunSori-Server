@@ -7,6 +7,7 @@ import com.keunsori.keunsoriserver.domain.auth.login.JwtTokenManager;
 import com.keunsori.keunsoriserver.domain.auth.login.dto.response.LoginResponse;
 import com.keunsori.keunsoriserver.domain.member.domain.vo.MemberStatus;
 import com.keunsori.keunsoriserver.global.exception.AuthException;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +22,7 @@ public class AuthController {
     private final RefreshTokenService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest)  {
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest loginRequest)  {
         LoginResponse loginResponse = loginService.login(loginRequest);
         return ResponseEntity.ok(loginResponse);
     }

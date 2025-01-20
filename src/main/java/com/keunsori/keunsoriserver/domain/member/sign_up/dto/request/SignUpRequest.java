@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Pattern;
 
 public record SignUpRequest(
         @NotBlank(message = "이름은 필수 입력값입니다.")
-        @Pattern(regexp="[가-힣]{1,6}&,",message = "이름은 6자 이하로 입력해주세요.")
+        @Pattern(regexp="[가-힣]{1,6}$,",message = "이름은 6자 이하로 입력해주세요.")
         String name,
 
         @NotBlank(message = "학번은 필수 입력값입니다.")

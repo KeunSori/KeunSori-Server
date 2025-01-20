@@ -78,6 +78,7 @@ public class JwtTokenManager {
 
     // 토큰 만료 시간 조회
     public Long getExpirationTime(String token) {
+        token=removePrefix(token);
         return Jwts.parser()
                 .setSigningKey(jwtProperties.getSecret())
                 .parseClaimsJws(token)
@@ -88,6 +89,7 @@ public class JwtTokenManager {
 
     // 학번(StudentId) 조회
     public String getStudentIdFromToken(String token) {
+        token=removePrefix(token);
         return Jwts.parser()
                 .setSigningKey(jwtProperties.getSecret())
                 .parseClaimsJws(token)
@@ -97,6 +99,7 @@ public class JwtTokenManager {
 
     // 상태(Status) 조회
     public String getStatusFromToken(String token) {
+        token=removePrefix(token);
         return (String) Jwts.parser()
                 .setSigningKey(jwtProperties.getSecret())
                 .parseClaimsJws(token)
@@ -104,8 +107,17 @@ public class JwtTokenManager {
                 .get("status");
     }
 
-    //로그아웃시 refresh token 삭제
+    // 로그아웃시 refresh token 삭제
     public void removeRefreshToken(String studentId) {
         refreshTokenService.deleteRefreshToken(studentId);
+    }
+
+    // 토큰에서 접두사 제거
+    private String removePrefix(String token) {
+        String prefix=jwtProperties.getPrefix();
+        if(token.startsWith(prefix+" ")) {
+            return token.substring(prefix.length()+1);
+        }
+        return token;
     }
 }
