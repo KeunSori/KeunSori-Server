@@ -1,5 +1,7 @@
 package com.keunsori.keunsoriserver.domain.auth.controller;
 
+import com.keunsori.keunsoriserver.domain.auth.login.LoginService;
+import com.keunsori.keunsoriserver.domain.auth.login.dto.request.LoginRequest;
 import com.keunsori.keunsoriserver.domain.auth.redis.RefreshTokenService;
 import com.keunsori.keunsoriserver.domain.auth.login.JwtTokenManager;
 import com.keunsori.keunsoriserver.domain.auth.login.dto.response.LoginResponse;
@@ -14,8 +16,15 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AuthController {
 
+    private final LoginService loginService;
     private final JwtTokenManager jwtTokenManager;
     private final RefreshTokenService authService;
+
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest)  {
+        LoginResponse loginResponse = loginService.login(loginRequest);
+        return ResponseEntity.ok(loginResponse);
+    }
 
     @PostMapping("/reissue")
     public ResponseEntity<LoginResponse> reissue(@RequestHeader("Refresh-Token") String refreshToken){
