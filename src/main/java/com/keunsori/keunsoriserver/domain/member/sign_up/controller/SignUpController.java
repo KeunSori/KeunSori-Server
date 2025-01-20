@@ -3,7 +3,6 @@ package com.keunsori.keunsoriserver.domain.member.sign_up.controller;
 import com.keunsori.keunsoriserver.domain.member.sign_up.dto.request.SignUpRequest;
 import com.keunsori.keunsoriserver.domain.member.sign_up.dto.response.SignUpResponse;
 import com.keunsori.keunsoriserver.domain.member.sign_up.service.SignUpService;
-import com.keunsori.keunsoriserver.global.exception.MemberException;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
