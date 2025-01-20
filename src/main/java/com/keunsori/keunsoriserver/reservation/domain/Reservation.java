@@ -2,6 +2,8 @@ package com.keunsori.keunsoriserver.reservation.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -39,9 +41,11 @@ public class Reservation {
     @Column(name = "reservation_end_time")
     private Time endTime;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "reservation_type")
     private ReservationType type;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "reservation_session")
     private Session session;
 
