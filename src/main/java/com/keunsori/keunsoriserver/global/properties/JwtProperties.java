@@ -8,6 +8,12 @@ public class JwtProperties {
     @Value("${jwt.secret}")
     private String secret;
 
+    @Value("${jwt.header}")
+    private String header;
+
+    @Value("${jwt.prefix}")
+    private String prefix;
+
     private static String HEADER ="Authorization";
     private static String PREFIX="Bearer ";
 

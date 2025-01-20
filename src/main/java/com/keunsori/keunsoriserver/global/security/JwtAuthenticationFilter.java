@@ -20,6 +20,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenManager jwtTokenManager;
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path=request.getServletPath();
+        return path.startsWith("/auth/login");
+    }
+    @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
         throws ServletException, IOException {
         String authenticatedtoken =request.getHeader(jwtTokenManager.getHeader());

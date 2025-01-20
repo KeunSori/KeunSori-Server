@@ -15,7 +15,6 @@ import java.util.Date;
 public class JwtTokenManager {
 
     private final JwtProperties jwtProperties;
-
     private final RefreshTokenService refreshTokenService;
 
     public JwtTokenManager( RefreshTokenService refreshTokenService,JwtProperties jwtProperties) {
