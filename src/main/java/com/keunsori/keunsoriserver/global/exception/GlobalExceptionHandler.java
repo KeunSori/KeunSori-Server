@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
     //@Valid 유효성 검사 실패 예외 처리
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorMessage> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
@@ -27,5 +28,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorMessage> handleMemberException(MemberException ex) {
         ErrorMessage response=new ErrorMessage(HttpStatus.BAD_REQUEST.value(),ex.getMessage());
         return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
+    }
+
+    //Auth 도메인 예외처리(401)
+    @ExceptionHandler(AuthException.class)
+    public ResponseEntity<ErrorMessage> handleAuthException(AuthException ex) {
+        ErrorMessage response=new ErrorMessage(HttpStatus.UNAUTHORIZED.value(),ex.getMessage());
+        return new ResponseEntity<>(response,HttpStatus.UNAUTHORIZED);
     }
 }

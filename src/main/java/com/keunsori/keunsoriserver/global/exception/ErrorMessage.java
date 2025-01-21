@@ -9,6 +9,6 @@ public class ErrorMessage {
     //응답코드
     private int status;
 
-    //해당 메세지
+    //해당하는 메세지
     private String message;
 }

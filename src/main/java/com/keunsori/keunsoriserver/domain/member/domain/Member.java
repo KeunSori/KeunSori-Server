@@ -4,12 +4,14 @@ import com.keunsori.keunsoriserver.domain.common.BaseEntity;
 import com.keunsori.keunsoriserver.domain.member.domain.vo.MemberStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 
 @Entity
 @Getter
+@NoArgsConstructor
 public class Member extends BaseEntity {
 
     @Id
