@@ -24,11 +24,11 @@ public class JwtTokenManager {
 
 
     public String getHeader(){
-        return jwtProperties.getHeader();
+        return jwtProperties.HEADER;
     }
 
     public String getPrefix(){
-        return jwtProperties.getPrefix();
+        return jwtProperties.PREFIX;
     }
 
     // Access Token 생성
@@ -113,7 +113,7 @@ public class JwtTokenManager {
 
     // 토큰에서 접두사 제거
     private String removePrefix(String token) {
-        String prefix=jwtProperties.getPrefix();
+        String prefix=jwtProperties.PREFIX;
         if(token.startsWith(prefix+" ")) {
             return token.substring(prefix.length()+1);
         }
