@@ -3,11 +3,11 @@ package com.keunsori.keunsoriserver.domain.reservation.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.keunsori.keunsoriserver.domain.member.domain.Member;
 import com.keunsori.keunsoriserver.domain.reservation.domain.Reservation;
 import com.keunsori.keunsoriserver.domain.reservation.dto.ReservationCreateRequest;
 import com.keunsori.keunsoriserver.domain.reservation.dto.ReservationResponse;
 import com.keunsori.keunsoriserver.domain.reservation.dto.ReservationUpdateRequest;
-import com.keunsori.keunsoriserver.member.Member;
 import com.keunsori.keunsoriserver.domain.reservation.repository.ReservationRepository;
 
 import java.util.List;

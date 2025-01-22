@@ -1,7 +1,7 @@
 package com.keunsori.keunsoriserver.domain.reservation.dto;
 
+import com.keunsori.keunsoriserver.domain.member.domain.Member;
 import com.keunsori.keunsoriserver.domain.reservation.domain.Reservation;
-import com.keunsori.keunsoriserver.member.Member;
 import com.keunsori.keunsoriserver.domain.reservation.domain.vo.ReservationType;
 import com.keunsori.keunsoriserver.domain.reservation.domain.vo.Session;
 

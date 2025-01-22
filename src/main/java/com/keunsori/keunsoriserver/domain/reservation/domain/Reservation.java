@@ -11,7 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 
-import com.keunsori.keunsoriserver.member.Member;
+import com.keunsori.keunsoriserver.domain.member.domain.Member;
 import com.keunsori.keunsoriserver.domain.reservation.domain.vo.ReservationType;
 import com.keunsori.keunsoriserver.domain.reservation.domain.vo.Session;
 
