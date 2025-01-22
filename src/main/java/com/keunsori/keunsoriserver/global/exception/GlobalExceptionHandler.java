@@ -6,6 +6,9 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -41,5 +44,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleReservationException(ReservationException ex) {
         ErrorResponse response = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
         return ResponseEntity.badRequest().body(response);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleException(Exception ex) {
+        ErrorResponse response = new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), ex.getMessage());
+        log.error(ex.getMessage());
+        return ResponseEntity.internalServerError().body(response);
     }
 }
