@@ -56,7 +56,6 @@ public class ReservationController {
     @CrossOrigin
     @GetMapping("/my")
     public ResponseEntity<List<ReservationResponse>> findMyReservations() {
-        System.out.println("controller");
         List<ReservationResponse> responses = reservationService.findAllMyReservations();
         return ResponseEntity.ok().body(responses);
     }
