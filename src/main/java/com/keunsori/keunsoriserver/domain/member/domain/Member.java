@@ -4,12 +4,14 @@ import com.keunsori.keunsoriserver.domain.common.BaseEntity;
 import com.keunsori.keunsoriserver.domain.member.domain.vo.MemberStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 
 @Entity
 @Getter
+@NoArgsConstructor
 public class Member extends BaseEntity {
 
     @Id
@@ -34,4 +36,12 @@ public class Member extends BaseEntity {
     private String name;
 
     private LocalDateTime approvalDate;
+
+    public Member(String studentId, String hongikgmail, String password, String name, MemberStatus status) {
+        this.studentId = studentId;
+        this.hongikgmail = hongikgmail;
+        this.password = password;
+        this.name = name;
+        this.status = status;
+    }
 }
