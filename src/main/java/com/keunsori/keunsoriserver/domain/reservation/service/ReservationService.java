@@ -1,5 +1,9 @@
 package com.keunsori.keunsoriserver.domain.reservation.service;
 
+import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.RESERVATION_COMPLETED;
+import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.RESERVATION_NOT_EQUAL_MEMBER;
+import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.RESERVATION_NOT_EXISTS_WITH_ID;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -9,7 +13,11 @@ import com.keunsori.keunsoriserver.domain.reservation.dto.ReservationCreateReque
 import com.keunsori.keunsoriserver.domain.reservation.dto.ReservationResponse;
 import com.keunsori.keunsoriserver.domain.reservation.dto.ReservationUpdateRequest;
 import com.keunsori.keunsoriserver.domain.reservation.repository.ReservationRepository;
+import com.keunsori.keunsoriserver.global.exception.ReservationException;
+import com.keunsori.keunsoriserver.global.util.DateUtil;
+import com.keunsori.keunsoriserver.global.util.MemberUtil;
 
+import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 
@@ -19,33 +27,39 @@ import lombok.RequiredArgsConstructor;
 public class ReservationService {
 
     private final ReservationRepository reservationRepository;
+    private final MemberUtil memberUtil;
 
     public List<ReservationResponse> findReservationsByMonth(String yearMonth) {
-        return reservationRepository.findAll().stream().map(ReservationResponse::of).toList();
+        LocalDate start = DateUtil.parseMonthToFirstDate(yearMonth);
+        LocalDate end = start.plusMonths(1);
+        return reservationRepository.findAllByDateBetween(start, end)
+                .stream().map(ReservationResponse::of).toList();
     }
 
     @Transactional
     public void createReservation(ReservationCreateRequest request) {
-        Reservation reservation = request.toEntity(null); // TODO : 로그인 구현 이후 현재 로그인한 멤버 조회
+        Member member = memberUtil.getLoggedInMember();
+        Reservation reservation = request.toEntity(member);
         reservationRepository.save(reservation);
     }
 
     @Transactional
     public void deleteReservation(Long reservationId) {
-        // TODO : 현재 로그인 유저의 예약인지 또는 현재 유저가 관리자인지 검증
-        reservationRepository.deleteById(reservationId);
+        Member member = memberUtil.getLoggedInMember();
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new ReservationException(RESERVATION_NOT_EXISTS_WITH_ID));
+
+        validateReservationDeletable(reservation, member);
+        reservationRepository.delete(reservation);
     }
 
     @Transactional
-    public void updateReservation(Long reservationId, ReservationUpdateRequest request)
-            throws Exception {
+    public void updateReservation(Long reservationId, ReservationUpdateRequest request) {
+        Member member = memberUtil.getLoggedInMember();
         Reservation reservation = reservationRepository.findById(reservationId)
-                .orElseThrow(() -> new Exception("존재하지 않는 예약 ID 입니다."));
-        // TODO : 에러 메세지 클래스 작성, 커스텀 에러 클래스 작성
+                .orElseThrow(() -> new ReservationException(RESERVATION_NOT_EXISTS_WITH_ID));
 
-        // TODO : 현재 로그인한 유저의 예약인지 검증
-        // TODO : 과거 예약인지 검증 (어노테이션 이용)
-
+        validateReservationUpdatable(reservation, member);
         reservation.updateReservation(
                 request.reservationType(),
                 request.reservationSession(),
@@ -56,8 +70,34 @@ public class ReservationService {
     }
 
     public List<ReservationResponse> findAllMyReservations() {
-        Member currentMember = new Member(); // TODO : 로그인 유저 가져오도록 변경
-        return reservationRepository.findAllByMember(currentMember)
+        Member member = memberUtil.getLoggedInMember();
+        System.out.println("student id : " + member.getStudentId());
+        return reservationRepository.findAllByMember(member)
                 .stream().map(ReservationResponse::of).toList();
+    }
+
+    private void validateReservationDeletable(Reservation reservation, Member loggedInMember) {
+        validateReservationNotComplete(reservation);
+        if (loggedInMember.isAdmin()) {
+            return;
+        }
+        validateReservationMember(reservation, loggedInMember);
+    }
+
+    private void validateReservationUpdatable(Reservation reservation, Member loggedInMember) {
+        validateReservationMember(reservation, loggedInMember);
+        validateReservationNotComplete(reservation);
+    }
+
+    private void validateReservationMember(Reservation reservation, Member loggedInMember) {
+        if (!reservation.hasMember(loggedInMember)) {
+            throw new ReservationException(RESERVATION_NOT_EQUAL_MEMBER);
+        }
+    }
+
+    private void validateReservationNotComplete(Reservation reservation) {
+        if (reservation.isComplete()) {
+            throw new ReservationException(RESERVATION_COMPLETED);
+        }
     }
 }

@@ -1,6 +1,7 @@
 package com.keunsori.keunsoriserver.domain.reservation.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,8 +29,8 @@ public class ReservationController {
     private final ReservationService reservationService;
 
     @GetMapping("/list")
-    public ResponseEntity<List<ReservationResponse>> findAllReservations(@RequestParam String yearMonth) {
-        List<ReservationResponse> responses = reservationService.findReservationsByMonth(yearMonth);
+    public ResponseEntity<List<ReservationResponse>> findAllReservations(@RequestParam("month") String month) {
+        List<ReservationResponse> responses = reservationService.findReservationsByMonth(month);
         return ResponseEntity.ok().body(responses);
     }
 
@@ -47,13 +48,15 @@ public class ReservationController {
 
     @PutMapping("/{reservationId}")
     public ResponseEntity<Void> updateReservation(@PathVariable Long reservationId,
-            @RequestBody ReservationUpdateRequest request) throws Exception {
+            @RequestBody ReservationUpdateRequest request) {
         reservationService.updateReservation(reservationId, request);
         return ResponseEntity.ok().build();
     }
 
+    @CrossOrigin
     @GetMapping("/my")
     public ResponseEntity<List<ReservationResponse>> findMyReservations() {
+        System.out.println("controller");
         List<ReservationResponse> responses = reservationService.findAllMyReservations();
         return ResponseEntity.ok().body(responses);
     }

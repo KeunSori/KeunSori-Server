@@ -5,12 +5,12 @@ import com.keunsori.keunsoriserver.domain.reservation.domain.vo.ReservationType;
 import com.keunsori.keunsoriserver.domain.reservation.domain.vo.Session;
 
 import java.sql.Time;
-import java.util.Date;
+import java.time.LocalDate;
 
 public record ReservationResponse(
         Long reservationId,
         Session session,
-        Date reservationDate,
+        LocalDate reservationDate,
         Time reservationStartTime,
         Time reservationEndTime,
         ReservationType reservationType,

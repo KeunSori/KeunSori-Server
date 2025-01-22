@@ -16,6 +16,7 @@ import com.keunsori.keunsoriserver.domain.reservation.domain.vo.ReservationType;
 import com.keunsori.keunsoriserver.domain.reservation.domain.vo.Session;
 
 import java.sql.Time;
+import java.time.LocalDate;
 import java.util.Date;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -33,7 +34,7 @@ public class Reservation {
     private Long id;
 
     @Column(name = "reservation_date")
-    private Date date;
+    private LocalDate date;
 
     @Column(name = "reservation_start_time")
     private Time startTime;
@@ -54,7 +55,7 @@ public class Reservation {
     private Member member;
 
     @Builder
-    private Reservation(Date date, Time startTime, Time endTime, ReservationType type,
+    private Reservation(LocalDate date, Time startTime, Time endTime, ReservationType type,
             Session session,
             Member member) {
         this.date = date;
@@ -69,12 +70,21 @@ public class Reservation {
      * Entity Method
      **/
 
-    public void updateReservation(ReservationType type, Session session, Date reservationDate,
+    public void updateReservation(ReservationType type, Session session, LocalDate reservationDate,
             Time reservationStartTime, Time reservationEndTime) {
         this.type = type;
         this.session = session;
         this.date = reservationDate;
         this.startTime = reservationStartTime;
         this.endTime = reservationEndTime;
+    }
+
+    public boolean hasMember(Member checkMember) {
+        return member.equals(checkMember);
+    }
+
+    public boolean isComplete() {
+        // TODO : new Date 호출 시점을 컨트롤러 호출 시점과 맞추기
+        return date.isAfter(LocalDate.now());
     }
 }
