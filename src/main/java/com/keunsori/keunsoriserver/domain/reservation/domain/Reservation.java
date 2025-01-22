@@ -15,9 +15,8 @@ import com.keunsori.keunsoriserver.domain.member.domain.Member;
 import com.keunsori.keunsoriserver.domain.reservation.domain.vo.ReservationType;
 import com.keunsori.keunsoriserver.domain.reservation.domain.vo.Session;
 
-import java.sql.Time;
 import java.time.LocalDate;
-import java.util.Date;
+import java.time.LocalTime;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -37,10 +36,10 @@ public class Reservation {
     private LocalDate date;
 
     @Column(name = "reservation_start_time")
-    private Time startTime;
+    private LocalTime startTime;
 
     @Column(name = "reservation_end_time")
-    private Time endTime;
+    private LocalTime endTime;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "reservation_type")
@@ -55,7 +54,7 @@ public class Reservation {
     private Member member;
 
     @Builder
-    private Reservation(LocalDate date, Time startTime, Time endTime, ReservationType type,
+    private Reservation(LocalDate date, LocalTime startTime, LocalTime endTime, ReservationType type,
             Session session,
             Member member) {
         this.date = date;
@@ -71,7 +70,7 @@ public class Reservation {
      **/
 
     public void updateReservation(ReservationType type, Session session, LocalDate reservationDate,
-            Time reservationStartTime, Time reservationEndTime) {
+            LocalTime reservationStartTime, LocalTime reservationEndTime) {
         this.type = type;
         this.session = session;
         this.date = reservationDate;

@@ -12,10 +12,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.keunsori.keunsoriserver.domain.reservation.dto.ReservationUpdateRequest;
+import com.keunsori.keunsoriserver.domain.reservation.dto.requset.ReservationUpdateRequest;
 import com.keunsori.keunsoriserver.domain.reservation.service.ReservationService;
-import com.keunsori.keunsoriserver.domain.reservation.dto.ReservationCreateRequest;
-import com.keunsori.keunsoriserver.domain.reservation.dto.ReservationResponse;
+import com.keunsori.keunsoriserver.domain.reservation.dto.requset.ReservationCreateRequest;
+import com.keunsori.keunsoriserver.domain.reservation.dto.response.ReservationResponse;
 
 import java.net.URI;
 import java.util.List;

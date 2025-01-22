@@ -9,9 +9,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.keunsori.keunsoriserver.domain.member.domain.Member;
 import com.keunsori.keunsoriserver.domain.reservation.domain.Reservation;
-import com.keunsori.keunsoriserver.domain.reservation.dto.ReservationCreateRequest;
-import com.keunsori.keunsoriserver.domain.reservation.dto.ReservationResponse;
-import com.keunsori.keunsoriserver.domain.reservation.dto.ReservationUpdateRequest;
+import com.keunsori.keunsoriserver.domain.reservation.dto.requset.ReservationCreateRequest;
+import com.keunsori.keunsoriserver.domain.reservation.dto.response.ReservationResponse;
+import com.keunsori.keunsoriserver.domain.reservation.dto.requset.ReservationUpdateRequest;
 import com.keunsori.keunsoriserver.domain.reservation.repository.ReservationRepository;
 import com.keunsori.keunsoriserver.global.exception.ReservationException;
 import com.keunsori.keunsoriserver.global.util.DateUtil;
