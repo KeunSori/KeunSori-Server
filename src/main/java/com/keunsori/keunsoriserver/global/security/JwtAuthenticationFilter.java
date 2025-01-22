@@ -24,20 +24,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String path=request.getServletPath();
         return path.startsWith("/auth/login");
     }
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
         throws ServletException, IOException {
-        String authenticatedtoken =request.getHeader(jwtTokenManager.getHeader());
-        String token= null;
+        String authenticatedToken = request.getHeader(jwtTokenManager.getHeader());
+        String token = null;
 
         //Bearer 제거해서 토큰만 추출
-        if(authenticatedtoken !=null && authenticatedtoken.startsWith(jwtTokenManager.getPrefix())){
-            token= authenticatedtoken.substring(jwtTokenManager.getPrefix().length());
+        if(authenticatedToken != null && authenticatedToken.startsWith(jwtTokenManager.getPrefix())){
+            token = authenticatedToken.substring(jwtTokenManager.getPrefix().length());
         }
 
-        if(token!=null && jwtTokenManager.validateToken(token)){
-            String studentId= jwtTokenManager.getStudentIdFromToken(token);
-            String status= jwtTokenManager.getStatusFromToken(token);
+        if(token != null && jwtTokenManager.validateToken(token)){
+            String studentId = jwtTokenManager.getStudentIdFromToken(token);
+            String status = jwtTokenManager.getStatusFromToken(token);
+            System.out.println(status);
 
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(studentId,null, List.of(()->status));
 
