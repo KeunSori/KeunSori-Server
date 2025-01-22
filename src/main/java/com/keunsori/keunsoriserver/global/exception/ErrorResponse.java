@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class ErrorMessage {
+public class ErrorResponse {
     //응답코드
     private int status;
 
