@@ -1,5 +1,7 @@
 package com.keunsori.keunsoriserver.domain.reservation.dto.requset;
 
+import jakarta.validation.constraints.NotBlank;
+
 import com.keunsori.keunsoriserver.domain.member.domain.Member;
 import com.keunsori.keunsoriserver.domain.reservation.domain.Reservation;
 import com.keunsori.keunsoriserver.domain.reservation.domain.vo.ReservationType;
@@ -10,13 +12,18 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 public record ReservationCreateRequest(
+        @NotBlank
         ReservationType reservationType,
+        @NotBlank
         Session reservationSession,
+        @NotBlank
         @Schema(example = "2025-01-01", type = "string")
         LocalDate reservationDate,
-        @Schema(example = "21:00:00", type = "string")
+        @NotBlank
+        @Schema(example = "21:00", type = "string")
         LocalTime reservationStartTime,
-        @Schema(example = "21:00:00", type = "string")
+        @NotBlank
+        @Schema(example = "21:00", type = "string")
         LocalTime reservationEndTime
 ) {
     public Reservation toEntity(Member member) {

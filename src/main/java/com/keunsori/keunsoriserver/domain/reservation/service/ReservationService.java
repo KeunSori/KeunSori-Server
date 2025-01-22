@@ -71,7 +71,6 @@ public class ReservationService {
 
     public List<ReservationResponse> findAllMyReservations() {
         Member member = memberUtil.getLoggedInMember();
-        System.out.println("student id : " + member.getStudentId());
         return reservationRepository.findAllByMember(member)
                 .stream().map(ReservationResponse::of).toList();
     }

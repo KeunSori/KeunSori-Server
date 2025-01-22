@@ -4,14 +4,14 @@ import com.keunsori.keunsoriserver.domain.reservation.domain.Reservation;
 import com.keunsori.keunsoriserver.domain.reservation.domain.vo.ReservationType;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 
 public record ReservationResponse(
         Long reservationId,
         String session,
         LocalDate reservationDate,
-        LocalTime reservationStartTime,
-        LocalTime reservationEndTime,
+        String reservationStartTime,
+        String reservationEndTime,
         ReservationType reservationType,
         Long reservationMemberId,
         String reservationMemberName
@@ -22,8 +22,8 @@ public record ReservationResponse(
                 reservation.getId(),
                 reservation.getSession().name().toLowerCase(),
                 reservation.getDate(),
-                reservation.getStartTime(),
-                reservation.getEndTime(),
+                reservation.getStartTime().format(DateTimeFormatter.ofPattern("hh:mm")),
+                reservation.getEndTime().format(DateTimeFormatter.ofPattern("hh:mm")),
                 reservation.getType(),
                 reservation.getMember().getId(),
                 reservation.getMember().getName()
