@@ -1,5 +1,7 @@
 package com.keunsori.keunsoriserver.domain.reservation.controller;
 
+import jakarta.validation.Valid;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -35,7 +37,7 @@ public class ReservationController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> createReservation(@RequestBody ReservationCreateRequest request) {
+    public ResponseEntity<Void> createReservation(@RequestBody @Valid ReservationCreateRequest request) {
         reservationService.createReservation(request);
         return ResponseEntity.created(URI.create("")).build();
     }
@@ -48,7 +50,7 @@ public class ReservationController {
 
     @PutMapping("/{reservationId}")
     public ResponseEntity<Void> updateReservation(@PathVariable Long reservationId,
-            @RequestBody ReservationUpdateRequest request) {
+            @RequestBody @Valid ReservationUpdateRequest request) {
         reservationService.updateReservation(reservationId, request);
         return ResponseEntity.ok().build();
     }
