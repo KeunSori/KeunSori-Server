@@ -38,6 +38,9 @@ public class SecurityConfig  {
                         // 예약 관련된 건 일반 권한 필요
                         .requestMatchers("/reservation/**").hasAuthority("일반")
 
+                        // 관리 기능은 관리자 권한 필요
+                        .requestMatchers("/admin/**").hasAuthority("관리자")
+
                         // 나머지 요청은 인증 필요
                         .anyRequest().authenticated())
 

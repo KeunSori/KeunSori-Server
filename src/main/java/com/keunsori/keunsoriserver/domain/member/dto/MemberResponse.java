@@ -13,7 +13,7 @@ public record MemberResponse(
     LocalDateTime approvalDate
 ) {
 
-    public static MemberResponse fromEntity(Member member) {
+    public static MemberResponse of(Member member) {
         return new MemberResponse(
                 member.getId(),
                 member.getName(),

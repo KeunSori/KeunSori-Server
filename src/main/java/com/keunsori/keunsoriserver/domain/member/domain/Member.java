@@ -2,11 +2,14 @@ package com.keunsori.keunsoriserver.domain.member.domain;
 
 import com.keunsori.keunsoriserver.domain.common.BaseEntity;
 import com.keunsori.keunsoriserver.domain.member.domain.vo.MemberStatus;
+import com.keunsori.keunsoriserver.global.exception.MemberException;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+
+import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.APPROVE_COMPLETED;
 
 
 @Entity
@@ -47,7 +50,7 @@ public class Member extends BaseEntity {
 
     public void approve() {
         if (this.status == MemberStatus.일반) {
-            throw new IllegalStateException("이미 가입이 승인된 회원입니다.");
+            throw new MemberException(APPROVE_COMPLETED);
         }
         this.status = MemberStatus.일반;
     }

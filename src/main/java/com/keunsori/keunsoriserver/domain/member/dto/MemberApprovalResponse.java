@@ -10,10 +10,10 @@ public record MemberApprovalResponse(
         String name,
         String StudentId,
         MemberStatus status,
-        LocalDateTime SubsriptionDate
+        LocalDateTime subsriptionDate
 ) {
 
-    public static MemberApprovalResponse fromEntity(Member member) {
+    public static MemberApprovalResponse of(Member member) {
         return new MemberApprovalResponse(
                 member.getId(),
                 member.getName(),
