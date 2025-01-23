@@ -43,7 +43,7 @@ public class Reservation {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "reservation_type")
-    private ReservationType type;
+    private ReservationType reservationType;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "reservation_session")
@@ -54,13 +54,13 @@ public class Reservation {
     private Member member;
 
     @Builder
-    private Reservation(LocalDate date, LocalTime startTime, LocalTime endTime, ReservationType type,
+    private Reservation(LocalDate date, LocalTime startTime, LocalTime endTime, ReservationType reservationType,
             Session session,
             Member member) {
         this.date = date;
         this.startTime = startTime;
         this.endTime = endTime;
-        this.type = type;
+        this.reservationType = reservationType;
         this.session = session;
         this.member = member;
     }
@@ -69,9 +69,9 @@ public class Reservation {
      * Entity Method
      **/
 
-    public void updateReservation(ReservationType type, Session session, LocalDate reservationDate,
+    public void updateReservation(ReservationType reservationType, Session session, LocalDate reservationDate,
             LocalTime reservationStartTime, LocalTime reservationEndTime) {
-        this.type = type;
+        this.reservationType = reservationType;
         this.session = session;
         this.date = reservationDate;
         this.startTime = reservationStartTime;

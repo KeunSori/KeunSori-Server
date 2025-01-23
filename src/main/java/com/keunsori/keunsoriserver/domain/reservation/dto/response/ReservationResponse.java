@@ -24,7 +24,7 @@ public record ReservationResponse(
                 reservation.getDate(),
                 reservation.getStartTime().format(DateTimeFormatter.ofPattern("hh:mm")),
                 reservation.getEndTime().format(DateTimeFormatter.ofPattern("hh:mm")),
-                reservation.getType(),
+                reservation.getReservationType(),
                 reservation.getMember().getId(),
                 reservation.getMember().getName()
         );
