@@ -54,4 +54,8 @@ public class Member extends BaseEntity {
         }
         this.status = MemberStatus.일반;
     }
+
+    public boolean isAdmin() {
+        return status.equals(MemberStatus.관리자);
+    }
 }

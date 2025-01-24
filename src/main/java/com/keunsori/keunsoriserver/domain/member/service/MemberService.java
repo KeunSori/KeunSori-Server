@@ -5,6 +5,8 @@ import com.keunsori.keunsoriserver.domain.member.domain.vo.MemberStatus;
 import com.keunsori.keunsoriserver.domain.member.dto.MemberApprovalResponse;
 import com.keunsori.keunsoriserver.domain.member.dto.MemberResponse;
 import com.keunsori.keunsoriserver.domain.member.repository.MemberRepository;
+import com.keunsori.keunsoriserver.domain.reservation.domain.Reservation;
+import com.keunsori.keunsoriserver.domain.reservation.repository.ReservationRepository;
 import com.keunsori.keunsoriserver.global.exception.MemberException;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.weaver.MemberUtils;
@@ -19,6 +21,7 @@ import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.MEMBER_N
 @RequiredArgsConstructor
 public class MemberService {
     private MemberRepository memberRepository;
+    private ReservationRepository reservationRepository;
 
     // 회원 리스트
     @Transactional(readOnly = true)
@@ -48,7 +51,9 @@ public class MemberService {
         Member member = memberRepository.findById(id)
                 .orElseThrow(()->new MemberException(MEMBER_NOT_EXISTS_WITH_STUDENT_ID));
 
-        // 연관 데이터 삭제 로직 추가 필요
+        // 회원과 연결된 예약의 외래 키를 null로 설정
+        reservationRepository.unlinkMember(id);
+
         memberRepository.delete(member);
     }
 }

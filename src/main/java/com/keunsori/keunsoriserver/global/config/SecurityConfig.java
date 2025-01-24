@@ -1,5 +1,6 @@
 package com.keunsori.keunsoriserver.global.config;
 
+import com.keunsori.keunsoriserver.domain.member.domain.vo.MemberStatus;
 import com.keunsori.keunsoriserver.global.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -27,27 +28,27 @@ public class SecurityConfig  {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
        http
-        .csrf(csrf -> csrf.disable())  // CSRF 비활성화
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))  // 세션 사용 안함
-                .authorizeHttpRequests(auth -> auth
-                        // 인증 없이 로그인,회원가입은 가능.
-                        .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/signup").permitAll()
+               .csrf(csrf -> csrf.disable())  // CSRF 비활성화
+               .sessionManagement(session -> session
+                       .sessionCreationPolicy(SessionCreationPolicy.STATELESS))  // 세션 사용 안함
+               .authorizeHttpRequests(auth -> auth
+                       // 인증 없이 로그인,회원가입은 가능.
+                       .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                       .requestMatchers("/auth/**").permitAll()
+                       .requestMatchers("/signup").permitAll()
 
-                        // 예약 관련된 건 일반 권한 필요
-                        .requestMatchers("/reservation/**").hasAuthority("일반")
+                       // 예약 관련된 건 일반 권한 필요
+                       .requestMatchers("/reservation/**").hasAuthority("일반")
 
-                        // 관리 기능은 관리자 권한 필요
-                        .requestMatchers("/admin/**").hasAuthority("관리자")
+                       // 관리 기능은 관리자 권한 필요
+                       .requestMatchers("/admin/**").hasAuthority("관리자")
 
-                        // 나머지 요청은 인증 필요
-                        .anyRequest().authenticated())
+                       // 나머지 요청은 인증 필요
+                       .anyRequest().authenticated())
 
                // JWT 필터 추가
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+               .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
-
 }
