@@ -1,0 +1,12 @@
+services:
+  backend:
+    image: ${IMAGE_URL}
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+
+  redis:
+    image: "redis:alpine"
+    ports:
+      - "6379:6379"
