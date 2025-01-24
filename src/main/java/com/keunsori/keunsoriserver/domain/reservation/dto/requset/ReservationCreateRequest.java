@@ -28,7 +28,7 @@ public record ReservationCreateRequest(
 ) {
     public Reservation toEntity(Member member) {
         return Reservation.builder()
-                .type(reservationType)
+                .reservationType(reservationType)
                 .session(reservationSession)
                 .date(reservationDate)
                 .startTime(reservationStartTime)
