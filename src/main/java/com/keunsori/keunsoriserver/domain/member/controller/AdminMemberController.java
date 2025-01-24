@@ -32,7 +32,7 @@ public class AdminMemberController {
     }
 
     // 가입승인
-    @PatchMapping("/approve/{id}")
+    @PutMapping("/approve/{id}")
     public ResponseEntity<Void> approveMember(@PathVariable Long id){
         memberService.approveMember(id);
         return ResponseEntity.ok().build();

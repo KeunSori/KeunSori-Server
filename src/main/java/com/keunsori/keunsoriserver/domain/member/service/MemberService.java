@@ -20,20 +20,21 @@ import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.MEMBER_N
 public class MemberService {
     private MemberRepository memberRepository;
 
+    // 회원 리스트
+    @Transactional(readOnly = true)
     public List<MemberResponse> findAllMember(){
-        return memberRepository.findAll().stream()
-                .filter(member -> member.getStatus() == MemberStatus.일반)
-                .map(MemberResponse::of)
-                .toList();
+        return memberRepository.findAllByStatus(MemberStatus.일반)
+                .stream().map(MemberResponse::of).toList();
     }
 
+    // 가입 신청 리스트
+    @Transactional(readOnly = true)
     public List<MemberApprovalResponse> findAllWaiting(){
-        return memberRepository.findAll().stream()
-                .filter(member -> member.getStatus() == MemberStatus.승인대기)
-                .map(MemberApprovalResponse::of)
-                .toList();
+        return memberRepository.findAllByStatus(MemberStatus.승인대기)
+                .stream().map(MemberApprovalResponse::of).toList();
     }
 
+    // 가입 승인
     @Transactional
     public Member approveMember(Long id){
         Member member = memberRepository.findById(id)
@@ -46,6 +47,8 @@ public class MemberService {
     public void deleteMember(Long id){
         Member member = memberRepository.findById(id)
                 .orElseThrow(()->new MemberException(MEMBER_NOT_EXISTS_WITH_STUDENT_ID));
+
+        // 연관 데이터 삭제 로직 추가 필요
         memberRepository.delete(member);
     }
 }
