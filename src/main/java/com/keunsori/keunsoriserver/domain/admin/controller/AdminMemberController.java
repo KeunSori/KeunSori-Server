@@ -1,21 +1,20 @@
-package com.keunsori.keunsoriserver.domain.member.controller;
+package com.keunsori.keunsoriserver.domain.admin.controller;
 
-import com.keunsori.keunsoriserver.domain.member.domain.Member;
-import com.keunsori.keunsoriserver.domain.member.dto.MemberApprovalResponse;
-import com.keunsori.keunsoriserver.domain.member.dto.MemberResponse;
+import com.keunsori.keunsoriserver.domain.member.dto.response.MemberApprovalResponse;
+import com.keunsori.keunsoriserver.domain.member.dto.response.MemberResponse;
 import com.keunsori.keunsoriserver.domain.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("admin/members")
+@RequestMapping("/admin/members")
 public class AdminMemberController {
-    private MemberService memberService;
+
+    private final MemberService memberService;
 
     // 회원관리 리스트
     @GetMapping("/list")
@@ -25,22 +24,22 @@ public class AdminMemberController {
     }
 
     // 가입승인 리스트
-    @GetMapping("/approve")
-    public ResponseEntity<List<MemberApprovalResponse>> findAllWaiting(){
-        List<MemberApprovalResponse> waitingList = memberService.findAllWaiting();
+    @GetMapping("/applicants")
+    public ResponseEntity<List<MemberApprovalResponse>> findAllApplicants(){
+        List<MemberApprovalResponse> waitingList = memberService.findAllApplicants();
         return ResponseEntity.ok().body(waitingList);
     }
 
     // 가입승인
-    @PutMapping("/approve/{id}")
-    public ResponseEntity<Void> approveMember(@PathVariable Long id){
+    @PatchMapping("/{id}/approve")
+    public ResponseEntity<Void> approveMember(@PathVariable("id") Long id){
         memberService.approveMember(id);
         return ResponseEntity.ok().build();
     }
 
     // 회원관리 - 탈퇴
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteMemberByAdmin(@PathVariable Long id){
+    public ResponseEntity<Void> deleteMemberByAdmin(@PathVariable("id") Long id){
         memberService.deleteMember(id);
         return ResponseEntity.noContent().build();
     }

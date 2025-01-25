@@ -17,8 +17,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     List<Reservation> findAllByDateBetween(LocalDate start, LocalDate end);
 
     // 탈퇴된 회원 외래키 null 처리 쿼리
-    @Modifying
-    @Transactional
+    @Modifying(clearAutomatically=true)
     @Query("UPDATE Reservation r SET r.member = null WHERE r.member.id = :memberId")
     void unlinkMember(Long memberId);
 }

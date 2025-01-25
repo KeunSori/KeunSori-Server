@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.APPROVE_COMPLETED;
+import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.INVALID_STATUS_FOR_APPROVAL;
 
 
 @Entity
@@ -49,8 +49,8 @@ public class Member extends BaseEntity {
     }
 
     public void approve() {
-        if (this.status == MemberStatus.일반) {
-            throw new MemberException(APPROVE_COMPLETED);
+        if (this.status != MemberStatus.승인대기) {
+            throw new MemberException(INVALID_STATUS_FOR_APPROVAL);
         }
         this.status = MemberStatus.일반;
     }

@@ -1,4 +1,4 @@
-package com.keunsori.keunsoriserver.domain.member.dto;
+package com.keunsori.keunsoriserver.domain.member.dto.response;
 
 import com.keunsori.keunsoriserver.domain.member.domain.vo.MemberStatus;
 import com.keunsori.keunsoriserver.domain.member.domain.Member;
@@ -10,10 +10,10 @@ public record MemberApprovalResponse(
         String name,
         String StudentId,
         MemberStatus status,
-        LocalDateTime subsriptionDate
+        LocalDateTime applicationDate
 ) {
 
-    public static MemberApprovalResponse of(Member member) {
+    public static MemberApprovalResponse from(Member member) {
         return new MemberApprovalResponse(
                 member.getId(),
                 member.getName(),
