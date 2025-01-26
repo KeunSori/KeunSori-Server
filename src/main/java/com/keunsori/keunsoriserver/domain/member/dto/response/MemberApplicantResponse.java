@@ -5,7 +5,7 @@ import com.keunsori.keunsoriserver.domain.member.domain.Member;
 
 import java.time.LocalDateTime;
 
-public record MemberApprovalResponse(
+public record MemberApplicantResponse(
         Long id,
         String name,
         String StudentId,
@@ -13,8 +13,8 @@ public record MemberApprovalResponse(
         LocalDateTime applicationDate
 ) {
 
-    public static MemberApprovalResponse from(Member member) {
-        return new MemberApprovalResponse(
+    public static MemberApplicantResponse from(Member member) {
+        return new MemberApplicantResponse(
                 member.getId(),
                 member.getName(),
                 member.getStudentId(),

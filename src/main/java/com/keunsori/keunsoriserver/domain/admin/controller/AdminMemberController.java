@@ -1,6 +1,6 @@
 package com.keunsori.keunsoriserver.domain.admin.controller;
 
-import com.keunsori.keunsoriserver.domain.member.dto.response.MemberApprovalResponse;
+import com.keunsori.keunsoriserver.domain.member.dto.response.MemberApplicantResponse;
 import com.keunsori.keunsoriserver.domain.member.dto.response.MemberResponse;
 import com.keunsori.keunsoriserver.domain.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
@@ -18,16 +18,16 @@ public class AdminMemberController {
 
     // 회원관리 리스트
     @GetMapping("/list")
-    public ResponseEntity<List<MemberResponse>> findAllMember(){
+    public ResponseEntity<List<MemberResponse>> findAllMembers(){
         List<MemberResponse> memberList = memberService.findAllMember();
         return ResponseEntity.ok().body(memberList);
     }
 
     // 가입승인 리스트
     @GetMapping("/applicants")
-    public ResponseEntity<List<MemberApprovalResponse>> findAllApplicants(){
-        List<MemberApprovalResponse> waitingList = memberService.findAllApplicants();
-        return ResponseEntity.ok().body(waitingList);
+    public ResponseEntity<List<MemberApplicantResponse>> findAllApplicants(){
+        List<MemberApplicantResponse> applicants = memberService.findAllApplicants();
+        return ResponseEntity.ok().body(applicants);
     }
 
     // 가입승인

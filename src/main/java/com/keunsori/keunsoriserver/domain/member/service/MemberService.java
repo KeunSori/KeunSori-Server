@@ -2,7 +2,7 @@ package com.keunsori.keunsoriserver.domain.member.service;
 
 import com.keunsori.keunsoriserver.domain.member.domain.Member;
 import com.keunsori.keunsoriserver.domain.member.domain.vo.MemberStatus;
-import com.keunsori.keunsoriserver.domain.member.dto.response.MemberApprovalResponse;
+import com.keunsori.keunsoriserver.domain.member.dto.response.MemberApplicantResponse;
 import com.keunsori.keunsoriserver.domain.member.dto.response.MemberResponse;
 import com.keunsori.keunsoriserver.domain.member.repository.MemberRepository;
 import com.keunsori.keunsoriserver.domain.reservation.repository.ReservationRepository;
@@ -30,9 +30,9 @@ public class MemberService {
     }
 
     // 가입 신청 리스트
-    public List<MemberApprovalResponse> findAllApplicants(){
+    public List<MemberApplicantResponse> findAllApplicants(){
         return memberRepository.findAllByStatus(MemberStatus.승인대기)
-                .stream().map(MemberApprovalResponse::from).toList();
+                .stream().map(MemberApplicantResponse::from).toList();
     }
 
     // 가입 승인
