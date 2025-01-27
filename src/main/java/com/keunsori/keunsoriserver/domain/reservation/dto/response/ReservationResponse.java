@@ -17,7 +17,7 @@ public record ReservationResponse(
         String reservationMemberName
 ) {
 
-    public static ReservationResponse of(Reservation reservation) {
+    public static ReservationResponse from(Reservation reservation) {
         return new ReservationResponse(
                 reservation.getId(),
                 reservation.getSession().name().toLowerCase(),
