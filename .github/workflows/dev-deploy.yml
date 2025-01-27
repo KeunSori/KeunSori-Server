@@ -4,9 +4,9 @@ on:
       - develop
 
 # TEST 용으로 PR 에서도 활성화 되도록 함
-  pull_request:
-    branches:
-      - develop
+#  pull_request:
+#    branches:
+#      - develop
 
 jobs:
   build_application:
