@@ -15,7 +15,7 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowedMethods("*")
                 //.allowedHeaders("Authorization", "Content-Type")
                 .allowedHeaders("*")
-                .exposedHeaders("Custom-Header")
+                .exposedHeaders("Refresh-Token")
                 //.allowCredentials("true")->도메인 정해지면 활성화
                 .maxAge(3600);
     }
