@@ -39,7 +39,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if(token != null && jwtTokenManager.validateToken(token)){
             String studentId = jwtTokenManager.getStudentIdFromToken(token);
             String status = jwtTokenManager.getStatusFromToken(token);
-
+            System.out.println(status);
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(studentId,null, List.of(()->status));
 
             SecurityContextHolder.getContext().setAuthentication(authentication);

@@ -12,17 +12,12 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 public record ReservationCreateRequest(
-        @NotBlank
         ReservationType reservationType,
-        @NotBlank
         Session reservationSession,
-        @NotBlank
         @Schema(example = "2025-01-01", type = "string")
         LocalDate reservationDate,
-        @NotBlank
         @Schema(example = "21:00", type = "string")
         LocalTime reservationStartTime,
-        @NotBlank
         @Schema(example = "21:00", type = "string")
         LocalTime reservationEndTime
 ) {
