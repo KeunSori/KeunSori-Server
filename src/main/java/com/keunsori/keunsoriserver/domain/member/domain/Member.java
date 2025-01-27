@@ -2,11 +2,14 @@ package com.keunsori.keunsoriserver.domain.member.domain;
 
 import com.keunsori.keunsoriserver.domain.common.BaseEntity;
 import com.keunsori.keunsoriserver.domain.member.domain.vo.MemberStatus;
+import com.keunsori.keunsoriserver.global.exception.MemberException;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+
+import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.INVALID_STATUS_FOR_APPROVAL;
 
 
 @Entity
@@ -43,6 +46,13 @@ public class Member extends BaseEntity {
         this.password = password;
         this.name = name;
         this.status = status;
+    }
+
+    public void approve() {
+        if (this.status != MemberStatus.승인대기) {
+            throw new MemberException(INVALID_STATUS_FOR_APPROVAL);
+        }
+        this.status = MemberStatus.일반;
     }
 
     public boolean isAdmin() {
