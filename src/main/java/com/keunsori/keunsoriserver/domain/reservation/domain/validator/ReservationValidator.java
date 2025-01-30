@@ -28,8 +28,6 @@ public class ReservationValidator {
                 request.reservationEndTime().minusMinutes(1)
         );
 
-        System.out.println("isThereAnotherReservation: " + isThereAnotherReservation);
-
         if (isThereAnotherReservation) {
             throw new ReservationException(ANOTHER_RESERVATION_EXISTS);
         }
