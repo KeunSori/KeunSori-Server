@@ -11,6 +11,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 
+import org.springframework.cglib.core.Local;
+
 import com.keunsori.keunsoriserver.domain.member.domain.Member;
 import com.keunsori.keunsoriserver.domain.reservation.domain.vo.ReservationType;
 import com.keunsori.keunsoriserver.domain.reservation.domain.vo.Session;
@@ -84,6 +86,7 @@ public class Reservation {
 
     public boolean isComplete() {
         // TODO : new Date 호출 시점을 컨트롤러 호출 시점과 맞추기
-        return date.isAfter(LocalDate.now());
+        // TODO : LocalDate 테스트가 가능하도록 분리하기
+        return LocalDate.now().isAfter(date);
     }
 }

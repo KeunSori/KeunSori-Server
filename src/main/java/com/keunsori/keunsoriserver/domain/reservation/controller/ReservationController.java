@@ -38,18 +38,18 @@ public class ReservationController {
 
     @PostMapping
     public ResponseEntity<Void> createReservation(@RequestBody @Valid ReservationCreateRequest request) {
-        reservationService.createReservation(request);
-        return ResponseEntity.created(URI.create("")).build();
+        Long reservationId = reservationService.createReservation(request);
+        return ResponseEntity.created(URI.create("/reservation/" + reservationId)).build();
     }
 
     @DeleteMapping("/{reservationId}")
-    public ResponseEntity<Void> deleteReservation(@PathVariable Long reservationId) {
+    public ResponseEntity<Void> deleteReservation(@PathVariable(name = "reservationId") Long reservationId) {
         reservationService.deleteReservation(reservationId);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{reservationId}")
-    public ResponseEntity<Void> updateReservation(@PathVariable Long reservationId,
+    public ResponseEntity<Void> updateReservation(@PathVariable(name = "reservationId") Long reservationId,
             @RequestBody @Valid ReservationUpdateRequest request) {
         reservationService.updateReservation(reservationId, request);
         return ResponseEntity.ok().build();
