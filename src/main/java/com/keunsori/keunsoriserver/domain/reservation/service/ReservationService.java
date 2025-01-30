@@ -39,13 +39,14 @@ public class ReservationService {
     }
 
     @Transactional
-    public void createReservation(ReservationCreateRequest request) {
+    public Long createReservation(ReservationCreateRequest request) {
         Member member = memberUtil.getLoggedInMember();
 
         reservationValidator.validateReservationCreateForm(request);
 
         Reservation reservation = request.toEntity(member);
         reservationRepository.save(reservation);
+        return reservation.getId();
     }
 
     @Transactional

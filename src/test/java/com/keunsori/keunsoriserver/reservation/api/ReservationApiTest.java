@@ -2,9 +2,12 @@ package com.keunsori.keunsoriserver.reservation.api;
 
 import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.ANOTHER_RESERVATION_EXISTS;
 import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.INVALID_RESERVATION_TIME;
+import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.RESERVATION_ALREADY_COMPLETED;
 import static io.restassured.RestAssured.given;
+import static org.mockito.Mockito.mockStatic;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
+import static org.springframework.http.HttpHeaders.LOCATION;
 
 import org.apache.http.HttpStatus;
 import org.assertj.core.api.Assertions;
@@ -13,17 +16,16 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.keunsori.keunsoriserver.common.ApiTest;
-import com.keunsori.keunsoriserver.domain.reservation.domain.vo.ReservationType;
-import com.keunsori.keunsoriserver.domain.reservation.domain.vo.Session;
 import com.keunsori.keunsoriserver.domain.reservation.dto.requset.ReservationCreateRequest;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.stream.Stream;
-
 
 public class ReservationApiTest extends ApiTest {
 
@@ -207,9 +209,81 @@ public class ReservationApiTest extends ApiTest {
                 header(AUTHORIZATION, authorizationValue).
                 header(CONTENT_TYPE, "application/json").
                 body(mapper.writeValueAsString(request2)).
-                when().
+        when().
                 post("/reservation").
-                then().
+        then().
                 statusCode(HttpStatus.SC_CREATED);
+    }
+
+    @Test
+    void 예약_취소에_성공한다() throws JsonProcessingException {
+        ReservationCreateRequest request = new ReservationCreateRequest(
+                "PERSONAL",
+                "DRUM",
+                LocalDate.of(2999, 1, 31),
+                LocalTime.of(12, 0),
+                LocalTime.of(14, 0)
+        );
+
+        String reservationLocation =
+            given().
+                    header(AUTHORIZATION, authorizationValue).
+                    header(CONTENT_TYPE, "application/json").
+                    body(mapper.writeValueAsString(request)).
+            when().
+                    post("/reservation").
+            then().
+                    statusCode(HttpStatus.SC_CREATED).
+                    extract().
+                    header(LOCATION);
+
+        System.out.println(reservationLocation);
+
+        given().
+                header(AUTHORIZATION, authorizationValue).
+                header(CONTENT_TYPE, "application/json").
+                body(mapper.writeValueAsString(request)).
+        when().
+                delete(reservationLocation).
+        then().
+                statusCode(HttpStatus.SC_NO_CONTENT);
+    }
+
+    @Test
+    void 예약_시간을_넘어간_예약은_확정되어_예약_취소에_실패한다() throws JsonProcessingException {
+        ReservationCreateRequest request = new ReservationCreateRequest(
+                "PERSONAL",
+                "DRUM",
+                LocalDate.of(2025, 1, 29),
+                LocalTime.of(12, 0),
+                LocalTime.of(14, 0)
+        );
+
+        String reservationLocation =
+                given().
+                        header(AUTHORIZATION, authorizationValue).
+                        header(CONTENT_TYPE, "application/json").
+                        body(mapper.writeValueAsString(request)).
+                when().
+                        post("/reservation").
+                then().
+                        statusCode(HttpStatus.SC_CREATED).
+                        extract().
+                        header(LOCATION);
+
+
+        String errorMessage =
+                given().
+                        header(AUTHORIZATION, authorizationValue).
+                        header(CONTENT_TYPE, "application/json").
+                        body(mapper.writeValueAsString(request)).
+                when().
+                        delete(reservationLocation).
+                then().
+                        statusCode(HttpStatus.SC_BAD_REQUEST).
+                        extract().
+                        jsonPath().get("message");
+
+        Assertions.assertThat(errorMessage).isEqualTo(RESERVATION_ALREADY_COMPLETED);
     }
 }
