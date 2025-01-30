@@ -8,6 +8,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.keunsori.keunsoriserver.domain.member.domain.Member;
 import com.keunsori.keunsoriserver.domain.reservation.domain.Reservation;
 import com.keunsori.keunsoriserver.domain.reservation.domain.validator.ReservationValidator;
+import com.keunsori.keunsoriserver.domain.reservation.domain.vo.ReservationType;
+import com.keunsori.keunsoriserver.domain.reservation.domain.vo.Session;
 import com.keunsori.keunsoriserver.domain.reservation.dto.requset.ReservationCreateRequest;
 import com.keunsori.keunsoriserver.domain.reservation.dto.response.ReservationResponse;
 import com.keunsori.keunsoriserver.domain.reservation.dto.requset.ReservationUpdateRequest;
@@ -40,7 +42,7 @@ public class ReservationService {
     public void createReservation(ReservationCreateRequest request) {
         Member member = memberUtil.getLoggedInMember();
 
-        reservationValidator.validateReservationCreation(request);
+        reservationValidator.validateReservationCreateForm(request);
 
         Reservation reservation = request.toEntity(member);
         reservationRepository.save(reservation);
@@ -62,10 +64,12 @@ public class ReservationService {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new ReservationException(RESERVATION_NOT_EXISTS_WITH_ID));
 
+        reservationValidator.validateReservationUpdateForm(request);
         reservationValidator.validateReservationUpdatable(reservation, member);
+
         reservation.updateReservation(
-                request.reservationType(),
-                request.reservationSession(),
+                ReservationType.valueOf(request.reservationType().toUpperCase()),
+                Session.valueOf(request.reservationSession().toUpperCase()),
                 request.reservationDate(),
                 request.reservationStartTime(),
                 request.reservationEndTime()
