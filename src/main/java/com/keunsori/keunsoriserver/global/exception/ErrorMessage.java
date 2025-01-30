@@ -10,7 +10,7 @@ public class ErrorMessage {
     // Reservation
     public static final String RESERVATION_NOT_EXISTS_WITH_ID = "해당 아이디 값을 가진 예약이 존재하지 않습니다.";
     public static final String RESERVATION_NOT_EQUAL_MEMBER = "예약한 멤버가 아닙니다.";
-    public static final String RESERVATION_COMPLETED = "이미 확정된 예약입니다.";
+    public static final String RESERVATION_ALREADY_COMPLETED = "이미 확정된 예약입니다.";
     public static final String ANOTHER_RESERVATION_EXISTS = "해당 시간대에 다른 예약이 존재합니다.";
     public static final String INVALID_RESERVATION_TIME = "예약 종료 시간은 예약 시작 시간보다 나중이어야 합니다.";
 }

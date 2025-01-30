@@ -1,7 +1,5 @@
 package com.keunsori.keunsoriserver.domain.reservation.service;
 
-import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.RESERVATION_COMPLETED;
-import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.RESERVATION_NOT_EQUAL_MEMBER;
 import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.RESERVATION_NOT_EXISTS_WITH_ID;
 
 import org.springframework.stereotype.Service;
@@ -54,7 +52,7 @@ public class ReservationService {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new ReservationException(RESERVATION_NOT_EXISTS_WITH_ID));
 
-        validateReservationDeletable(reservation, member);
+        reservationValidator.validateReservationDeletable(reservation, member);
         reservationRepository.delete(reservation);
     }
 
@@ -64,7 +62,7 @@ public class ReservationService {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new ReservationException(RESERVATION_NOT_EXISTS_WITH_ID));
 
-        validateReservationUpdatable(reservation, member);
+        reservationValidator.validateReservationUpdatable(reservation, member);
         reservation.updateReservation(
                 request.reservationType(),
                 request.reservationSession(),
@@ -78,30 +76,5 @@ public class ReservationService {
         Member member = memberUtil.getLoggedInMember();
         return reservationRepository.findAllByMember(member)
                 .stream().map(ReservationResponse::from).toList();
-    }
-
-    private void validateReservationDeletable(Reservation reservation, Member loggedInMember) {
-        validateReservationNotComplete(reservation);
-        if (loggedInMember.isAdmin()) {
-            return;
-        }
-        validateReservationMember(reservation, loggedInMember);
-    }
-
-    private void validateReservationUpdatable(Reservation reservation, Member loggedInMember) {
-        validateReservationMember(reservation, loggedInMember);
-        validateReservationNotComplete(reservation);
-    }
-
-    private void validateReservationMember(Reservation reservation, Member loggedInMember) {
-        if (!reservation.hasMember(loggedInMember)) {
-            throw new ReservationException(RESERVATION_NOT_EQUAL_MEMBER);
-        }
-    }
-
-    private void validateReservationNotComplete(Reservation reservation) {
-        if (reservation.isComplete()) {
-            throw new ReservationException(RESERVATION_COMPLETED);
-        }
     }
 }
