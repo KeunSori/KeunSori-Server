@@ -47,8 +47,8 @@ public class ReservationApiTest extends ApiTest {
     @Test
     void 예약_생성에_성공한다() throws JsonProcessingException {
         ReservationCreateRequest request = new ReservationCreateRequest(
-                ReservationType.PERSONAL,
-                Session.DRUM,
+                "PERSONAL",
+                "DRUM",
                 LocalDate.of(2025, 1, 1),
                 LocalTime.of(12, 0),
                 LocalTime.of(14, 0)
@@ -67,8 +67,8 @@ public class ReservationApiTest extends ApiTest {
     @Test
     void 종료시간이_시작시간보다_앞서는_경우_예약_생성에_실패한다() throws JsonProcessingException {
         ReservationCreateRequest request = new ReservationCreateRequest(
-                ReservationType.PERSONAL,
-                Session.DRUM,
+                "PERSONAL",
+                "DRUM",
                 LocalDate.of(2025, 1, 1),
                 LocalTime.of(14, 0),
                 LocalTime.of(12, 0)
@@ -102,16 +102,16 @@ public class ReservationApiTest extends ApiTest {
     @MethodSource("failedReservationTimeTestData")
     void 예약_시간이_다른_예약과_겹치면_예약에_실패한다(LocalTime startTime, LocalTime endTime) throws JsonProcessingException {
         ReservationCreateRequest request1 = new ReservationCreateRequest(
-                ReservationType.PERSONAL,
-                Session.DRUM,
+                "PERSONAL",
+                "DRUM",
                 LocalDate.of(2025, 1, 1),
                 LocalTime.of(12, 0),
                 LocalTime.of(14, 0)
         );
 
         ReservationCreateRequest request2 = new ReservationCreateRequest(
-                ReservationType.PERSONAL,
-                Session.DRUM,
+                "PERSONAL",
+                "DRUM",
                 LocalDate.of(2025, 1, 1),
                 startTime,
                 endTime
@@ -150,16 +150,16 @@ public class ReservationApiTest extends ApiTest {
     @MethodSource("successReservationTimeTestData")
     void 예약_시간이_경계에_걸쳐도_성공한다(LocalTime startTime, LocalTime endTime) throws JsonProcessingException {
         ReservationCreateRequest request1 = new ReservationCreateRequest(
-                ReservationType.PERSONAL,
-                Session.DRUM,
+                "PERSONAL",
+                "DRUM",
                 LocalDate.of(2025, 1, 1),
                 LocalTime.of(12, 0),
                 LocalTime.of(14, 0)
         );
 
         ReservationCreateRequest request2 = new ReservationCreateRequest(
-                ReservationType.PERSONAL,
-                Session.DRUM,
+                "PERSONAL",
+                "DRUM",
                 LocalDate.of(2025, 1, 1),
                 startTime,
                 endTime
