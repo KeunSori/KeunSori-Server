@@ -1,5 +1,6 @@
 package com.keunsori.keunsoriserver.reservation.api;
 
+import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.ANOTHER_RESERVATION_EXISTS;
 import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.INVALID_RESERVATION_TIME;
 import static io.restassured.RestAssured.given;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -35,7 +36,7 @@ public class ReservationApiTest extends ApiTest {
     }
 
     @Test
-    void 내_예약_다건_조회_성공() {
+    void 내_예약_조회에_성공한다() {
         given().
                 header(AUTHORIZATION, authorizationValue).
         when().
@@ -89,10 +90,36 @@ public class ReservationApiTest extends ApiTest {
         Assertions.assertThat(errorMessage).isEqualTo(INVALID_RESERVATION_TIME);
     }
 
+    @Test
+    void 종료시간과_시작시간이_같은_경우_예약_생성에_실패한다() throws JsonProcessingException {
+        ReservationCreateRequest request = new ReservationCreateRequest(
+                "PERSONAL",
+                "DRUM",
+                LocalDate.of(2025, 1, 1),
+                LocalTime.of(12, 0),
+                LocalTime.of(12, 0)
+        );
+
+        String errorMessage =
+                given().
+                        header(AUTHORIZATION, authorizationValue).
+                        header(CONTENT_TYPE, "application/json").
+                        body(mapper.writeValueAsString(request)).
+                        when().
+                        post("/reservation").
+                        then().
+                        statusCode(HttpStatus.SC_BAD_REQUEST).
+                        extract().
+                        jsonPath().get("message");
+
+        Assertions.assertThat(errorMessage).isEqualTo(INVALID_RESERVATION_TIME);
+    }
+
     static Stream<Arguments> failedReservationTimeTestData() {
         return Stream.of(
                 Arguments.arguments(LocalTime.of(12, 0), LocalTime.of(14, 0)),
                 Arguments.arguments(LocalTime.of(13, 0), LocalTime.of(14, 0)),
+                Arguments.arguments(LocalTime.of(13, 0), LocalTime.of(15, 0)),
                 Arguments.arguments(LocalTime.of(11, 0), LocalTime.of(13, 0)),
                 Arguments.arguments(LocalTime.of(12, 30), LocalTime.of(13, 30))
         );
@@ -137,6 +164,8 @@ public class ReservationApiTest extends ApiTest {
                 statusCode(HttpStatus.SC_BAD_REQUEST).
                 extract().
                 jsonPath().get("message");
+
+        Assertions.assertThat(errorMessage).isEqualTo(ANOTHER_RESERVATION_EXISTS);
     }
 
     static Stream<Arguments> successReservationTimeTestData() {

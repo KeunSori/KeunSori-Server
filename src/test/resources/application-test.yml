@@ -11,8 +11,8 @@ spring:
         show_sql: true
   data:
     redis:
-      host: "${REDIS_HOST:localhost}"
-      port: "${REDIS_PORT:6379}"
+      host: localhost
+      port: 6379
 
 jwt:
   secret: 235872q3ywhtf87q243yt98qop42y3whtg8oiq92ayh4gq2g
