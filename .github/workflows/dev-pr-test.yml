@@ -27,5 +27,5 @@ jobs:
       - name: Set Permission to gradlew
         run: chmod +x ./gradlew
 
-      - name: Build with Gradle Wrapper
+      - name: Test with Gradle Wrapper
         run: ./gradlew test
