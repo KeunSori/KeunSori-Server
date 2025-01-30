@@ -11,9 +11,11 @@ public class WebConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
                 .allowedOrigins("*")
-                .allowedMethods("GET","POST","PUT","DELETE")
-                .allowedHeaders("Authorization", "Content-Type")
-                .exposedHeaders("Custom-Header")
+                //.allowedMethods("GET","POST","PUT","DELETE", "OPTIONS")
+                .allowedMethods("*")
+                //.allowedHeaders("Authorization", "Content-Type")
+                .allowedHeaders("*")
+                .exposedHeaders("Refresh-Token")
                 //.allowCredentials("true")->도메인 정해지면 활성화
                 .maxAge(3600);
     }

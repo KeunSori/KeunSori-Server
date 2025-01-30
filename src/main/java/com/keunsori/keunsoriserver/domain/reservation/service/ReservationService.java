@@ -33,7 +33,7 @@ public class ReservationService {
         LocalDate start = DateUtil.parseMonthToFirstDate(yearMonth);
         LocalDate end = start.plusMonths(1);
         return reservationRepository.findAllByDateBetween(start, end)
-                .stream().map(ReservationResponse::of).toList();
+                .stream().map(ReservationResponse::from).toList();
     }
 
     @Transactional
@@ -72,7 +72,7 @@ public class ReservationService {
     public List<ReservationResponse> findAllMyReservations() {
         Member member = memberUtil.getLoggedInMember();
         return reservationRepository.findAllByMember(member)
-                .stream().map(ReservationResponse::of).toList();
+                .stream().map(ReservationResponse::from).toList();
     }
 
     private void validateReservationDeletable(Reservation reservation, Member loggedInMember) {
