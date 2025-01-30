@@ -77,7 +77,7 @@ public class ReservationValidator {
     }
 
     private void validateReservationTime(LocalTime startTime, LocalTime endTime) {
-        if (endTime.isAfter(startTime)) {
+        if (!endTime.isAfter(startTime)) {
             throw new ReservationException(INVALID_RESERVATION_TIME);
         }
     }

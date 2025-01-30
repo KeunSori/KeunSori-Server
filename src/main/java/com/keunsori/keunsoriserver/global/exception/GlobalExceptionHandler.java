@@ -23,6 +23,7 @@ public class GlobalExceptionHandler {
                 .orElse("유효성 검사 실패");
 
         ErrorResponse response = new ErrorResponse(HttpStatus.BAD_REQUEST.value(),errorMessage);
+        log.info(ex.getMessage());
         return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
     }
 
@@ -30,6 +31,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MemberException.class)
     public ResponseEntity<ErrorResponse> handleMemberException(MemberException ex) {
         ErrorResponse response = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
+        log.info(ex.getMessage());
         return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
     }
 
@@ -37,12 +39,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AuthException.class)
     public ResponseEntity<ErrorResponse> handleAuthException(AuthException ex) {
         ErrorResponse response = new ErrorResponse(HttpStatus.UNAUTHORIZED.value(), ex.getMessage());
+        log.info(ex.getMessage());
         return new ResponseEntity<>(response,HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(ReservationException.class)
     public ResponseEntity<ErrorResponse> handleReservationException(ReservationException ex) {
         ErrorResponse response = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
+        log.info(ex.getMessage());
         return ResponseEntity.badRequest().body(response);
     }
 
