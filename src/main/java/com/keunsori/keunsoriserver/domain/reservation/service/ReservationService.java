@@ -68,8 +68,8 @@ public class ReservationService {
         reservationValidator.validateReservationUpdatable(reservation, member);
 
         reservation.updateReservation(
-                ReservationType.valueOf(request.reservationType().toUpperCase()),
-                Session.valueOf(request.reservationSession().toUpperCase()),
+                ReservationType.from(request.reservationSession()),
+                Session.from(request.reservationSession()),
                 request.reservationDate(),
                 request.reservationStartTime(),
                 request.reservationEndTime()

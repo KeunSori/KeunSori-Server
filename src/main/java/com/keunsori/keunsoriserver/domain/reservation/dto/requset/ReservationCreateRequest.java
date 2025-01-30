@@ -26,8 +26,8 @@ public record ReservationCreateRequest(
 ) {
     public Reservation toEntity(Member member) {
         return Reservation.builder()
-                .reservationType(ReservationType.valueOf(reservationType.toUpperCase()))
-                .session(Session.valueOf(reservationSession.toUpperCase()))
+                .reservationType(ReservationType.from(reservationType))
+                .session(Session.from(reservationSession))
                 .date(reservationDate)
                 .startTime(reservationStartTime)
                 .endTime(reservationEndTime)
