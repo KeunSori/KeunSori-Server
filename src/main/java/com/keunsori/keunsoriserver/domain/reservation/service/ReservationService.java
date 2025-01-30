@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.keunsori.keunsoriserver.domain.member.domain.Member;
 import com.keunsori.keunsoriserver.domain.reservation.domain.Reservation;
+import com.keunsori.keunsoriserver.domain.reservation.domain.validator.ReservationValidator;
 import com.keunsori.keunsoriserver.domain.reservation.dto.requset.ReservationCreateRequest;
 import com.keunsori.keunsoriserver.domain.reservation.dto.response.ReservationResponse;
 import com.keunsori.keunsoriserver.domain.reservation.dto.requset.ReservationUpdateRequest;
@@ -27,6 +28,7 @@ import lombok.RequiredArgsConstructor;
 public class ReservationService {
 
     private final ReservationRepository reservationRepository;
+    private final ReservationValidator reservationValidator;
     private final MemberUtil memberUtil;
 
     public List<ReservationResponse> findReservationsByMonth(String yearMonth) {
@@ -39,6 +41,9 @@ public class ReservationService {
     @Transactional
     public void createReservation(ReservationCreateRequest request) {
         Member member = memberUtil.getLoggedInMember();
+
+        reservationValidator.validateReservationCreation(request);
+
         Reservation reservation = request.toEntity(member);
         reservationRepository.save(reservation);
     }
