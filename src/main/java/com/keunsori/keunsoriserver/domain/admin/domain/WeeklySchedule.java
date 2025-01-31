@@ -1,9 +1,6 @@
 package com.keunsori.keunsoriserver.domain.admin.domain;
 
 import com.keunsori.keunsoriserver.domain.admin.domain.vo.Day;
-import com.keunsori.keunsoriserver.domain.member.domain.Member;
-import com.keunsori.keunsoriserver.domain.reservation.domain.vo.ReservationType;
-import com.keunsori.keunsoriserver.domain.reservation.domain.vo.Session;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
