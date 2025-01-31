@@ -1,11 +1,10 @@
-package com.keunsori.keunsoriserver.domain.member.service;
+package com.keunsori.keunsoriserver.domain.admin.service;
 
+import com.keunsori.keunsoriserver.domain.admin.dto.response.MemberApplicantResponse;
 import com.keunsori.keunsoriserver.domain.member.domain.Member;
 import com.keunsori.keunsoriserver.domain.member.domain.vo.MemberStatus;
-import com.keunsori.keunsoriserver.domain.admin.dto.response.MemberApplicantResponse;
 import com.keunsori.keunsoriserver.domain.member.dto.response.MemberResponse;
 import com.keunsori.keunsoriserver.domain.member.repository.MemberRepository;
-import com.keunsori.keunsoriserver.domain.reservation.repository.ReservationRepository;
 import com.keunsori.keunsoriserver.global.exception.MemberException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,19 +17,27 @@ import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.MEMBER_N
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class MemberService {
+public class AdminMemberService {
 
     private final MemberRepository memberRepository;
-    private final ReservationRepository reservationRepository;
 
+    // 회원 리스트
+    public List<MemberResponse> findAllMember(){
+        return memberRepository.findAllByStatus(MemberStatus.일반)
+                .stream().map(MemberResponse::from).toList();
+    }
+
+    // 가입 신청 리스트
+    public List<MemberApplicantResponse> findAllApplicants(){
+        return memberRepository.findAllByStatus(MemberStatus.승인대기)
+                .stream().map(MemberApplicantResponse::from).toList();
+    }
+
+    // 가입 승인
     @Transactional
-    public void deleteMember(Long id){
+    public void approveMember(Long id){
         Member member = memberRepository.findById(id)
                 .orElseThrow(()->new MemberException(MEMBER_NOT_EXISTS_WITH_STUDENT_ID));
-
-        // 회원과 연결된 예약의 외래 키를 null로 설정
-        reservationRepository.unlinkMember(id);
-
-        memberRepository.delete(member);
+        member.approve();
     }
 }
