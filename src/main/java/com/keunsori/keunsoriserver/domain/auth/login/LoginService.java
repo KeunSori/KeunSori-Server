@@ -27,7 +27,7 @@ public class LoginService {
 
         //학번으로 사용자 조회
         Member member= memberRepository.findByStudentId(loginRequest.studentId())
-                .orElseThrow(()->new MemberException("존재하지 않는 학번입니다."));
+                .orElseThrow(() -> new MemberException("존재하지 않는 학번입니다."));
 
         //비밀번호 일치하는지 검증
         if(!passwordEncoder.matches(loginRequest.password(), member.getPassword())){
@@ -49,8 +49,9 @@ public class LoginService {
         return new LoginResponse(
                 accessToken,
                 refreshToken,
-                String.valueOf(jwtTokenManager.getExpirationTime(accessToken)));
-
+                String.valueOf(jwtTokenManager.getExpirationTime(accessToken)),
+                member.getName(),
+                member.getStatus()
+        );
     }
-
 }
