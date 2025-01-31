@@ -12,7 +12,6 @@ public record MemberApplicantResponse(
         MemberStatus status,
         LocalDateTime applicationDate
 ) {
-
     public static MemberApplicantResponse from(Member member) {
         return new MemberApplicantResponse(
                 member.getId(),
@@ -22,5 +21,4 @@ public record MemberApplicantResponse(
                 member.getCreateDate()
         );
     }
-
 }

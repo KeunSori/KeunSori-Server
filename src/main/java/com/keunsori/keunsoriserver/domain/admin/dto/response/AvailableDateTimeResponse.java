@@ -1,9 +1,12 @@
 package com.keunsori.keunsoriserver.domain.admin.dto.response;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 public record AvailableDateTimeResponse(
         LocalDate date,
-        String startTime,
-        String endTime
-) {}
+        boolean isActive,
+        LocalTime startTime,
+        LocalTime endTime
+) {
+}
