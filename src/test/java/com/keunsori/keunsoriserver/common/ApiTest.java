@@ -4,6 +4,7 @@ import static io.restassured.RestAssured.given;
 import static jakarta.servlet.http.HttpServletResponse.SC_OK;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +28,8 @@ public class ApiTest {
 
     protected String token;
 
-    @BeforeEach
-    public void setUp() {
+    @AfterEach
+    public void clear() {
         dataCleaner.clear();
     }
 
