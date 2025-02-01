@@ -19,15 +19,16 @@ public record ReservationCreateRequest(
         String reservationSession,
         @Schema(example = "2025-01-01", type = "string")
         LocalDate reservationDate,
-        @Schema(example = "21:00", type = "string")
+        @Schema(example = "20:00", type = "string")
         LocalTime reservationStartTime,
         @Schema(example = "21:00", type = "string")
         LocalTime reservationEndTime
 ) {
     public Reservation toEntity(Member member) {
+        ReservationType reservationType = ReservationType.from(reservationType());
         return Reservation.builder()
-                .reservationType(ReservationType.from(reservationType))
-                .session(Session.from(reservationSession))
+                .reservationType(reservationType)
+                .session(reservationType.equals(ReservationType.TEAM) ? Session.ALL : Session.from(reservationSession))
                 .date(reservationDate)
                 .startTime(reservationStartTime)
                 .endTime(reservationEndTime)
