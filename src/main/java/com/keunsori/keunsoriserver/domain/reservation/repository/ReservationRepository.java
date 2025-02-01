@@ -16,7 +16,7 @@ import java.util.List;
 
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
 
-    List<Reservation> findAllByMemberOrderByDateDesc(Member member);
+    List<Reservation> findAllByMemberOrderByDateDescStartTimeDesc(Member member);
 
     List<Reservation> findAllByDateBetweenOrderByDateAscStartTimeAsc(LocalDate start, LocalDate end);
 

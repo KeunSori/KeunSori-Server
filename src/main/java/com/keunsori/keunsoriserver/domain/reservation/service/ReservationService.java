@@ -79,7 +79,7 @@ public class ReservationService {
 
     public List<ReservationResponse> findAllMyReservations() {
         Member member = memberUtil.getLoggedInMember();
-        return reservationRepository.findAllByMemberOrderByDateDesc(member)
+        return reservationRepository.findAllByMemberOrderByDateDescStartTimeDesc(member)
                 .stream().map(ReservationResponse::from).toList();
     }
 }
