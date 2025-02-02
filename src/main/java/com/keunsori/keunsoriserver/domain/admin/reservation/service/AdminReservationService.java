@@ -45,12 +45,15 @@ public class AdminReservationService {
         for(WeeklyScheduleRequest request : requests){
             if(request.isActive()){
                 // 활성화된 요일 저장
-                weeklyScheduleList.add(new WeeklySchedule(
-                                request.dayOfWeek(),
-                                true,
-                                request.startTime(),
-                                request.endTime()
-                        ));
+                WeeklySchedule weeklySchedule = new WeeklySchedule(
+                        request.dayOfWeek(),
+                        true,
+                        request.startTime(),
+                        request.endTime());
+
+                validateSchelduleTime(weeklySchedule.getStartTime(),weeklySchedule.getEndTime());
+
+                weeklyScheduleList.add(weeklySchedule);
             } else {
                 // 비활성화된 요일 삭제
                 weeklyScheduleRepository.deleteById(request.dayOfWeek());
@@ -70,6 +73,7 @@ public class AdminReservationService {
         );
 
         validateNotPastDateSchdule(dailySchedule);
+        validateSchelduleTime(dailySchedule.getStartTime(),dailySchedule.getEndTime());
 
         // active -> unactive 시 예약들 삭제
         if(dailySchedule.isActive() == false){
