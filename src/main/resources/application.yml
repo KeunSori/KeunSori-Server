@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: keun-sori-server
+  profiles:
+    group:
+      local: "local,datasource"
+      dev: "dev,datasource"
+      prod: "prod,datasource"
+    include:
+      - redis
+
+jwt:
+  secret: "${JWT_SECRET}"
