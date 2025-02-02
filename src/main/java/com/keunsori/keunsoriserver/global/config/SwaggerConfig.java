@@ -12,12 +12,14 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 import com.keunsori.keunsoriserver.global.properties.SwaggerProperties;
 import com.keunsori.keunsoriserver.global.util.EnvironmentUtil;
 
 @Configuration
 @RequiredArgsConstructor
+@Profile({"local", "dev"})
 public class SwaggerConfig {
 
     private final EnvironmentUtil environmentUtil;
