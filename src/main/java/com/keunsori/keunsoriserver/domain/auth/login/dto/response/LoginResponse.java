@@ -5,4 +5,4 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 
-public record LoginResponse(String accessToken, String refreshToken, String accessTokenExpireTime) {}
+public record LoginResponse(String accessToken, String refreshToken, String accessTokenExpireTime, String name, MemberStatus memberStatus) {}

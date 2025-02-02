@@ -1,7 +1,9 @@
 package com.keunsori.keunsoriserver.domain.reservation.domain.validator;
 
-import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.ANOTHER_RESERVATION_EXISTS;
+import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.ANOTHER_RESERVATION_ALREADY_EXISTS;
+import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.INVALID_RESERVATION_DATE;
 import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.INVALID_RESERVATION_TIME;
+import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.INVALID_RESERVATION_TYPE;
 import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.RESERVATION_ALREADY_COMPLETED;
 import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.RESERVATION_NOT_EQUAL_MEMBER;
 
@@ -9,11 +11,14 @@ import org.springframework.stereotype.Component;
 
 import com.keunsori.keunsoriserver.domain.member.domain.Member;
 import com.keunsori.keunsoriserver.domain.reservation.domain.Reservation;
+import com.keunsori.keunsoriserver.domain.reservation.domain.vo.ReservationType;
+import com.keunsori.keunsoriserver.domain.reservation.domain.vo.Session;
 import com.keunsori.keunsoriserver.domain.reservation.dto.requset.ReservationCreateRequest;
 import com.keunsori.keunsoriserver.domain.reservation.dto.requset.ReservationUpdateRequest;
 import com.keunsori.keunsoriserver.domain.reservation.repository.ReservationRepository;
 import com.keunsori.keunsoriserver.global.exception.ReservationException;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import lombok.RequiredArgsConstructor;
 
@@ -23,48 +28,41 @@ public class ReservationValidator {
 
     private final ReservationRepository reservationRepository;
 
-    public void validateReservationCreateForm(ReservationCreateRequest request) {
+    public void validateReservationFromCreateRequest(ReservationCreateRequest request) {
+        validateReservationDateIsNotPast(request.reservationDate());
         validateReservationTime(request.reservationStartTime(), request.reservationEndTime());
-
-        boolean isThereAnotherReservation = reservationRepository.existsAnotherReservationAtDateAndTimePeriod(
+        validateOtherReservationsNotExist(
+                ReservationType.from(request.reservationType()),
+                Session.from(request.reservationSession()),
                 request.reservationDate(),
-                request.reservationStartTime().plusMinutes(1),
-                request.reservationEndTime().minusMinutes(1)
+                request.reservationStartTime(),
+                request.reservationEndTime()
         );
-
-        if (isThereAnotherReservation) {
-            throw new ReservationException(ANOTHER_RESERVATION_EXISTS);
-        }
     }
 
-    public void validateReservationUpdateForm(ReservationUpdateRequest request) {
+    public void validateReservationFromUpdateRequest(ReservationUpdateRequest request) {
+        validateReservationDateIsNotPast(request.reservationDate());
         validateReservationTime(request.reservationStartTime(), request.reservationEndTime());
-
-        boolean isThereAnotherReservation = reservationRepository.existsAnotherReservationAtDateAndTimePeriod(
+        validateOtherReservationsNotExist(
+                ReservationType.from(request.reservationType()),
+                Session.from(request.reservationSession()),
                 request.reservationDate(),
-                request.reservationStartTime().plusMinutes(1),
-                request.reservationEndTime().minusMinutes(1)
+                request.reservationStartTime(),
+                request.reservationEndTime()
         );
-
-        if (isThereAnotherReservation) {
-            throw new ReservationException(ANOTHER_RESERVATION_EXISTS);
-        }
     }
 
     public void validateReservationDeletable(Reservation reservation, Member loggedInMember) {
         validateReservationNotComplete(reservation);
-        if (loggedInMember.isAdmin()) {
-            return;
-        }
-        validateReservationMember(reservation, loggedInMember);
+        validateReservationMemberIsOwner(reservation, loggedInMember);
     }
 
-    public void validateReservationUpdatable(Reservation reservation, Member loggedInMember) {
-        validateReservationMember(reservation, loggedInMember);
+    public void validateOriginalReservationUpdatable(Reservation reservation, Member loggedInMember) {
+        validateReservationMemberIsOwner(reservation, loggedInMember);
         validateReservationNotComplete(reservation);
     }
 
-    private void validateReservationMember(Reservation reservation, Member loggedInMember) {
+    private void validateReservationMemberIsOwner(Reservation reservation, Member loggedInMember) {
         if (!reservation.hasMember(loggedInMember)) {
             throw new ReservationException(RESERVATION_NOT_EQUAL_MEMBER);
         }
@@ -79,6 +77,52 @@ public class ReservationValidator {
     private void validateReservationTime(LocalTime startTime, LocalTime endTime) {
         if (!endTime.isAfter(startTime)) {
             throw new ReservationException(INVALID_RESERVATION_TIME);
+        }
+    }
+
+    private void validateOtherReservationsNotExist(ReservationType reservationType, Session reservationSession, LocalDate reservationDate, LocalTime reservationStartTime, LocalTime reservationEndTime) {
+        if (reservationType == ReservationType.TEAM) {
+            validateTeamReservable(reservationDate, reservationStartTime, reservationEndTime);
+            return;
+        }
+
+        if (reservationType == ReservationType.PERSONAL) {
+            validatePersonalReservable(reservationSession, reservationDate, reservationStartTime, reservationEndTime);
+            return;
+        }
+
+        throw new ReservationException(INVALID_RESERVATION_TYPE);
+    }
+
+    private void validateTeamReservable(LocalDate reservationDate, LocalTime reservationStartTime, LocalTime reservationEndTime) {
+        boolean isThereAnotherReservation = reservationRepository.existsAnotherReservationAtDateAndTimePeriod(
+                reservationDate,
+                reservationStartTime.plusMinutes(1),
+                reservationEndTime.minusMinutes(1)
+        );
+
+        if (isThereAnotherReservation) {
+            throw new ReservationException(ANOTHER_RESERVATION_ALREADY_EXISTS);
+        }
+    }
+
+    private void validatePersonalReservable(Session reservationSession, LocalDate reservationDate, LocalTime reservationStartTime, LocalTime reservationEndTime) {
+        boolean isThereAnotherReservationWithSameSession = reservationRepository
+                .existsAnotherReservationAtDateAndTimePeriodWithSession(
+                        reservationDate,
+                        reservationSession,
+                        reservationStartTime.plusMinutes(1),
+                        reservationEndTime.minusMinutes(1)
+                );
+
+        if (isThereAnotherReservationWithSameSession) {
+            throw new ReservationException(ANOTHER_RESERVATION_ALREADY_EXISTS);
+        }
+    }
+
+    private void validateReservationDateIsNotPast(LocalDate reservationDate) {
+        if (reservationDate.isBefore(LocalDate.now())) {
+            throw new ReservationException(INVALID_RESERVATION_DATE);
         }
     }
 }
