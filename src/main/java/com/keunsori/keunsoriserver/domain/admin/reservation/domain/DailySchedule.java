@@ -1,4 +1,4 @@
-package com.keunsori.keunsoriserver.domain.admin.domain;
+package com.keunsori.keunsoriserver.domain.admin.reservation.domain;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -16,9 +16,6 @@ import java.time.LocalTime;
 public class DailySchedule {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     private LocalDate date;
 
     private boolean isActive;
@@ -27,9 +24,9 @@ public class DailySchedule {
 
     private LocalTime endTime;
 
-    public DailySchedule(LocalDate date, LocalTime startTime, LocalTime endTime){
-        this.isActive = true;
+    public DailySchedule(LocalDate date, boolean isActive, LocalTime startTime, LocalTime endTime){
         this.date = date;
+        this.isActive = isActive;
         this.startTime = startTime;
         this.endTime = endTime;
     }

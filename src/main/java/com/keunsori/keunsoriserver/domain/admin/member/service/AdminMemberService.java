@@ -1,6 +1,6 @@
-package com.keunsori.keunsoriserver.domain.admin.service;
+package com.keunsori.keunsoriserver.domain.admin.member.service;
 
-import com.keunsori.keunsoriserver.domain.admin.dto.response.MemberApplicantResponse;
+import com.keunsori.keunsoriserver.domain.admin.member.dto.MemberApplicantResponse;
 import com.keunsori.keunsoriserver.domain.member.domain.Member;
 import com.keunsori.keunsoriserver.domain.member.domain.vo.MemberStatus;
 import com.keunsori.keunsoriserver.domain.member.dto.response.MemberResponse;

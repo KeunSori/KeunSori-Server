@@ -1,6 +1,6 @@
-package com.keunsori.keunsoriserver.domain.admin.repository;
+package com.keunsori.keunsoriserver.domain.admin.reservation.repository;
 
-import com.keunsori.keunsoriserver.domain.admin.domain.WeeklySchedule;
+import com.keunsori.keunsoriserver.domain.admin.reservation.domain.WeeklySchedule;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

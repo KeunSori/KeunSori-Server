@@ -1,17 +1,12 @@
 package com.keunsori.keunsoriserver.domain.member.service;
 
 import com.keunsori.keunsoriserver.domain.member.domain.Member;
-import com.keunsori.keunsoriserver.domain.member.domain.vo.MemberStatus;
-import com.keunsori.keunsoriserver.domain.admin.dto.response.MemberApplicantResponse;
-import com.keunsori.keunsoriserver.domain.member.dto.response.MemberResponse;
 import com.keunsori.keunsoriserver.domain.member.repository.MemberRepository;
 import com.keunsori.keunsoriserver.domain.reservation.repository.ReservationRepository;
 import com.keunsori.keunsoriserver.global.exception.MemberException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.MEMBER_NOT_EXISTS_WITH_STUDENT_ID;
 

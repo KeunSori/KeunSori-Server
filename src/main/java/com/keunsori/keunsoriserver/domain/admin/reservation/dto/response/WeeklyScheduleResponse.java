@@ -1,6 +1,6 @@
-package com.keunsori.keunsoriserver.domain.admin.dto.response;
+package com.keunsori.keunsoriserver.domain.admin.reservation.dto.response;
 
-import com.keunsori.keunsoriserver.domain.admin.domain.WeeklySchedule;
+import com.keunsori.keunsoriserver.domain.admin.reservation.domain.WeeklySchedule;
 
 import java.time.LocalTime;
 
