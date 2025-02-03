@@ -5,14 +5,14 @@ import com.keunsori.keunsoriserver.domain.admin.reservation.domain.WeeklySchedul
 import java.time.LocalTime;
 
 public record WeeklyScheduleResponse(
-        String dayOfWeek,
+        int dayOfWeekNum, // 0 = 일요일, 1 = 월요일, ...
         boolean isActive,
         LocalTime startTime,
         LocalTime endTime
 ) {
     public static WeeklyScheduleResponse from(WeeklySchedule weeklySchedule){
         return new WeeklyScheduleResponse(
-                weeklySchedule.getDayOfWeek(),
+                weeklySchedule.getDayOfWeek().getValue()%7,
                 weeklySchedule.isActive(),
                 weeklySchedule.getStartTime(),
                 weeklySchedule.getEndTime()

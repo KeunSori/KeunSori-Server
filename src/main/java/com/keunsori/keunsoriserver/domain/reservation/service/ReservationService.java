@@ -28,6 +28,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import lombok.RequiredArgsConstructor;
 
@@ -95,53 +96,31 @@ public class ReservationService {
     }
 
     public MonthlyScheduleResponse findMonthlySchedule(String yearMonth) {
-        List<DailyAvailableResponse> dailyAvailableRespons = findDailyAvailableByMonth(yearMonth);
+        List<DailyAvailableResponse> dailyAvailableResponses = findDailyAvailableByMonth(yearMonth);
         List<ReservationResponse> reservationResponses = findReservationsByMonth(yearMonth);
-        return new MonthlyScheduleResponse(dailyAvailableRespons, reservationResponses);
+        return new MonthlyScheduleResponse(dailyAvailableResponses, reservationResponses);
     }
 
-    public List<DailyAvailableResponse> findDailyAvailableByMonth(String yearMonth) {
+    private List<DailyAvailableResponse> findDailyAvailableByMonth(String yearMonth) {
         List<DailyAvailableResponse> responses = new ArrayList<>();
 
         LocalDate start = DateUtil.parseMonthToFirstDate(yearMonth);
         LocalDate end = start.plusMonths(1);
 
-        for(LocalDate date = start; date.isBefore(end); date = date.plusDays(1)) {
-            Optional<DailySchedule> dailyScheduleOpt = dailyScheduleRepository.findByDate(date);
+        Stream.iterate(start, date -> date.isBefore(end), date -> date.plusDays(1))
+                .forEach(
+                    date -> dailyScheduleRepository.findByDate(date)
+                            .ifPresentOrElse(
+                                    dailySchedule -> responses.add(DailyAvailableResponse.from(dailySchedule)),
+                                    () -> {
+                                        weeklyScheduleRepository.findByDayOfWeek(date.getDayOfWeek()).ifPresentOrElse(
+                                                weeklySchedule -> responses.add(DailyAvailableResponse.of(date, weeklySchedule)),
+                                                () -> responses.add(DailyAvailableResponse.createInactiveDate(date))
+                                        );
+                                    }
+                            )
+                );
 
-            // 일간 설정 있으면 반환
-            if(dailyScheduleOpt.isPresent()) {
-                DailySchedule dailySchedule = dailyScheduleOpt.get();
-                responses.add(new DailyAvailableResponse(
-                        date,
-                        dailySchedule.isActive(),
-                        dailySchedule.getStartTime(),
-                        dailySchedule.getEndTime()
-                ));
-            } else {
-                String dayOfWeek = date.getDayOfWeek().toString();
-                Optional<WeeklySchedule> weeklyScheduleOpt = weeklyScheduleRepository.findByDayOfWeek(dayOfWeek);
-
-                // 일간 설정이 없으면 주간 설정 적용
-                if(weeklyScheduleOpt.isPresent()) {
-                    WeeklySchedule weeklySchedule = weeklyScheduleOpt.get();
-                    responses.add(new DailyAvailableResponse(
-                            date,
-                            weeklySchedule.isActive(),
-                            weeklySchedule.getStartTime(),
-                            weeklySchedule.getEndTime()
-                    ));
-                } else {
-                    // 주간 설정도 없으면 사용하지 않는 날
-                    responses.add(new DailyAvailableResponse(
-                            date,
-                            false,
-                            null,
-                            null
-                    ));
-                }
-            }
-        }
         return responses;
     }
 }

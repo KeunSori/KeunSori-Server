@@ -5,7 +5,7 @@ import com.keunsori.keunsoriserver.domain.reservation.dto.response.ReservationRe
 import java.util.List;
 
 public record MonthlyScheduleResponse(
-        List<DailyAvailableResponse> dailyAvailableRespons,
+        List<DailyAvailableResponse> dailyAvailableResponses,
         List<ReservationResponse> reservationResponses
 ) {
 }

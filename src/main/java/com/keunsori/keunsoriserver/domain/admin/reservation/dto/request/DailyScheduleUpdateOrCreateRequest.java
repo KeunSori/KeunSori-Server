@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-public record DailyScheduleRequest(
+public record DailyScheduleUpdateOrCreateRequest(
         @Schema(example = "2025-01-01", type = "string")
         LocalDate date,
         boolean isActive,

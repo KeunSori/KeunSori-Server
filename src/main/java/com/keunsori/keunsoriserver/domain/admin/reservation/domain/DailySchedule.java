@@ -4,15 +4,14 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Entity
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class DailySchedule {
 
     @Id
@@ -24,10 +23,15 @@ public class DailySchedule {
 
     private LocalTime endTime;
 
-    public DailySchedule(LocalDate date, boolean isActive, LocalTime startTime, LocalTime endTime){
+    @Builder
+    private DailySchedule(LocalDate date, boolean isActive, LocalTime startTime, LocalTime endTime){
         this.date = date;
         this.isActive = isActive;
         this.startTime = startTime;
         this.endTime = endTime;
+    }
+
+    public boolean isPastDate(){
+        return date.isBefore(LocalDate.now());
     }
 }

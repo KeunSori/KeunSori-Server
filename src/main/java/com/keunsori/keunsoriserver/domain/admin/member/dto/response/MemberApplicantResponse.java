@@ -1,4 +1,4 @@
-package com.keunsori.keunsoriserver.domain.admin.member.dto;
+package com.keunsori.keunsoriserver.domain.admin.member.dto.response;
 
 import com.keunsori.keunsoriserver.domain.member.domain.vo.MemberStatus;
 import com.keunsori.keunsoriserver.domain.member.domain.Member;

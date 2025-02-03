@@ -1,9 +1,8 @@
 package com.keunsori.keunsoriserver.domain.admin.reservation.service;
 
 import com.keunsori.keunsoriserver.domain.admin.reservation.domain.DailySchedule;
-import com.keunsori.keunsoriserver.domain.admin.reservation.domain.WeeklySchedule;
-import com.keunsori.keunsoriserver.domain.admin.reservation.dto.request.DailyScheduleRequest;
-import com.keunsori.keunsoriserver.domain.admin.reservation.dto.request.WeeklyScheduleRequest;
+import com.keunsori.keunsoriserver.domain.admin.reservation.dto.request.DailyScheduleUpdateOrCreateRequest;
+import com.keunsori.keunsoriserver.domain.admin.reservation.dto.request.WeeklyScheduleUpdateRequest;
 import com.keunsori.keunsoriserver.domain.admin.reservation.dto.response.WeeklyScheduleResponse;
 import com.keunsori.keunsoriserver.domain.admin.reservation.repository.DailyScheduleRepository;
 import com.keunsori.keunsoriserver.domain.admin.reservation.repository.WeeklyScheduleRepository;
@@ -15,9 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.*;
@@ -39,10 +36,12 @@ public class AdminReservationService {
     }
 
     @Transactional
-    public void saveWeeklySchedule(List<WeeklyScheduleRequest> requests) {
-        List<WeeklySchedule> weeklyScheduleList = new ArrayList<>();
+    public void saveOrUpdateWeeklySchedule(List<WeeklyScheduleUpdateRequest> requests) {
+        requests.stream()
+                .map(WeeklyScheduleUpdateRequest::toEntity)
+                .forEach(weeklyScheduleRepository::save);
 
-        for(WeeklyScheduleRequest request : requests){
+        /*for(WeeklyScheduleRequest request : requests){
             if(request.isActive()){
                 // 활성화된 요일 저장
                 WeeklySchedule weeklySchedule = new WeeklySchedule(
@@ -56,27 +55,27 @@ public class AdminReservationService {
                 weeklyScheduleList.add(weeklySchedule);
             } else {
                 // 비활성화된 요일 삭제
-                weeklyScheduleRepository.deleteById(request.dayOfWeek());
+                weeklyScheduleRepository.deleteByDayOfWeek(request.dayOfWeek());
             }
         }
         // 데이터베이스에 저장
-        weeklyScheduleRepository.saveAll(weeklyScheduleList);
+        weeklyScheduleRepository.saveAll(weeklyScheduleList);*/
     }
 
     @Transactional
-    public void saveDailySchedule(DailyScheduleRequest request) {
-        DailySchedule dailySchedule = new DailySchedule(
-                request.date(),
-                request.isActive(),
-                request.startTime(),
-                request.endTime()
-        );
+    public void saveOrUpdateDailySchedule(DailyScheduleUpdateOrCreateRequest request) {
+        DailySchedule dailySchedule = DailySchedule.builder()
+                .date(request.date())
+                .isActive(request.isActive())
+                .startTime(request.startTime())
+                .endTime(request.endTime())
+                .build();
 
-        validateNotPastDateSchdule(dailySchedule);
-        validateSchelduleTime(dailySchedule.getStartTime(),dailySchedule.getEndTime());
+        validateNotPastDateSchedule(dailySchedule);
+        validateScheduleTime(dailySchedule.getStartTime(),dailySchedule.getEndTime());
 
         // active -> unactive 시 예약들 삭제
-        if(dailySchedule.isActive() == false){
+        if(!dailySchedule.isActive()){
             reservationRepository.deleteAllByDate(dailySchedule.getDate());
         }
 
@@ -94,13 +93,13 @@ public class AdminReservationService {
         reservationRepository.delete(reservation);
     }
 
-    private void validateNotPastDateSchdule(DailySchedule schedule){
-        if(schedule.getDate().isBefore(LocalDate.now())) {
+    private void validateNotPastDateSchedule(DailySchedule schedule){
+        if(schedule.isPastDate()) {
             throw new ReservationException(INVALID_DATE_SCHEDULE);
         }
     }
 
-    private void validateSchelduleTime(LocalTime startTime, LocalTime endTime) {
+    private void validateScheduleTime(LocalTime startTime, LocalTime endTime) {
         if (!endTime.isAfter(startTime)) {
             throw new ReservationException(INVALID_SCHEDULE_TIME);
         }
