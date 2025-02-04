@@ -16,9 +16,9 @@ import java.util.List;
 
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
 
-    List<Reservation> findAllByMember(Member member);
+    List<Reservation> findAllByMemberOrderByDateDescStartTimeDesc(Member member);
 
-    List<Reservation> findAllByDateBetween(LocalDate start, LocalDate end);
+    List<Reservation> findAllByDateBetweenOrderByDateAscStartTimeAsc(LocalDate start, LocalDate end);
 
     @Query("SELECT COUNT(r) > 0 "
          + "FROM Reservation r "
