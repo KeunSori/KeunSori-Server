@@ -2,10 +2,11 @@ package com.keunsori.keunsoriserver.domain.admin.reservation.controller;
 
 import com.keunsori.keunsoriserver.domain.admin.reservation.dto.request.DailyScheduleUpdateOrCreateRequest;
 import com.keunsori.keunsoriserver.domain.admin.reservation.dto.request.WeeklyScheduleUpdateRequest;
-import com.keunsori.keunsoriserver.domain.admin.reservation.dto.response.MonthlyScheduleResponse;
+import com.keunsori.keunsoriserver.domain.admin.reservation.dto.response.DailyAvailableResponse;
 import com.keunsori.keunsoriserver.domain.admin.reservation.dto.response.WeeklyScheduleResponse;
 import com.keunsori.keunsoriserver.domain.admin.reservation.service.AdminReservationService;
 import com.keunsori.keunsoriserver.domain.reservation.service.ReservationService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,22 +30,22 @@ public class AdminReservationController {
 
     // 주간 테이블 설정
     @PutMapping("/weekly-schedule")
-    public ResponseEntity<Void> saveWeeklySchedule(@RequestBody List<WeeklyScheduleUpdateRequest> requests){
-        adminReservationService.saveOrUpdateWeeklySchedule(requests);
+    public ResponseEntity<Void> saveWeeklySchedule(@Valid @RequestBody List<WeeklyScheduleUpdateRequest> requests){
+        adminReservationService.saveWeeklySchedule(requests);
         return ResponseEntity.ok().build();
     }
 
     // 일자별 관리 페이지 반환
     @GetMapping("/daily-schedule")
-    public ResponseEntity<MonthlyScheduleResponse> findAllDailySchedulesAndResrvations(@RequestParam("month") String month) {
-        MonthlyScheduleResponse response = reservationService.findMonthlySchedule(month);
-        return ResponseEntity.ok().body(response);
+    public ResponseEntity<List<DailyAvailableResponse>> findAllDailySchedulesAndResrvations(@RequestParam("month") String month) {
+        List<DailyAvailableResponse> responses = reservationService.findDailyAvailableByMonth(month);
+        return ResponseEntity.ok().body(responses);
     }
 
     // 일간 시간 설정
-    @PostMapping("/daily-schedule")
+    @PutMapping("/daily-schedule")
     public ResponseEntity<Void> saveDailySchedule(@RequestBody DailyScheduleUpdateOrCreateRequest request){
-        adminReservationService.saveOrUpdateDailySchedule(request);
+        adminReservationService.saveDailySchedule(request);
         return ResponseEntity.ok().build();
     }
 

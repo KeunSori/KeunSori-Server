@@ -1,7 +1,7 @@
 package com.keunsori.keunsoriserver.domain.admin.reservation.domain;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,10 +11,11 @@ import java.time.LocalTime;
 
 @Entity
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class WeeklySchedule {
 
     @Id
+    @Enumerated(EnumType.STRING)
     private DayOfWeek dayOfWeek;
 
     private boolean isActive;

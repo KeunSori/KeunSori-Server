@@ -36,34 +36,14 @@ public class AdminReservationService {
     }
 
     @Transactional
-    public void saveOrUpdateWeeklySchedule(List<WeeklyScheduleUpdateRequest> requests) {
+    public void saveWeeklySchedule(List<WeeklyScheduleUpdateRequest> requests) {
         requests.stream()
                 .map(WeeklyScheduleUpdateRequest::toEntity)
                 .forEach(weeklyScheduleRepository::save);
-
-        /*for(WeeklyScheduleRequest request : requests){
-            if(request.isActive()){
-                // 활성화된 요일 저장
-                WeeklySchedule weeklySchedule = new WeeklySchedule(
-                        request.dayOfWeek(),
-                        true,
-                        request.startTime(),
-                        request.endTime());
-
-                validateSchelduleTime(weeklySchedule.getStartTime(),weeklySchedule.getEndTime());
-
-                weeklyScheduleList.add(weeklySchedule);
-            } else {
-                // 비활성화된 요일 삭제
-                weeklyScheduleRepository.deleteByDayOfWeek(request.dayOfWeek());
-            }
-        }
-        // 데이터베이스에 저장
-        weeklyScheduleRepository.saveAll(weeklyScheduleList);*/
     }
 
     @Transactional
-    public void saveOrUpdateDailySchedule(DailyScheduleUpdateOrCreateRequest request) {
+    public void saveDailySchedule(DailyScheduleUpdateOrCreateRequest request) {
         DailySchedule dailySchedule = DailySchedule.builder()
                 .date(request.date())
                 .isActive(request.isActive())

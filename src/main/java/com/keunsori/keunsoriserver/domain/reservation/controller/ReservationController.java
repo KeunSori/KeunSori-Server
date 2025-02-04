@@ -1,6 +1,6 @@
 package com.keunsori.keunsoriserver.domain.reservation.controller;
 
-import com.keunsori.keunsoriserver.domain.admin.reservation.dto.response.MonthlyScheduleResponse;
+import com.keunsori.keunsoriserver.domain.admin.reservation.dto.response.DailyAvailableResponse;
 import jakarta.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
@@ -65,8 +65,8 @@ public class ReservationController {
 
     // 예약 신청 페이지 가능한 날짜 반환
     @GetMapping
-    public ResponseEntity<MonthlyScheduleResponse> findMonthlySchedule(@RequestParam("month") String month){
-        MonthlyScheduleResponse response = reservationService.findMonthlySchedule(month);
-        return ResponseEntity.ok().body(response);
+    public ResponseEntity<List<DailyAvailableResponse>> findMonthlySchedule(@RequestParam("month") String month){
+        List<DailyAvailableResponse> responses = reservationService.findDailyAvailableByMonth(month);
+        return ResponseEntity.ok().body(responses);
     }
 }
