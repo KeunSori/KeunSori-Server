@@ -1,11 +1,18 @@
 package com.keunsori.keunsoriserver.global.util;
 
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
+import java.util.stream.Stream;
+import lombok.RequiredArgsConstructor;
+
 @Component
+@RequiredArgsConstructor
 public class EnvironmentUtil {
 
-    public String getActiveProfile() {
-        return System.getProperty("spring.profiles.active");
+    private final Environment environment;
+
+    public Stream<String> getActiveProfiles() {
+        return Stream.of(environment.getActiveProfiles());
     }
 }

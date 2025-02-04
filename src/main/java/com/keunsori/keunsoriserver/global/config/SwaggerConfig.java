@@ -8,6 +8,7 @@ import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
 import java.util.List;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.context.annotation.Bean;
@@ -26,14 +27,14 @@ public class SwaggerConfig {
 
     @Bean
     public OpenAPI openAPI() {
-        String activeProfile = environmentUtil.getActiveProfile();
+        Stream<String> activeProfiles = environmentUtil.getActiveProfiles();
 
         Server server = new Server();
-        if (activeProfile.equalsIgnoreCase("dev")) {
+        if (activeProfiles.anyMatch(profile -> profile.equalsIgnoreCase("dev"))) {
             server.setUrl(SwaggerProperties.DEV_SERVER_URL);
         }
 
-        if (activeProfile.equalsIgnoreCase("local")) {
+        if (activeProfiles.anyMatch(profile -> profile.equalsIgnoreCase("local"))) {
             server.setUrl(SwaggerProperties.LOCAL_SERVER_URL);
         }
 
