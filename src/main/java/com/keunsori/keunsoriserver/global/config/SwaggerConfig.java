@@ -27,14 +27,14 @@ public class SwaggerConfig {
 
     @Bean
     public OpenAPI openAPI() {
-        Stream<String> activeProfiles = environmentUtil.getActiveProfiles();
+        String activeProfile = environmentUtil.getCurrentProfile();
 
         Server server = new Server();
-        if (activeProfiles.anyMatch(profile -> profile.equalsIgnoreCase("dev"))) {
+        if (activeProfile.equalsIgnoreCase("dev")) {
             server.setUrl(SwaggerProperties.DEV_SERVER_URL);
         }
 
-        if (activeProfiles.anyMatch(profile -> profile.equalsIgnoreCase("local"))) {
+        if (activeProfile.equalsIgnoreCase("local")) {
             server.setUrl(SwaggerProperties.LOCAL_SERVER_URL);
         }
 

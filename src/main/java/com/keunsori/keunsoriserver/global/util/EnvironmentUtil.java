@@ -15,4 +15,11 @@ public class EnvironmentUtil {
     public Stream<String> getActiveProfiles() {
         return Stream.of(environment.getActiveProfiles());
     }
+
+    public String getCurrentProfile() {
+        return getActiveProfiles()
+                .filter(profile -> profile.equalsIgnoreCase("prod") || profile.equalsIgnoreCase("dev"))
+                .findFirst()
+                .orElse("local");
+    }
 }
