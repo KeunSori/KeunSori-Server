@@ -5,7 +5,6 @@ import com.keunsori.keunsoriserver.domain.admin.reservation.dto.request.WeeklySc
 import com.keunsori.keunsoriserver.domain.admin.reservation.dto.response.DailyAvailableResponse;
 import com.keunsori.keunsoriserver.domain.admin.reservation.dto.response.WeeklyScheduleResponse;
 import com.keunsori.keunsoriserver.domain.admin.reservation.service.AdminReservationService;
-import com.keunsori.keunsoriserver.domain.reservation.service.ReservationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +18,6 @@ import java.util.List;
 public class AdminReservationController {
 
     private final AdminReservationService adminReservationService;
-    private final ReservationService reservationService;
 
     // 기본 예약 관리 페이지 반환
     @GetMapping("/weekly-schedule")
@@ -38,7 +36,7 @@ public class AdminReservationController {
     // 일자별 관리 페이지 반환
     @GetMapping("/daily-schedule")
     public ResponseEntity<List<DailyAvailableResponse>> findAllDailySchedulesAndResrvations(@RequestParam("month") String month) {
-        List<DailyAvailableResponse> responses = reservationService.findDailyAvailableByMonth(month);
+        List<DailyAvailableResponse> responses = adminReservationService.findDailyAvailableByMonth(month);
         return ResponseEntity.ok().body(responses);
     }
 

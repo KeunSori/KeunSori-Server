@@ -3,11 +3,11 @@ package com.keunsori.keunsoriserver.global.util;
 import java.time.DayOfWeek;
 
 public class DayOfWeekUtil {
-    public static int getCustomValue(DayOfWeek dayOfWeek){
+    public static int getCustomDayValue(DayOfWeek dayOfWeek){
         return dayOfWeek.getValue() % 7;
     }
 
-    public static DayOfWeek fromCustomValue(int customValue){
+    public static DayOfWeek fromCustomDayValue(int customValue){
         return DayOfWeek.of((customValue == 0) ? 7 : customValue);
     }
 }

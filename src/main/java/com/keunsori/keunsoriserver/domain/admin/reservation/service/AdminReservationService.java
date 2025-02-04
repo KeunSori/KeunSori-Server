@@ -3,6 +3,7 @@ package com.keunsori.keunsoriserver.domain.admin.reservation.service;
 import com.keunsori.keunsoriserver.domain.admin.reservation.domain.DailySchedule;
 import com.keunsori.keunsoriserver.domain.admin.reservation.dto.request.DailyScheduleUpdateOrCreateRequest;
 import com.keunsori.keunsoriserver.domain.admin.reservation.dto.request.WeeklyScheduleUpdateRequest;
+import com.keunsori.keunsoriserver.domain.admin.reservation.dto.response.DailyAvailableResponse;
 import com.keunsori.keunsoriserver.domain.admin.reservation.dto.response.WeeklyScheduleResponse;
 import com.keunsori.keunsoriserver.domain.admin.reservation.repository.DailyScheduleRepository;
 import com.keunsori.keunsoriserver.domain.admin.reservation.repository.WeeklyScheduleRepository;
@@ -10,12 +11,15 @@ import com.keunsori.keunsoriserver.domain.reservation.domain.Reservation;
 import com.keunsori.keunsoriserver.domain.reservation.domain.validator.ReservationValidator;
 import com.keunsori.keunsoriserver.domain.reservation.repository.ReservationRepository;
 import com.keunsori.keunsoriserver.global.exception.ReservationException;
+import com.keunsori.keunsoriserver.global.util.DateUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.*;
 
@@ -71,6 +75,23 @@ public class AdminReservationService {
         reservationValidator.validateReservationNotComplete(reservation);
 
         reservationRepository.delete(reservation);
+    }
+
+    public List<DailyAvailableResponse> findDailyAvailableByMonth(String yearMonth) {
+
+        LocalDate start = DateUtil.parseMonthToFirstDate(yearMonth);
+        LocalDate end = start.plusMonths(1);
+
+        return Stream.iterate(start, date -> date.isBefore(end), date -> date.plusDays(1))
+                .map(this::convertDateToDailyAvailableResponse).toList();
+    }
+
+    private DailyAvailableResponse convertDateToDailyAvailableResponse(LocalDate date) {
+        return dailyScheduleRepository.findByDate(date)
+                .map(DailyAvailableResponse::from)
+                .orElseGet(() -> weeklyScheduleRepository.findByDayOfWeek(date.getDayOfWeek())
+                        .map(schedule -> DailyAvailableResponse.of(date, schedule))
+                        .orElseGet(() -> DailyAvailableResponse.createInactiveDate(date)));
     }
 
     private void validateNotPastDateSchedule(DailySchedule schedule){

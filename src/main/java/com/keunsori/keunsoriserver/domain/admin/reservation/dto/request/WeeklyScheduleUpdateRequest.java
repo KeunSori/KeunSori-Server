@@ -22,7 +22,7 @@ public record WeeklyScheduleUpdateRequest(
 ) {
         public WeeklySchedule toEntity(){
                 return WeeklySchedule.builder()
-                        .dayOfWeek(DayOfWeekUtil.fromCustomValue(dayOfWeekNum))
+                        .dayOfWeek(DayOfWeekUtil.fromCustomDayValue(dayOfWeekNum))
                         .isActive(isActive)
                         .startTime(startTime)
                         .endTime(endTime)

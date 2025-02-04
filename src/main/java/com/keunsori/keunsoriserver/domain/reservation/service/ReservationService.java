@@ -2,7 +2,6 @@ package com.keunsori.keunsoriserver.domain.reservation.service;
 
 import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.RESERVATION_NOT_EXISTS_WITH_ID;
 
-import com.keunsori.keunsoriserver.domain.admin.reservation.dto.response.DailyAvailableResponse;
 import com.keunsori.keunsoriserver.domain.admin.reservation.repository.DailyScheduleRepository;
 import com.keunsori.keunsoriserver.domain.admin.reservation.repository.WeeklyScheduleRepository;
 import org.springframework.stereotype.Service;
@@ -22,9 +21,7 @@ import com.keunsori.keunsoriserver.global.util.DateUtil;
 import com.keunsori.keunsoriserver.global.util.MemberUtil;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
 
 import lombok.RequiredArgsConstructor;
 
@@ -36,8 +33,6 @@ public class ReservationService {
     private final ReservationRepository reservationRepository;
     private final ReservationValidator reservationValidator;
     private final MemberUtil memberUtil;
-    private final DailyScheduleRepository dailyScheduleRepository;
-    private final WeeklyScheduleRepository weeklyScheduleRepository;
 
     public List<ReservationResponse> findReservationsByMonth(String yearMonth) {
         LocalDate start = DateUtil.parseMonthToFirstDate(yearMonth);
@@ -89,22 +84,5 @@ public class ReservationService {
         Member member = memberUtil.getLoggedInMember();
         return reservationRepository.findAllByMember(member)
                 .stream().map(ReservationResponse::from).toList();
-    }
-
-    public List<DailyAvailableResponse> findDailyAvailableByMonth(String yearMonth) {
-
-        LocalDate start = DateUtil.parseMonthToFirstDate(yearMonth);
-        LocalDate end = start.plusMonths(1);
-
-        return Stream.iterate(start, date -> date.isBefore(end), date -> date.plusDays(1))
-                .map(this::convertDateToDailyAvailableResponse).toList();
-    }
-
-    private DailyAvailableResponse convertDateToDailyAvailableResponse(LocalDate date) {
-        return dailyScheduleRepository.findByDate(date)
-                .map(DailyAvailableResponse::from)
-                .orElseGet(() -> weeklyScheduleRepository.findByDayOfWeek(date.getDayOfWeek())
-                        .map(schedule -> DailyAvailableResponse.of(date, schedule))
-                        .orElseGet(() -> DailyAvailableResponse.createInactiveDate(date)));
     }
 }

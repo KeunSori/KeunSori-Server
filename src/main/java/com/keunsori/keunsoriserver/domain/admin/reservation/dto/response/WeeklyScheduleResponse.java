@@ -13,7 +13,7 @@ public record WeeklyScheduleResponse(
 ) {
     public static WeeklyScheduleResponse from(WeeklySchedule weeklySchedule){
         return new WeeklyScheduleResponse(
-                DayOfWeekUtil.getCustomValue(weeklySchedule.getDayOfWeek()),
+                DayOfWeekUtil.getCustomDayValue(weeklySchedule.getDayOfWeek()),
                 weeklySchedule.isActive(),
                 weeklySchedule.getStartTime(),
                 weeklySchedule.getEndTime()
