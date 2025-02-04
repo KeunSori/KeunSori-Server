@@ -101,7 +101,7 @@ public class ReservationService {
     }
 
     private DailyAvailableResponse convertDateToDailyAvailableResponse(LocalDate date) {
-        return dailyScheduleRepository.findById(date)
+        return dailyScheduleRepository.findByDate(date)
                 .map(DailyAvailableResponse::from)
                 .orElseGet(() -> weeklyScheduleRepository.findByDayOfWeek(date.getDayOfWeek())
                         .map(schedule -> DailyAvailableResponse.of(date, schedule))
