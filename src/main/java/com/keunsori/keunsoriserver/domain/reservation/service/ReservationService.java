@@ -102,24 +102,20 @@ public class ReservationService {
     }
 
     private List<DailyAvailableResponse> findDailyAvailableByMonth(String yearMonth) {
-        List<DailyAvailableResponse> responses = new ArrayList<>();
-
         LocalDate start = DateUtil.parseMonthToFirstDate(yearMonth);
         LocalDate end = start.plusMonths(1);
 
-        Stream.iterate(start, date -> date.isBefore(end), date -> date.plusDays(1))
-                .forEach(
-                    date -> dailyScheduleRepository.findByDate(date)
-                            .ifPresentOrElse(
-                                    dailySchedule -> responses.add(DailyAvailableResponse.from(dailySchedule)),
-                                    () -> {
-                                        weeklyScheduleRepository.findByDayOfWeek(date.getDayOfWeek()).ifPresentOrElse(
-                                                weeklySchedule -> responses.add(DailyAvailableResponse.of(date, weeklySchedule)),
-                                                () -> responses.add(DailyAvailableResponse.createInactiveDate(date))
-                                        );
-                                    }
-                            )
-                );
+        return Stream.iterate(start, date -> date.isBefore(end), date -> date.plusDays(1))
+                .map(this::convertDateToDailyAvailableResponse).toList();
+    }
+    
+    private DailyAvailableResponse convertDateToDailyAvailableResponse(LocalDate date) {
+        return dailyScheduleRepository.findById(date)
+                .map(DailyAvailableResponse::from)
+                .orElseGet(() -> weeklyScheduleRepository.findByDayOfWeek(date.getDayOfWeek())
+                        .map(schedule -> DailyAvailableResponse.of(date, schedule))
+                        .orElseGet(() -> DailyAvailableResponse.createInactiveDate(date)));
+    }
 
         return responses;
     }
