@@ -92,6 +92,7 @@ public class ReservationService {
     }
 
     public List<DailyAvailableResponse> findDailyAvailableByMonth(String yearMonth) {
+
         LocalDate start = DateUtil.parseMonthToFirstDate(yearMonth);
         LocalDate end = start.plusMonths(1);
 
