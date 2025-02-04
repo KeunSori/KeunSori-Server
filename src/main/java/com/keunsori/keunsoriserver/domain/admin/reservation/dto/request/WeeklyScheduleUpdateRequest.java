@@ -1,6 +1,7 @@
 package com.keunsori.keunsoriserver.domain.admin.reservation.dto.request;
 
 import com.keunsori.keunsoriserver.domain.admin.reservation.domain.WeeklySchedule;
+import com.keunsori.keunsoriserver.global.util.DayOfWeekUtil;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -21,16 +22,11 @@ public record WeeklyScheduleUpdateRequest(
 ) {
         public WeeklySchedule toEntity(){
                 return WeeklySchedule.builder()
-                        .dayOfWeek(DayOfWeek.of((convertToDowValue(dayOfWeekNum))))
+                        .dayOfWeek(DayOfWeekUtil.fromCustomValue(dayOfWeekNum))
                         .isActive(isActive)
                         .startTime(startTime)
                         .endTime(endTime)
                         .build();
-        }
-
-        private int convertToDowValue(int dayOfWeekNum){
-                if(dayOfWeekNum == 0) dayOfWeekNum = 7;
-                return dayOfWeekNum;
         }
 }
 

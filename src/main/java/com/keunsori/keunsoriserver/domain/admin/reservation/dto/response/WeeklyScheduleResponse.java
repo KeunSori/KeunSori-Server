@@ -1,6 +1,7 @@
 package com.keunsori.keunsoriserver.domain.admin.reservation.dto.response;
 
 import com.keunsori.keunsoriserver.domain.admin.reservation.domain.WeeklySchedule;
+import com.keunsori.keunsoriserver.global.util.DayOfWeekUtil;
 
 import java.time.LocalTime;
 
@@ -12,7 +13,7 @@ public record WeeklyScheduleResponse(
 ) {
     public static WeeklyScheduleResponse from(WeeklySchedule weeklySchedule){
         return new WeeklyScheduleResponse(
-                weeklySchedule.getDayOfWeek().getValue()%7,
+                DayOfWeekUtil.getCustomValue(weeklySchedule.getDayOfWeek()),
                 weeklySchedule.isActive(),
                 weeklySchedule.getStartTime(),
                 weeklySchedule.getEndTime()
