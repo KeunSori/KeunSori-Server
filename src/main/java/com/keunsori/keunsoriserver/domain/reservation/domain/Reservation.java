@@ -52,7 +52,7 @@ public class Reservation {
     private Session session;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id", nullable = true)
+    @JoinColumn(name = "member_id")
     private Member member;
 
     @Builder
