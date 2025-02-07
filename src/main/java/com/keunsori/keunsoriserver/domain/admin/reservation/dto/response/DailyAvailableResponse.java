@@ -4,20 +4,21 @@ import com.keunsori.keunsoriserver.domain.admin.reservation.domain.DailySchedule
 import com.keunsori.keunsoriserver.domain.admin.reservation.domain.WeeklySchedule;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+
 
 public record DailyAvailableResponse(
         LocalDate date,
         boolean isActive,
-        LocalTime startTime,
-        LocalTime endTime
+        String startTime,
+        String endTime
 ) {
     public static DailyAvailableResponse from(DailySchedule dailySchedule){
         return new DailyAvailableResponse(
                 dailySchedule.getDate(),
                 dailySchedule.isActive(),
-                dailySchedule.getStartTime(),
-                dailySchedule.getEndTime()
+                dailySchedule.getStartTime().format(DateTimeFormatter.ofPattern("HH:mm")),
+                dailySchedule.getEndTime().format(DateTimeFormatter.ofPattern("HH:mm"))
         );
     }
 
@@ -25,8 +26,8 @@ public record DailyAvailableResponse(
         return new DailyAvailableResponse(
                 date,
                 weeklySchedule.isActive(),
-                weeklySchedule.getStartTime(),
-                weeklySchedule.getEndTime()
+                weeklySchedule.getStartTime().format(DateTimeFormatter.ofPattern("HH:mm")),
+                weeklySchedule.getEndTime().format(DateTimeFormatter.ofPattern("HH:mm"))
         );
     }
 
