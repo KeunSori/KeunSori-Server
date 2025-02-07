@@ -2,6 +2,7 @@ package com.keunsori.keunsoriserver.domain.admin.reservation.dto.response;
 
 import com.keunsori.keunsoriserver.domain.admin.reservation.domain.WeeklySchedule;
 import com.keunsori.keunsoriserver.global.util.DayOfWeekUtil;
+import lombok.Getter;
 
 import java.time.format.DateTimeFormatter;
 
@@ -18,5 +19,9 @@ public record WeeklyScheduleResponse(
                 weeklySchedule.getStartTime().format(DateTimeFormatter.ofPattern("HH:mm")),
                 weeklySchedule.getEndTime().format(DateTimeFormatter.ofPattern("HH:mm"))
         );
+    }
+
+    public int getDayOfWeekNum() {
+        return dayOfWeekNum;
     }
 }

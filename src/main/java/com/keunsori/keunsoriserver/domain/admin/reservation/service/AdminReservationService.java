@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -36,7 +37,8 @@ public class AdminReservationService {
 
     public List<WeeklyScheduleResponse> findAllWeeklySchedules() {
          return weeklyScheduleRepository.findAll()
-                 .stream().map(WeeklyScheduleResponse::from).toList();
+                 .stream().map(WeeklyScheduleResponse::from)
+                 .sorted(Comparator.comparing(WeeklyScheduleResponse::getDayOfWeekNum)).toList();
     }
 
     @Transactional
