@@ -35,7 +35,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     // 탈퇴된 회원 외래키 null 처리 쿼리
     @Modifying(clearAutomatically = true)
     @Query("UPDATE Reservation r SET r.member = null WHERE r.member.id = :memberId")
-    void unlinkMember(Long memberId);
+    void unlinkMember(@Param("memberId") Long memberId);
 
     @Query("SELECT COUNT(r) > 0 "
          + "FROM Reservation r "
