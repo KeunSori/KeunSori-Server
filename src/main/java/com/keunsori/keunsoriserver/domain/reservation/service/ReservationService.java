@@ -2,8 +2,6 @@ package com.keunsori.keunsoriserver.domain.reservation.service;
 
 import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.RESERVATION_NOT_EXISTS_WITH_ID;
 
-import com.keunsori.keunsoriserver.domain.admin.reservation.repository.DailyScheduleRepository;
-import com.keunsori.keunsoriserver.domain.admin.reservation.repository.WeeklyScheduleRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

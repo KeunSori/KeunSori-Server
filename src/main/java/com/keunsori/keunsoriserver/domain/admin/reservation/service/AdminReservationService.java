@@ -44,6 +44,7 @@ public class AdminReservationService {
     @Transactional
     public void saveWeeklySchedule(List<WeeklyScheduleUpdateRequest> requests) {
         requests.stream()
+                .peek(request -> validateScheduleTime(request.startTime(), request.endTime()))
                 .map(WeeklyScheduleUpdateRequest::toEntity)
                 .forEach(weeklyScheduleRepository::save);
     }
