@@ -25,8 +25,8 @@ public record ReservationResponse(
                 reservation.getStartTime().format(DateTimeFormatter.ofPattern("HH:mm")),
                 reservation.getEndTime().format(DateTimeFormatter.ofPattern("HH:mm")),
                 reservation.getReservationType(),
-                reservation.getMember().getId(),
-                reservation.getMember().getName()
+                reservation.getMemberId(),
+                reservation.getMemberName()
         );
     }
 }
