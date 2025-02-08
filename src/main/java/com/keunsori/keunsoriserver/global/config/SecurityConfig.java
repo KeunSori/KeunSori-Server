@@ -48,7 +48,6 @@ public class SecurityConfig  {
                        .requestMatchers("/auth/**").permitAll()
                        .requestMatchers("/signup").permitAll()
 
-
                        // 예약 관련된 건 일반 혹은 관리자 권한 필요
                        .requestMatchers("/reservation/**").hasAnyAuthority("일반", "관리자")
 

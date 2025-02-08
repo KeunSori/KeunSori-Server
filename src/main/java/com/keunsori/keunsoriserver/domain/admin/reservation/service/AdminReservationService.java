@@ -40,7 +40,7 @@ public class AdminReservationService {
         return Arrays.stream(DayOfWeek.values())
                 .map(day -> weeklyScheduleRepository.findByDayOfWeek(day)
                         .map(WeeklyScheduleResponse::from)
-                        .orElseGet(() -> WeeklyScheduleResponse.getInactiveDay(day)))
+                        .orElseGet(() -> WeeklyScheduleResponse.createInactiveDay(day)))
                 .sorted(Comparator.comparing(WeeklyScheduleResponse::getDayOfWeekNum))
                 .collect(Collectors.toList());
     }

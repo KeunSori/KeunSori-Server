@@ -22,7 +22,7 @@ public record WeeklyScheduleResponse(
         );
     }
 
-    public static WeeklyScheduleResponse getInactiveDay(DayOfWeek day){
+    public static WeeklyScheduleResponse createInactiveDay(DayOfWeek day){
         return new WeeklyScheduleResponse(
                 DayOfWeekUtil.getCustomDayValue(day),
                 false,
