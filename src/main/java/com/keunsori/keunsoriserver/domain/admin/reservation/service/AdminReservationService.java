@@ -65,15 +65,14 @@ public class AdminReservationService {
         validateNotPastDateSchedule(dailySchedule);
         validateScheduleTime(dailySchedule.getStartTime(),dailySchedule.getEndTime());
 
-        // active -> unactive 시 예약들 삭제
-        if(!dailySchedule.isActive()){
-            reservationRepository.deleteAllByDate(dailySchedule.getDate());
-        } else {
+        if(dailySchedule.isActive()){
             // active이면 설정된 시간 범위 밖 예약들 삭제
             List<Reservation> reservationsToDelete = reservationRepository.findAllByDate(dailySchedule.getDate()).stream()
-                    .filter(reservation -> reservation.getStartTime().isBefore(dailySchedule.getStartTime()) ||
-                            reservation.getEndTime().isAfter(dailySchedule.getEndTime())).toList();
+                    .filter(reservation -> reservation.isValidTimeFor(dailySchedule)).toList();
             reservationRepository.deleteAll(reservationsToDelete);
+        } else {
+            // unactive 시 예약들 삭제
+            reservationRepository.deleteAllByDate(dailySchedule.getDate());
         }
 
         dailyScheduleRepository.save(dailySchedule);
