@@ -3,6 +3,7 @@ package com.keunsori.keunsoriserver.domain.admin.reservation.dto.response;
 import com.keunsori.keunsoriserver.domain.admin.reservation.domain.WeeklySchedule;
 import com.keunsori.keunsoriserver.global.util.DayOfWeekUtil;
 
+import java.time.DayOfWeek;
 import java.time.format.DateTimeFormatter;
 
 public record WeeklyScheduleResponse(
@@ -18,6 +19,15 @@ public record WeeklyScheduleResponse(
                 weeklySchedule.isActive(),
                 weeklySchedule.getStartTime().format(DateTimeFormatter.ofPattern("HH:mm")),
                 weeklySchedule.getEndTime().format(DateTimeFormatter.ofPattern("HH:mm"))
+        );
+    }
+
+    public static WeeklyScheduleResponse getInactiveDay(DayOfWeek day){
+        return new WeeklyScheduleResponse(
+                DayOfWeekUtil.getCustomDayValue(day),
+                false,
+                "10:00",
+                "22:00"
         );
     }
 

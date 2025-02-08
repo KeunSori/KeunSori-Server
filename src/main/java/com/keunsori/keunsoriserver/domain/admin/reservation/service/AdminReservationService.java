@@ -1,6 +1,7 @@
 package com.keunsori.keunsoriserver.domain.admin.reservation.service;
 
 import com.keunsori.keunsoriserver.domain.admin.reservation.domain.DailySchedule;
+import com.keunsori.keunsoriserver.domain.admin.reservation.domain.WeeklySchedule;
 import com.keunsori.keunsoriserver.domain.admin.reservation.dto.request.DailyScheduleUpdateOrCreateRequest;
 import com.keunsori.keunsoriserver.domain.admin.reservation.dto.request.WeeklyScheduleUpdateRequest;
 import com.keunsori.keunsoriserver.domain.admin.reservation.dto.response.DailyAvailableResponse;
@@ -16,10 +17,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.*;
@@ -36,9 +38,12 @@ public class AdminReservationService {
 
 
     public List<WeeklyScheduleResponse> findAllWeeklySchedules() {
-         return weeklyScheduleRepository.findAll()
-                 .stream().map(WeeklyScheduleResponse::from)
-                 .sorted(Comparator.comparing(WeeklyScheduleResponse::getDayOfWeekNum)).toList();
+        return Arrays.stream(DayOfWeek.values())
+                .map(day -> weeklyScheduleRepository.findByDayOfWeek(day)
+                        .map(WeeklyScheduleResponse::from)
+                        .orElseGet(() -> WeeklyScheduleResponse.getInactiveDay(day)))
+                .sorted(Comparator.comparing(WeeklyScheduleResponse::getDayOfWeekNum))
+                .collect(Collectors.toList());
     }
 
     @Transactional
