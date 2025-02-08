@@ -53,6 +53,7 @@ public class Member extends BaseEntity {
             throw new MemberException(INVALID_STATUS_FOR_APPROVAL);
         }
         this.status = MemberStatus.일반;
+        this.approvalDate = LocalDateTime.now();
     }
 
     public boolean isAdmin() {

@@ -1,5 +1,6 @@
 package com.keunsori.keunsoriserver.domain.reservation.domain;
 
+import com.keunsori.keunsoriserver.domain.admin.reservation.domain.DailySchedule;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -100,5 +101,10 @@ public class Reservation {
             return "(알 수 없음)";
         }
         return member.getName();
+    }
+
+    public boolean isValidTimeFor(DailySchedule dailySchedule){
+        return this.getStartTime().isBefore(dailySchedule.getStartTime()) ||
+                this.getEndTime().isAfter(dailySchedule.getEndTime());
     }
 }
