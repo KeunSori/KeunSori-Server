@@ -1,7 +1,6 @@
 package com.keunsori.keunsoriserver.domain.admin.reservation.service;
 
 import com.keunsori.keunsoriserver.domain.admin.reservation.domain.DailySchedule;
-import com.keunsori.keunsoriserver.domain.admin.reservation.domain.WeeklySchedule;
 import com.keunsori.keunsoriserver.domain.admin.reservation.dto.request.DailyScheduleUpdateOrCreateRequest;
 import com.keunsori.keunsoriserver.domain.admin.reservation.dto.request.WeeklyScheduleUpdateRequest;
 import com.keunsori.keunsoriserver.domain.admin.reservation.dto.response.DailyAvailableResponse;
@@ -69,6 +68,12 @@ public class AdminReservationService {
         // active -> unactive 시 예약들 삭제
         if(!dailySchedule.isActive()){
             reservationRepository.deleteAllByDate(dailySchedule.getDate());
+        } else {
+            // active이면 설정된 시간 범위 밖 예약들 삭제
+            List<Reservation> reservationsToDelete = reservationRepository.findAllByDate(dailySchedule.getDate()).stream()
+                    .filter(reservation -> reservation.getStartTime().isBefore(dailySchedule.getStartTime()) ||
+                            reservation.getEndTime().isAfter(dailySchedule.getEndTime())).toList();
+            reservationRepository.deleteAll(reservationsToDelete);
         }
 
         dailyScheduleRepository.save(dailySchedule);
