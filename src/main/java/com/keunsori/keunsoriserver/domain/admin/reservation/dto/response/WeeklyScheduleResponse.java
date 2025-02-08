@@ -27,7 +27,7 @@ public record WeeklyScheduleResponse(
                 DayOfWeekUtil.getCustomDayValue(day),
                 false,
                 "10:00",
-                "22:00"
+                "23:00"
         );
     }
 

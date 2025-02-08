@@ -35,8 +35,8 @@ public record DailyAvailableResponse(
         return new DailyAvailableResponse(
                 date,
                 false,
-                null,
-                null
+                "10:00",
+                "23:00"
         );
     }
 }
