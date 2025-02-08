@@ -1,4 +1,4 @@
-package com.keunsori.keunsoriserver.domain.member.dto.response;
+package com.keunsori.keunsoriserver.domain.admin.member.dto.response;
 
 import com.keunsori.keunsoriserver.domain.member.domain.vo.MemberStatus;
 import com.keunsori.keunsoriserver.domain.member.domain.Member;
@@ -12,7 +12,6 @@ public record MemberApplicantResponse(
         MemberStatus status,
         LocalDateTime applicationDate
 ) {
-
     public static MemberApplicantResponse from(Member member) {
         return new MemberApplicantResponse(
                 member.getId(),
@@ -22,5 +21,4 @@ public record MemberApplicantResponse(
                 member.getCreateDate()
         );
     }
-
 }

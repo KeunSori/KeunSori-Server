@@ -68,7 +68,7 @@ public class ReservationValidator {
         }
     }
 
-    private void validateReservationNotComplete(Reservation reservation) {
+    public void validateReservationNotComplete(Reservation reservation) {
         if (reservation.isComplete()) {
             throw new ReservationException(RESERVATION_ALREADY_COMPLETED);
         }

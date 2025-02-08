@@ -20,6 +20,7 @@ import com.keunsori.keunsoriserver.global.util.MemberUtil;
 
 import java.time.LocalDate;
 import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -34,7 +35,7 @@ public class ReservationService {
     public List<ReservationResponse> findReservationsByMonth(String yearMonth) {
         LocalDate start = DateUtil.parseMonthToFirstDate(yearMonth);
         LocalDate end = start.plusMonths(1);
-        return reservationRepository.findAllByDateBetween(start, end)
+        return reservationRepository.findAllByDateBetweenOrderByDateAscStartTimeAsc(start, end)
                 .stream().map(ReservationResponse::from).toList();
     }
 
@@ -79,7 +80,7 @@ public class ReservationService {
 
     public List<ReservationResponse> findAllMyReservations() {
         Member member = memberUtil.getLoggedInMember();
-        return reservationRepository.findAllByMember(member)
+        return reservationRepository.findAllByMemberOrderByDateDescStartTimeDesc(member)
                 .stream().map(ReservationResponse::from).toList();
     }
 }
