@@ -86,6 +86,26 @@ public class ReservationApiTest extends ApiTest {
     }
 
     @Test
+    void 교습_예약_생성에_성공한다() throws JsonProcessingException {
+        ReservationCreateRequest request = new ReservationCreateRequest(
+                "LESSON",
+                "ALL",
+                LocalDate.of(2999, 1, 1),
+                LocalTime.of(12, 0),
+                LocalTime.of(14, 0)
+        );
+
+        given().
+                header(AUTHORIZATION, authorizationValue).
+                header(CONTENT_TYPE, "application/json").
+                body(mapper.writeValueAsString(request)).
+        when().
+                post("/reservation").
+        then().
+                statusCode(HttpStatus.SC_CREATED);
+    }
+
+    @Test
     void 종료시간이_시작시간보다_앞서는_경우_예약_생성에_실패한다() throws JsonProcessingException {
         ReservationCreateRequest request = new ReservationCreateRequest(
                 "PERSONAL",
@@ -125,9 +145,9 @@ public class ReservationApiTest extends ApiTest {
                         header(AUTHORIZATION, authorizationValue).
                         header(CONTENT_TYPE, "application/json").
                         body(mapper.writeValueAsString(request)).
-                        when().
+                when().
                         post("/reservation").
-                        then().
+                then().
                         statusCode(HttpStatus.SC_BAD_REQUEST).
                         extract().
                         jsonPath().get("message");
@@ -305,6 +325,44 @@ public class ReservationApiTest extends ApiTest {
                         jsonPath().get("message");
 
         Assertions.assertThat(errorMessage).isEqualTo(ANOTHER_RESERVATION_ALREADY_EXISTS);
+    }
+
+    @ParameterizedTest
+    @MethodSource("overlapReservationTimeTestData")
+    void 교습_예약이_존재하면_개인_예약의_예약_시간이_겹쳤을_때_실패한다(LocalTime startTime, LocalTime endTime) throws JsonProcessingException {
+        ReservationCreateRequest request1 = new ReservationCreateRequest(
+                "LESSON",
+                "ALL",
+                LocalDate.of(2999, 1, 1),
+                LocalTime.of(12, 0),
+                LocalTime.of(14, 0)
+        );
+
+        ReservationCreateRequest request2 = new ReservationCreateRequest(
+                "PERSONAL",
+                "GUITAR",
+                LocalDate.of(2999, 1, 1),
+                startTime,
+                endTime
+        );
+
+        given().
+                header(AUTHORIZATION, authorizationValue).
+                header(CONTENT_TYPE, "application/json").
+                body(mapper.writeValueAsString(request1)).
+        when().
+                post("/reservation").
+        then().
+                statusCode(HttpStatus.SC_CREATED);
+
+        given().
+                header(AUTHORIZATION, authorizationValue).
+                header(CONTENT_TYPE, "application/json").
+                body(mapper.writeValueAsString(request2)).
+        when().
+                post("/reservation").
+        then().
+                statusCode(HttpStatus.SC_BAD_REQUEST);
     }
 
     static Stream<Arguments> successReservationTimeTestData() {

@@ -15,6 +15,7 @@ public class ErrorMessage {
     public static final String INVALID_RESERVATION_TIME = "예약 종료 시간은 예약 시작 시간보다 나중이어야 합니다.";
     public static final String INVALID_RESERVATION_TYPE = "예약 타입이 잘못되었습니다.";
     public static final String INVALID_RESERVATION_DATE = "예약 날짜는 과거 날짜면 안됩니다.";
+    public static final String INVALID_SESSION = "존재하지 않는 세션입니다.";
 
     // Admin Reservation
     public static final String INVALID_DATE_SCHEDULE = "설정하는 날짜가 이미 지난 날짜입니다.";

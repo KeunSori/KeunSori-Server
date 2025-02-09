@@ -22,7 +22,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
 
     List<Reservation> findAllByDateBetweenOrderByDateAscStartTimeAsc(LocalDate start, LocalDate end);
 
-    List<Reservation> deleteAllByDate(LocalDate date);
+    void deleteAllByDate(LocalDate date);
 
 
 
@@ -42,7 +42,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     @Query("SELECT COUNT(r) > 0 "
          + "FROM Reservation r "
          + "WHERE r.date = :date "
-         + "AND (r.session = :session OR r.reservationType = 'TEAM') "
+         + "AND (r.reservationType != 'PERSONAL' OR (r.reservationType = 'PERSONAL' AND r.session = :session)) "
          + "AND (r.startTime BETWEEN :start_time AND :end_time "
          + "OR   r.endTime BETWEEN :start_time AND :end_time "
          + "OR   :start_time BETWEEN r.startTime AND r.endTime)")
