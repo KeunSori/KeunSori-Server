@@ -6,6 +6,7 @@ import com.keunsori.keunsoriserver.domain.admin.reservation.domain.WeeklySchedul
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
+
 public record DailyAvailableResponse(
         LocalDate date,
         boolean isActive,
@@ -34,8 +35,8 @@ public record DailyAvailableResponse(
         return new DailyAvailableResponse(
                 date,
                 false,
-                null,
-                null
+                "10:00",
+                "23:00"
         );
     }
 }
