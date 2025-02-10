@@ -3,6 +3,9 @@ package com.keunsori.keunsoriserver.global.exception;
 public class ErrorMessage {
     // Member
     public static final String MEMBER_NOT_EXISTS_WITH_STUDENT_ID = "해당 학번을 가진 멤버가 존재하지 않습니다.";
+    public static final String DUPLICATED_STUDENT_ID = "이미 존재하는 학번입니다.";
+    public static final String DUPLICATED_EMAIL = "이미 존재하는 이메일입니다.";
+    public static final String PASSWORD_IS_DIFFERENT_FROM_CHECK = "비밀번호와 비밀번호 확인 입력값이 다릅니다.";
 
     // Admin Member
     public static final String INVALID_STATUS_FOR_APPROVAL = "회원이 승인 대기 상태가 아닙니다.";

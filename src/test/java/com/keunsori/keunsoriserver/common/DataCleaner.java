@@ -36,16 +36,16 @@ public class DataCleaner implements InitializingBean {
     }
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         findTableNames();
     }
 
     private void truncate() {
-        em.createNativeQuery(String.format("SET FOREIGN_KEY_CHECKS = 0")).executeUpdate();
+        em.createNativeQuery("SET FOREIGN_KEY_CHECKS = 0").executeUpdate();
         for (String tableName : tableNames) {
             em.createNativeQuery("truncate table " + tableName).executeUpdate();
         }
-        em.createNativeQuery(String.format("SET FOREIGN_KEY_CHECKS = 1")).executeUpdate();
+        em.createNativeQuery("SET FOREIGN_KEY_CHECKS = 1").executeUpdate();
     }
 
     @Transactional
