@@ -10,22 +10,20 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import lombok.RequiredArgsConstructor;
+
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/signup")
 public class SignUpController {
 
     private final SignUpService signUpService;
 
-    public SignUpController(SignUpService signUpService) {
-        this.signUpService = signUpService;
-    }
-
     @PostMapping
     public ResponseEntity<SignUpResponse> registerMember(@Valid @RequestBody SignUpRequest signUpRequest) {
 
         //멤버 엔티티 빌드
-        SignUpResponse response=signUpService.registerMember(signUpRequest);
+        SignUpResponse response = signUpService.registerMember(signUpRequest);
         return ResponseEntity.ok(response);
-
     }
 }
