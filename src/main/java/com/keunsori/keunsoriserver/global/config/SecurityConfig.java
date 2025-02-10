@@ -1,17 +1,33 @@
 package com.keunsori.keunsoriserver.global.config;
 
+import static com.keunsori.keunsoriserver.global.constant.EnvironmentConstant.DEV_URL;
+import static com.keunsori.keunsoriserver.global.constant.EnvironmentConstant.LOCAL_URL_1;
+import static com.keunsori.keunsoriserver.global.constant.EnvironmentConstant.LOCAL_URL_2;
+import static com.keunsori.keunsoriserver.global.constant.EnvironmentConstant.LOCAL_URL_3;
+import static com.keunsori.keunsoriserver.global.constant.EnvironmentConstant.PROD_URL;
+import static org.springframework.http.HttpHeaders.SET_COOKIE;
+import static org.springframework.security.config.Customizer.withDefaults;
+
 import com.keunsori.keunsoriserver.domain.member.domain.vo.MemberStatus;
 import com.keunsori.keunsoriserver.global.security.JwtAuthenticationFilter;
+
+import java.util.ArrayList;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
@@ -28,7 +44,8 @@ public class SecurityConfig  {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
        http
-               .csrf(csrf -> csrf.disable())  // CSRF 비활성화
+               .cors(withDefaults())
+               .csrf(AbstractHttpConfigurer::disable)  // CSRF 비활성화
                .sessionManagement(session -> session
                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))  // 세션 사용 안함
                .authorizeHttpRequests(auth -> auth
@@ -37,8 +54,11 @@ public class SecurityConfig  {
                        .requestMatchers("/auth/**").permitAll()
                        .requestMatchers("/signup").permitAll()
 
-                       // 예약 관련된 건 일반 권한 필요
-                       .requestMatchers("/reservation/**").hasAuthority("일반")
+                       // 예약 관련된 건 일반 혹은 관리자 권한 필요
+                       .requestMatchers("/reservation/**").hasAnyAuthority("일반", "관리자")
+
+                       // 관리 기능은 관리자 권한 필요
+                       .requestMatchers("/admin/**").hasAuthority("관리자")
 
                        // 관리 기능은 관리자 권한 필요
                        .requestMatchers("/admin/**").hasAuthority("관리자")
@@ -50,5 +70,24 @@ public class SecurityConfig  {
                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+
+        configuration.setAllowedOriginPatterns(List.of(
+            LOCAL_URL_1, LOCAL_URL_2, LOCAL_URL_3, DEV_URL, PROD_URL
+        ));
+
+        configuration.addAllowedHeader("*");
+        configuration.addAllowedMethod("*");
+        configuration.setAllowCredentials(true);
+//        configuration.addExposedHeader(SET_COOKIE);
+        configuration.addExposedHeader("Refresh-Token");
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }

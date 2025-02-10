@@ -1,5 +1,6 @@
 package com.keunsori.keunsoriserver.domain.reservation.domain;
 
+import com.keunsori.keunsoriserver.domain.admin.reservation.domain.DailySchedule;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -84,6 +85,26 @@ public class Reservation {
 
     public boolean isComplete() {
         // TODO : new Date 호출 시점을 컨트롤러 호출 시점과 맞추기
-        return date.isAfter(LocalDate.now());
+        // TODO : LocalDate 테스트가 가능하도록 분리하기
+        return LocalDate.now().isAfter(date);
+    }
+
+    public Long getMemberId() {
+        if (member == null) {
+            return null;
+        }
+        return member.getId();
+    }
+
+    public String getMemberName() {
+        if (member == null) {
+            return "(알 수 없음)";
+        }
+        return member.getName();
+    }
+
+    public boolean isValidTimeFor(DailySchedule dailySchedule){
+        return this.getStartTime().isBefore(dailySchedule.getStartTime()) ||
+                this.getEndTime().isAfter(dailySchedule.getEndTime());
     }
 }

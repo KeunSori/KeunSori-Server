@@ -8,7 +8,7 @@ import java.time.format.DateTimeFormatter;
 
 public record ReservationResponse(
         Long reservationId,
-        String session,
+        String reservationSession,
         LocalDate reservationDate,
         String reservationStartTime,
         String reservationEndTime,
@@ -22,11 +22,11 @@ public record ReservationResponse(
                 reservation.getId(),
                 reservation.getSession().name().toLowerCase(),
                 reservation.getDate(),
-                reservation.getStartTime().format(DateTimeFormatter.ofPattern("hh:mm")),
-                reservation.getEndTime().format(DateTimeFormatter.ofPattern("hh:mm")),
+                reservation.getStartTime().format(DateTimeFormatter.ofPattern("HH:mm")),
+                reservation.getEndTime().format(DateTimeFormatter.ofPattern("HH:mm")),
                 reservation.getReservationType(),
-                reservation.getMember().getId(),
-                reservation.getMember().getName()
+                reservation.getMemberId(),
+                reservation.getMemberName()
         );
     }
 }

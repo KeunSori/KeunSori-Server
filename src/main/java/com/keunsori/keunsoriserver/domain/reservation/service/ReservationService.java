@@ -1,7 +1,5 @@
 package com.keunsori.keunsoriserver.domain.reservation.service;
 
-import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.RESERVATION_COMPLETED;
-import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.RESERVATION_NOT_EQUAL_MEMBER;
 import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.RESERVATION_NOT_EXISTS_WITH_ID;
 
 import org.springframework.stereotype.Service;
@@ -9,6 +7,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.keunsori.keunsoriserver.domain.member.domain.Member;
 import com.keunsori.keunsoriserver.domain.reservation.domain.Reservation;
+import com.keunsori.keunsoriserver.domain.reservation.domain.validator.ReservationValidator;
+import com.keunsori.keunsoriserver.domain.reservation.domain.vo.ReservationType;
+import com.keunsori.keunsoriserver.domain.reservation.domain.vo.Session;
 import com.keunsori.keunsoriserver.domain.reservation.dto.requset.ReservationCreateRequest;
 import com.keunsori.keunsoriserver.domain.reservation.dto.response.ReservationResponse;
 import com.keunsori.keunsoriserver.domain.reservation.dto.requset.ReservationUpdateRequest;
@@ -19,6 +20,7 @@ import com.keunsori.keunsoriserver.global.util.MemberUtil;
 
 import java.time.LocalDate;
 import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -27,20 +29,25 @@ import lombok.RequiredArgsConstructor;
 public class ReservationService {
 
     private final ReservationRepository reservationRepository;
+    private final ReservationValidator reservationValidator;
     private final MemberUtil memberUtil;
 
     public List<ReservationResponse> findReservationsByMonth(String yearMonth) {
         LocalDate start = DateUtil.parseMonthToFirstDate(yearMonth);
         LocalDate end = start.plusMonths(1);
-        return reservationRepository.findAllByDateBetween(start, end)
-                .stream().map(ReservationResponse::of).toList();
+        return reservationRepository.findAllByDateBetweenOrderByDateAscStartTimeAsc(start, end)
+                .stream().map(ReservationResponse::from).toList();
     }
 
     @Transactional
-    public void createReservation(ReservationCreateRequest request) {
+    public Long createReservation(ReservationCreateRequest request) {
         Member member = memberUtil.getLoggedInMember();
+
+        reservationValidator.validateReservationCreateRequest(request);
         Reservation reservation = request.toEntity(member);
+
         reservationRepository.save(reservation);
+        return reservation.getId();
     }
 
     @Transactional
@@ -49,7 +56,7 @@ public class ReservationService {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new ReservationException(RESERVATION_NOT_EXISTS_WITH_ID));
 
-        validateReservationDeletable(reservation, member);
+        reservationValidator.validateReservationDeletable(reservation, member);
         reservationRepository.delete(reservation);
     }
 
@@ -59,10 +66,12 @@ public class ReservationService {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new ReservationException(RESERVATION_NOT_EXISTS_WITH_ID));
 
-        validateReservationUpdatable(reservation, member);
+        reservationValidator.validateReservationUpdateRequest(request);
+        reservationValidator.validateOriginalReservationUpdatable(reservation, member);
+
         reservation.updateReservation(
-                request.reservationType(),
-                request.reservationSession(),
+                ReservationType.from(request.reservationSession()),
+                Session.from(request.reservationSession()),
                 request.reservationDate(),
                 request.reservationStartTime(),
                 request.reservationEndTime()
@@ -71,32 +80,7 @@ public class ReservationService {
 
     public List<ReservationResponse> findAllMyReservations() {
         Member member = memberUtil.getLoggedInMember();
-        return reservationRepository.findAllByMember(member)
-                .stream().map(ReservationResponse::of).toList();
-    }
-
-    private void validateReservationDeletable(Reservation reservation, Member loggedInMember) {
-        validateReservationNotComplete(reservation);
-        if (loggedInMember.isAdmin()) {
-            return;
-        }
-        validateReservationMember(reservation, loggedInMember);
-    }
-
-    private void validateReservationUpdatable(Reservation reservation, Member loggedInMember) {
-        validateReservationMember(reservation, loggedInMember);
-        validateReservationNotComplete(reservation);
-    }
-
-    private void validateReservationMember(Reservation reservation, Member loggedInMember) {
-        if (!reservation.hasMember(loggedInMember)) {
-            throw new ReservationException(RESERVATION_NOT_EQUAL_MEMBER);
-        }
-    }
-
-    private void validateReservationNotComplete(Reservation reservation) {
-        if (reservation.isComplete()) {
-            throw new ReservationException(RESERVATION_COMPLETED);
-        }
+        return reservationRepository.findAllByMemberOrderByDateDescStartTimeDesc(member)
+                .stream().map(ReservationResponse::from).toList();
     }
 }
