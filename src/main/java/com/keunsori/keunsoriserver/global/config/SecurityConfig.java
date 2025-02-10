@@ -60,9 +60,6 @@ public class SecurityConfig  {
                        // 관리 기능은 관리자 권한 필요
                        .requestMatchers("/admin/**").hasAuthority("관리자")
 
-                       // 관리 기능은 관리자 권한 필요
-                       .requestMatchers("/admin/**").hasAuthority("관리자")
-
                        // 나머지 요청은 인증 필요
                        .anyRequest().authenticated())
 
