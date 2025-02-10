@@ -64,7 +64,7 @@ public class Member extends BaseEntity {
     }
 
     @PrePersist
-    public void convertStudentIdToUpperCode() {
+    public void convertStudentIdToUpperCase() {
         this.studentId = studentId.toUpperCase();
     }
 }
