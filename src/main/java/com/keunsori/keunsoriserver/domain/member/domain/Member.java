@@ -62,4 +62,9 @@ public class Member extends BaseEntity {
     public boolean isAdmin() {
         return status.equals(MemberStatus.관리자);
     }
+
+    @PrePersist
+    public void convertStudentIdToUpperCase() {
+        this.studentId = studentId.toUpperCase();
+    }
 }
