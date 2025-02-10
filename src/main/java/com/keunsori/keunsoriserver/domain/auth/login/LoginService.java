@@ -26,7 +26,7 @@ public class LoginService {
     public LoginResponse login(LoginRequest loginRequest) {
 
         //학번으로 사용자 조회
-        Member member= memberRepository.findByStudentId(loginRequest.studentId())
+        Member member= memberRepository.findByStudentIdIgnoreCase(loginRequest.studentId())
                 .orElseThrow(() -> new MemberException("존재하지 않는 학번입니다."));
 
         //비밀번호 일치하는지 검증
