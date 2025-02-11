@@ -10,4 +10,8 @@ public class DayOfWeekUtil {
     public static DayOfWeek fromCustomDayValue(int customValue){
         return DayOfWeek.of((customValue == 0) ? 7 : customValue);
     }
+
+    public  static int convertDayOfWeekToDB(DayOfWeek dayOfWeek){
+        return dayOfWeek.getValue() % 7 + 1;
+    }
 }

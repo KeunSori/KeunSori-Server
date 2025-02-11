@@ -47,4 +47,11 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             + "OR   r.endTime BETWEEN :start_time AND :end_time "
             + "OR   :start_time BETWEEN r.startTime AND r.endTime)")
     boolean existsAnotherReservationAtDateAndTimePeriodWithSession(@Param("date") LocalDate date, @Param("session") Session session, @Param("start_time") LocalTime startTime, @Param("end_time") LocalTime endTime);
+
+    @Query("SELECT r FROM Reservation r WHERE FUNCTION('DAYOFWEEK', r.date) = :dayOfWeek")
+    List<Reservation> findAllByDayOfWeek(@Param("dayOfWeek") int dayOfWeek);
+
+    @Modifying(clearAutomatically = true)
+    @Query("DELETE FROM Reservation r WHERE FUNCTION('DAYOFWEEK', r.date) = :dayOfWeek")
+    void deleteAllByDayOfWeek(@Param("dayOfWeek") int dayOfWeek);
 }
