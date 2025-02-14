@@ -1,5 +1,6 @@
 package com.keunsori.keunsoriserver.domain.auth.controller;
 
+import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.INVALID_REFRESH_TOKEN;
 import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.MEMBER_NOT_EXISTS_WITH_STUDENT_ID;
 
 import com.keunsori.keunsoriserver.domain.auth.login.LoginService;
@@ -8,7 +9,6 @@ import com.keunsori.keunsoriserver.domain.auth.redis.RefreshTokenService;
 import com.keunsori.keunsoriserver.domain.auth.login.JwtTokenManager;
 import com.keunsori.keunsoriserver.domain.auth.login.dto.response.LoginResponse;
 import com.keunsori.keunsoriserver.domain.member.domain.Member;
-import com.keunsori.keunsoriserver.domain.member.domain.vo.MemberStatus;
 import com.keunsori.keunsoriserver.domain.member.repository.MemberRepository;
 import com.keunsori.keunsoriserver.global.exception.AuthException;
 import com.keunsori.keunsoriserver.global.exception.MemberException;
@@ -45,7 +45,7 @@ public class AuthController {
         //Redis에 저장된 Refresh Token과 일치하는지 확인
         String storedRefreshToken = authService.getRefreshToken(studentId);
         if(storedRefreshToken == null || !storedRefreshToken.equals(refreshToken)){
-            throw new AuthException("유효하지 않은 Refresh Token");
+            throw new AuthException(INVALID_REFRESH_TOKEN);
         }
 
         //새로운 AccessToken 생성

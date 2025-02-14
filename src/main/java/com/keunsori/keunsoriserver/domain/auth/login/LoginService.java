@@ -1,5 +1,8 @@
 package com.keunsori.keunsoriserver.domain.auth.login;
 
+import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.PASSWORD_NOT_CORRECT;
+import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.STUDENT_ID_NOT_EXISTS;
+
 import com.keunsori.keunsoriserver.domain.auth.login.dto.request.LoginRequest;
 import com.keunsori.keunsoriserver.domain.auth.login.dto.response.LoginResponse;
 import com.keunsori.keunsoriserver.domain.auth.redis.RefreshTokenService;
@@ -27,11 +30,11 @@ public class LoginService {
 
         //학번으로 사용자 조회
         Member member= memberRepository.findByStudentIdIgnoreCase(loginRequest.studentId())
-                .orElseThrow(() -> new MemberException("존재하지 않는 학번입니다."));
+                .orElseThrow(() -> new MemberException(STUDENT_ID_NOT_EXISTS));
 
         //비밀번호 일치하는지 검증
         if(!passwordEncoder.matches(loginRequest.password(), member.getPassword())){
-            throw new AuthException("비밀번호가 일치하지 않습니다.");
+            throw new AuthException(PASSWORD_NOT_CORRECT);
         }
 
         //Access Token, Refresh Token 생성
