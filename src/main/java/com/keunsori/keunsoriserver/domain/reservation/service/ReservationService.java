@@ -43,7 +43,7 @@ public class ReservationService {
     public Long createReservation(ReservationCreateRequest request) {
         Member member = memberUtil.getLoggedInMember();
 
-        reservationValidator.validateReservationFromCreateRequest(request);
+        reservationValidator.validateReservationCreateRequest(request);
         Reservation reservation = request.toEntity(member);
 
         reservationRepository.save(reservation);
@@ -66,7 +66,7 @@ public class ReservationService {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new ReservationException(RESERVATION_NOT_EXISTS_WITH_ID));
 
-        reservationValidator.validateReservationFromUpdateRequest(request);
+        reservationValidator.validateReservationUpdateRequest(request);
         reservationValidator.validateOriginalReservationUpdatable(reservation, member);
 
         reservation.updateReservation(

@@ -3,6 +3,9 @@ package com.keunsori.keunsoriserver.global.exception;
 public class ErrorMessage {
     // Member
     public static final String MEMBER_NOT_EXISTS_WITH_STUDENT_ID = "해당 학번을 가진 멤버가 존재하지 않습니다.";
+    public static final String DUPLICATED_STUDENT_ID = "이미 존재하는 학번입니다.";
+    public static final String DUPLICATED_EMAIL = "이미 존재하는 이메일입니다.";
+    public static final String PASSWORD_IS_DIFFERENT_FROM_CHECK = "비밀번호와 비밀번호 확인 입력값이 다릅니다.";
 
     // Admin Member
     public static final String INVALID_STATUS_FOR_APPROVAL = "회원이 승인 대기 상태가 아닙니다.";
@@ -15,6 +18,7 @@ public class ErrorMessage {
     public static final String INVALID_RESERVATION_TIME = "예약 종료 시간은 예약 시작 시간보다 나중이어야 합니다.";
     public static final String INVALID_RESERVATION_TYPE = "예약 타입이 잘못되었습니다.";
     public static final String INVALID_RESERVATION_DATE = "예약 날짜는 과거 날짜면 안됩니다.";
+    public static final String INVALID_SESSION = "존재하지 않는 세션입니다.";
 
     // Admin Reservation
     public static final String INVALID_DATE_SCHEDULE = "설정하는 날짜가 이미 지난 날짜입니다.";
