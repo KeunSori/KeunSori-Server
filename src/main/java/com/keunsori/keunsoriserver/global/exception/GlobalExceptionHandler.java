@@ -1,5 +1,6 @@
 package com.keunsori.keunsoriserver.global.exception;
 
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -19,7 +20,7 @@ public class GlobalExceptionHandler {
                 .getFieldErrors()
                 .stream()
                 .findFirst()
-                .map(error-> error.getField() + ":" + error.getDefaultMessage())
+                .map(DefaultMessageSourceResolvable::getDefaultMessage)
                 .orElse("유효성 검사 실패");
 
         ErrorResponse response = new ErrorResponse(HttpStatus.BAD_REQUEST.value(),errorMessage);
