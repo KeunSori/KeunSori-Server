@@ -31,7 +31,7 @@ public class EmailService {
         EmailAuthentication emailAuthentication = emailRepository.findById(request.email())
                 .orElseThrow(() -> new EmailException(EMAIL_NOT_EXISTS_FOR_AUTH));
 
-        if (emailAuthentication.getAuthNumber().equals(request.authNumber())) {}
+        emailAuthentication.verifyAuthNumber(request.authNumber());
     }
 
     private String generateAuthNumber() {
