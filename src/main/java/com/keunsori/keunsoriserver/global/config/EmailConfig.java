@@ -42,7 +42,7 @@ public class EmailConfig {
 
     @Bean SimpleMailMessage simpleMailMessage() {
         SimpleMailMessage templateMessage = new SimpleMailMessage();
-        templateMessage.setFrom("kckc0608@gmail.com");
+        templateMessage.setFrom(username + "@gmail.com");
         return templateMessage;
     }
 }
