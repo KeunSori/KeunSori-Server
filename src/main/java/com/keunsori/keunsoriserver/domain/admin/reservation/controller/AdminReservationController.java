@@ -35,7 +35,7 @@ public class AdminReservationController {
 
     // 일자별 관리 페이지 반환
     @GetMapping("/daily-schedule")
-    public ResponseEntity<List<DailyAvailableResponse>> findAllDailySchedulesAndResrvations(@RequestParam("month") String month) {
+    public ResponseEntity<List<DailyAvailableResponse>> findAllDailySchedulesAndReservations(@RequestParam("month") String month) {
         List<DailyAvailableResponse> responses = adminReservationService.findDailyAvailableByMonth(month);
         return ResponseEntity.ok().body(responses);
     }
