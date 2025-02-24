@@ -7,9 +7,6 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 
-import com.keunsori.keunsoriserver.domain.member.domain.Member;
-import com.keunsori.keunsoriserver.domain.member.domain.vo.MemberStatus;
-
 
 public record SignUpRequest(
         @NotBlank(message = "이름은 필수 입력값입니다.")
