@@ -76,7 +76,7 @@ public class SecurityConfig  {
         CorsConfiguration configuration = new CorsConfiguration();
 
         configuration.setAllowedOriginPatterns(List.of(
-            LOCAL_URL_1, LOCAL_URL_2, LOCAL_URL_3, DEV_URL, DEV_URL2, PROD_URL, PROD_URL2
+            LOCAL_URL_1, LOCAL_URL_2, LOCAL_URL_3, DEV_URL, DEV_URL2, DEV_URL3, PROD_URL, PROD_URL2
         ));
 
         configuration.addAllowedHeader("*");

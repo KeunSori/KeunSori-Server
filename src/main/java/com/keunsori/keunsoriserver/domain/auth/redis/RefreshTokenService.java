@@ -16,7 +16,7 @@ public class RefreshTokenService {
         stringRedisTemplate.opsForValue().set(studentId,refreshToken,expirationTime, TimeUnit.MILLISECONDS);
     }
 
-    //Refersh Token 조회하기
+    //Refresh Token 조회하기
     public String getRefreshToken(String studentId) {
         return stringRedisTemplate.opsForValue().get(studentId);
     }
