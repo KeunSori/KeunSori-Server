@@ -32,4 +32,5 @@ public class ErrorMessage {
     // Email
     public static final String EMAIL_NOT_EXISTS_FOR_AUTH = "인증번호를 전송하지 않았거나 인증번호가 만료되었습니다.";
     public static final String EMAIL_VERIFY_FAILED = "인증번호가 일치하지 않습니다.";
+    public static final String EMAIL_VERIFY_NUMBER_GENERATION_FAILED = "인증번호 생성중 에러가 발생했습니다.";
 }

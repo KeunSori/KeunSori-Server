@@ -1,6 +1,7 @@
 package com.keunsori.keunsoriserver.domain.email.service;
 
 import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.EMAIL_NOT_EXISTS_FOR_AUTH;
+import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.EMAIL_VERIFY_NUMBER_GENERATION_FAILED;
 
 import org.springframework.stereotype.Service;
 
@@ -11,7 +12,8 @@ import com.keunsori.keunsoriserver.domain.email.repository.EmailRepository;
 import com.keunsori.keunsoriserver.global.exception.EmailException;
 import com.keunsori.keunsoriserver.global.util.EmailUtil;
 
-import java.util.Random;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -35,12 +37,15 @@ public class EmailService {
     }
 
     private String generateAuthNumber() {
-        int baseNumber = 100000;
+        try {
+            int baseNumber = 100000;
 
-        Random random = new Random();
-        random.setSeed(System.currentTimeMillis());
-        baseNumber += random.nextInt(899999);
+            SecureRandom random = SecureRandom.getInstanceStrong();
+            baseNumber += random.nextInt(899999);
 
-        return Integer.toString(baseNumber);
+            return Integer.toString(baseNumber);
+        } catch (NoSuchAlgorithmException e) {
+            throw new EmailException(EMAIL_VERIFY_NUMBER_GENERATION_FAILED);
+        }
     }
 }
