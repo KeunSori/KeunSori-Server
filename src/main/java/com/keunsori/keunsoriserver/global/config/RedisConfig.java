@@ -7,6 +7,7 @@ import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import com.keunsori.keunsoriserver.global.properties.RedisProperties;
@@ -15,6 +16,7 @@ import java.time.Duration;
 import lombok.RequiredArgsConstructor;
 
 @Configuration
+@EnableRedisRepositories
 @RequiredArgsConstructor
 public class RedisConfig {
 
@@ -34,7 +36,7 @@ public class RedisConfig {
     }
 
     @Bean
-    public StringRedisTemplate stringredisTemplate(RedisConnectionFactory redisConnectionFactory) {
+    public StringRedisTemplate stringRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
         StringRedisTemplate redisTemplate = new StringRedisTemplate();
 
         //key,value String으로 직렬화(데이터 읽고 쓰기 편하게)

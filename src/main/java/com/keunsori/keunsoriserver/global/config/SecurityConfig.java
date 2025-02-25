@@ -54,7 +54,7 @@ public class SecurityConfig  {
                .authorizeHttpRequests(auth -> auth
                        // 인증 없이 로그인,회원가입은 가능.
                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                       .requestMatchers("/auth/**").permitAll()
+                       .requestMatchers("/auth/**", "/email/**").permitAll()
                        .requestMatchers("/signup").permitAll()
 
                        // 예약 관련된 건 일반 혹은 관리자 권한 필요
