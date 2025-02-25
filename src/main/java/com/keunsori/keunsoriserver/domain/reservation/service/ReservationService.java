@@ -34,7 +34,7 @@ public class ReservationService {
 
     public List<ReservationResponse> findReservationsByMonth(String yearMonth) {
         LocalDate start = DateUtil.parseMonthToFirstDate(yearMonth);
-        LocalDate end = start.plusMonths(1);
+        LocalDate end = start.plusMonths(2);
         return reservationRepository.findAllByDateBetweenOrderByDateAscStartTimeAsc(start, end)
                 .stream().map(ReservationResponse::from).toList();
     }
