@@ -3,9 +3,9 @@ package com.keunsori.keunsoriserver.domain.member.dto.response;
 import com.keunsori.keunsoriserver.domain.member.domain.Member;
 
 public record MyPageResponse(
-        Long id,
+        Long memberId,
         String name,
-        String StudentId,
+        String studentId,
         String email
 ) {
     public static MyPageResponse from(Member member){
