@@ -92,7 +92,7 @@ public class AdminReservationService {
     public List<DailyAvailableResponse> findDailyAvailableByMonth(String yearMonth) {
 
         LocalDate start = DateUtil.parseMonthToFirstDate(yearMonth);
-        LocalDate end = start.plusMonths(1);
+        LocalDate end = start.plusMonths(2);
 
         return Stream.iterate(start, date -> date.isBefore(end), date -> date.plusDays(1))
                 .map(this::convertDateToDailyAvailableResponse).toList();
