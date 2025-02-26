@@ -6,6 +6,7 @@ import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.STUDENT_
 import com.keunsori.keunsoriserver.domain.auth.login.dto.request.LoginRequest;
 import com.keunsori.keunsoriserver.domain.auth.login.dto.response.LoginResponse;
 import com.keunsori.keunsoriserver.domain.auth.redis.RefreshTokenService;
+import com.keunsori.keunsoriserver.domain.auth.service.TokenService;
 import com.keunsori.keunsoriserver.domain.member.domain.Member;
 import com.keunsori.keunsoriserver.domain.member.repository.MemberRepository;
 import com.keunsori.keunsoriserver.global.exception.AuthException;
@@ -21,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class LoginService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtTokenManager jwtTokenManager;
+    private final TokenService tokenService;
     private final RefreshTokenService refreshTokenService;
     private final JwtProperties jwtProperties;
 
@@ -38,11 +39,11 @@ public class LoginService {
         }
 
         //Access Token, Refresh Token 생성
-        String accessToken= jwtTokenManager.generateAccessToken(
+        String accessToken= tokenService.generateAccessToken(
                 member.getStudentId(), member.getName(), member.getStatus()
         );
 
-        String refreshToken= jwtTokenManager.generateRefreshToken(
+        String refreshToken= tokenService.generateRefreshToken(
                 member.getStudentId(), member.getName(), member.getStatus()
         );
 
@@ -52,7 +53,7 @@ public class LoginService {
         return new LoginResponse(
                 accessToken,
                 refreshToken,
-                String.valueOf(jwtTokenManager.getExpirationTime(accessToken)),
+                String.valueOf(tokenService.getExpirationTime(accessToken)),
                 member.getName(),
                 member.getStatus()
         );

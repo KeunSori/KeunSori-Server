@@ -1,6 +1,8 @@
 package com.keunsori.keunsoriserver.global.security;
 
-import com.keunsori.keunsoriserver.domain.auth.login.JwtTokenManager;
+
+import com.keunsori.keunsoriserver.domain.auth.service.TokenService;
+import com.keunsori.keunsoriserver.global.util.CookieUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,7 +19,7 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-    private final JwtTokenManager jwtTokenManager;
+    private final TokenService tokenService;
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
@@ -28,23 +30,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
         throws ServletException, IOException {
-        String authenticatedToken = request.getHeader(jwtTokenManager.getHeader());
-        String token = null;
+        String token = CookieUtil.getCookieValue(request, "Access-Token");
 
-        //Bearer 제거해서 토큰만 추출
-        if(authenticatedToken != null && authenticatedToken.startsWith(jwtTokenManager.getPrefix())){
-            token = authenticatedToken.substring(jwtTokenManager.getPrefix().length());
-        }
+        if(token != null && tokenService.validateToken(token)){
+            String studentId = tokenService.getStudentIdFromToken(token);
+            String status = tokenService.getStatusFromToken(token);
 
-        if(token != null && jwtTokenManager.validateToken(token)){
-            String studentId = jwtTokenManager.getStudentIdFromToken(token);
-            String status = jwtTokenManager.getStatusFromToken(token);
-            System.out.println(status);
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(studentId,null, List.of(()->status));
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
         chain.doFilter(request,response);
     }
-
 }

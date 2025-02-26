@@ -1,94 +1,68 @@
-package com.keunsori.keunsoriserver.domain.auth.login;
+package com.keunsori.keunsoriserver.domain.auth.service;
 
-import com.keunsori.keunsoriserver.domain.auth.redis.RefreshTokenService;
 import com.keunsori.keunsoriserver.domain.member.domain.vo.MemberStatus;
 import com.keunsori.keunsoriserver.global.properties.JwtProperties;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import org.springframework.stereotype.Component;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import java.util.Date;
 
-@Component
-public class JwtTokenManager {
+@Service
+@RequiredArgsConstructor
+public class TokenService {
 
     private final JwtProperties jwtProperties;
     private final RefreshTokenService refreshTokenService;
-
-    public JwtTokenManager( RefreshTokenService refreshTokenService,JwtProperties jwtProperties) {
-        this.refreshTokenService = refreshTokenService;
-        this.jwtProperties = jwtProperties;
-    }
-
-
-    public String getHeader(){
-        return jwtProperties.HEADER;
-    }
-
-    public String getPrefix(){
-        return jwtProperties.PREFIX;
-    }
 
     // Access Token 생성
     public String generateAccessToken(String studentId, String name, MemberStatus status) {
         return createToken(studentId, name, status, jwtProperties.ACCESS_TOKEN_VALIDITY_TIME);
     }
 
-    // Refresh Token 생성
+    // Refresh Token 생성 (Redis에 저장 포함)
     public String generateRefreshToken(String studentId, String name, MemberStatus status) {
-        String refreshToken=createToken(studentId, name, status, jwtProperties.REFRESH_TOKEN_VALIDITY_TIME);
+        String refreshToken = createToken(studentId, name, status, jwtProperties.REFRESH_TOKEN_VALIDITY_TIME);
         refreshTokenService.saveRefreshToken(studentId, refreshToken, jwtProperties.REFRESH_TOKEN_VALIDITY_TIME);
         return refreshToken;
     }
 
-    // 토큰 생성 로직
-    private String createToken(String studentId, String name, MemberStatus status, long validityInMilliseconds) {
+    // JWT 토큰 생성 로직
+    private String createToken(String studentId, String name, MemberStatus status, long validity) {
         Claims claims = Jwts.claims().setSubject(studentId);
         claims.put("name", name);
         claims.put("status", status.toString());
 
         Date now = new Date();
-        Date validity = new Date(now.getTime() + validityInMilliseconds);
-
+        Date expiryDate = new Date(now.getTime() + validity);
 
         return Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(now)
-                .setExpiration(validity)
+                .setExpiration(expiryDate)
                 .signWith(SignatureAlgorithm.HS256, jwtProperties.getSecret())
                 .compact();
     }
 
-    // 토큰 유효성 검증
+    // 토큰 유효성 검사
     public boolean validateToken(String token) {
         try {
+            token = removePrefix(token);  // Bearer 접두어 제거 후 검증
             Jwts.parser().setSigningKey(jwtProperties.getSecret()).parseClaimsJws(token);
             return true;
         } catch (ExpiredJwtException e) {
-            System.out.println("토큰 만료");
-            return false;
-        }catch (Exception e) {
-            System.out.println("유효하지 않은 토큰");
-            return false;
+            return false; // 토큰 만료
+        } catch (Exception e) {
+            return false; // 유효하지 않은 토큰
         }
-    }
-
-    // 토큰 만료 시간 조회
-    public Long getExpirationTime(String token) {
-        token=removePrefix(token);
-        return Jwts.parser()
-                .setSigningKey(jwtProperties.getSecret())
-                .parseClaimsJws(token)
-                .getBody()
-                .getExpiration()
-                .getTime();
     }
 
     // 학번(StudentId) 조회
     public String getStudentIdFromToken(String token) {
-        token=removePrefix(token);
+        token = removePrefix(token);  // Bearer 접두어 제거
         return Jwts.parser()
                 .setSigningKey(jwtProperties.getSecret())
                 .parseClaimsJws(token)
@@ -98,7 +72,7 @@ public class JwtTokenManager {
 
     // 상태(Status) 조회
     public String getStatusFromToken(String token) {
-        token=removePrefix(token);
+        token = removePrefix(token);  // Bearer 접두어 제거
         return (String) Jwts.parser()
                 .setSigningKey(jwtProperties.getSecret())
                 .parseClaimsJws(token)
@@ -106,16 +80,37 @@ public class JwtTokenManager {
                 .get("status");
     }
 
-    // 로그아웃시 refresh token 삭제
+    // 토큰 만료 시간 조회
+    public Long getExpirationTime(String token) {
+        token = removePrefix(token);  // Bearer 접두어 제거
+        return Jwts.parser()
+                .setSigningKey(jwtProperties.getSecret())
+                .parseClaimsJws(token)
+                .getBody()
+                .getExpiration()
+                .getTime();
+    }
+
+    // Refresh Token 삭제 (로그아웃 시 사용)
     public void removeRefreshToken(String studentId) {
         refreshTokenService.deleteRefreshToken(studentId);
     }
 
-    // 토큰에서 접두사 제거
+    // JWT 인증 헤더 반환
+    public String getHeader() {
+        return jwtProperties.HEADER;
+    }
+
+    // JWT Prefix 반환
+    public String getPrefix() {
+        return jwtProperties.PREFIX;
+    }
+
+    // Bearer 접두어 제거
     private String removePrefix(String token) {
-        String prefix=jwtProperties.PREFIX;
-        if(token.startsWith(prefix+" ")) {
-            return token.substring(prefix.length()+1);
+        String prefix = jwtProperties.PREFIX;
+        if (token != null && token.startsWith(prefix + " ")) {
+            return token.substring(prefix.length() + 1);
         }
         return token;
     }
