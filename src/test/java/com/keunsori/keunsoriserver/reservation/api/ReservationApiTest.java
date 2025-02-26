@@ -15,11 +15,16 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.jdbc.Sql;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.keunsori.keunsoriserver.common.ApiTest;
+import com.keunsori.keunsoriserver.domain.reservation.domain.Reservation;
+import com.keunsori.keunsoriserver.domain.reservation.domain.vo.ReservationType;
+import com.keunsori.keunsoriserver.domain.reservation.domain.vo.Session;
 import com.keunsori.keunsoriserver.domain.reservation.dto.requset.ReservationCreateRequest;
+import com.keunsori.keunsoriserver.domain.reservation.repository.ReservationRepository;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -28,6 +33,9 @@ import java.util.stream.Stream;
 public class ReservationApiTest extends ApiTest {
 
     private String authorizationValue;
+
+    @Autowired
+    private ReservationRepository reservationRepository;
 
     @BeforeEach
     void login() throws JsonProcessingException {
@@ -443,38 +451,27 @@ public class ReservationApiTest extends ApiTest {
                 statusCode(HttpStatus.SC_NO_CONTENT);
     }
 
-//    @Test
-//    void 예약_시간을_넘어간_예약은_확정되어_예약_취소에_실패한다() throws JsonProcessingException {
-//        ReservationCreateRequest request = new ReservationCreateRequest(
-//                "LESSON",
-//                "ALL",
-//                LocalDate.of(2000, 1, 1),
-//                LocalTime.of(12, 0),
-//                LocalTime.of(14, 0)
-//        );
-//
-//        String reservationLocation =
-//                given().
-//                        header(AUTHORIZATION, authorizationValue).
-//                        header(CONTENT_TYPE, "application/json").
-//                        body(mapper.writeValueAsString(request)).
-//                when().
-//                        post("/reservation").
-//                then().
-//                        statusCode(HttpStatus.SC_CREATED).
-//                        extract().
-//                        header(LOCATION);
-//
-//        String errorMessage =
-//                given().
-//                        header(AUTHORIZATION, authorizationValue).
-//                when().
-//                        delete(reservationLocation).
-//                then().
-//                        statusCode(HttpStatus.SC_BAD_REQUEST).
-//                        extract().
-//                        jsonPath().get("message");
-//
-//        Assertions.assertThat(errorMessage).isEqualTo(RESERVATION_ALREADY_COMPLETED);
-//    }
+    @Test
+    void 예약_시간을_넘어간_예약은_확정되어_예약_취소에_실패한다() throws JsonProcessingException {
+        Reservation pastReservation = Reservation.builder()
+                .session(Session.ALL)
+                .reservationType(ReservationType.TEAM)
+                .date(LocalDate.of(2000, 1, 1))
+                .startTime(LocalTime.of(12, 0))
+                .endTime(LocalTime.of(14, 0))
+                .build();
+        reservationRepository.save(pastReservation);
+
+        String errorMessage =
+                given().
+                        header(AUTHORIZATION, authorizationValue).
+                when().
+                        delete("/reservation/" + pastReservation.getId()).
+                then().
+                        statusCode(HttpStatus.SC_BAD_REQUEST).
+                        extract().
+                        jsonPath().get("message");
+
+        Assertions.assertThat(errorMessage).isEqualTo(RESERVATION_ALREADY_COMPLETED);
+    }
 }
