@@ -16,7 +16,6 @@ import java.util.Date;
 public class TokenService {
 
     private final JwtProperties jwtProperties;
-    private final RefreshTokenService refreshTokenService;
 
     // Access Token 생성
     public String generateAccessToken(String studentId, String name, MemberStatus status) {
@@ -25,9 +24,7 @@ public class TokenService {
 
     // Refresh Token 생성 (Redis에 저장 포함)
     public String generateRefreshToken(String studentId, String name, MemberStatus status) {
-        String refreshToken = createToken(studentId, name, status, jwtProperties.REFRESH_TOKEN_VALIDITY_TIME);
-        refreshTokenService.saveRefreshToken(studentId, refreshToken, jwtProperties.REFRESH_TOKEN_VALIDITY_TIME);
-        return refreshToken;
+      return createToken(studentId, name, status, jwtProperties.REFRESH_TOKEN_VALIDITY_TIME);
     }
 
     // JWT 토큰 생성 로직
@@ -89,21 +86,6 @@ public class TokenService {
                 .getBody()
                 .getExpiration()
                 .getTime();
-    }
-
-    // Refresh Token 삭제 (로그아웃 시 사용)
-    public void removeRefreshToken(String studentId) {
-        refreshTokenService.deleteRefreshToken(studentId);
-    }
-
-    // JWT 인증 헤더 반환
-    public String getHeader() {
-        return jwtProperties.HEADER;
-    }
-
-    // JWT Prefix 반환
-    public String getPrefix() {
-        return jwtProperties.PREFIX;
     }
 
     // Bearer 접두어 제거
