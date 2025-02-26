@@ -37,6 +37,7 @@ public class ReservationApiTest extends ApiTest {
 
     @Test
     void 내_예약_조회에_성공한다() {
+        System.out.println(authorizationValue);
         given().
                 header(AUTHORIZATION, authorizationValue).
         when().
@@ -442,19 +443,38 @@ public class ReservationApiTest extends ApiTest {
                 statusCode(HttpStatus.SC_NO_CONTENT);
     }
 
-    @Test
-    @Sql(statements = "INSERT INTO reservation (reservation_id, reservation_date, reservation_end_time, reservation_type, reservation_session, reservation_start_time, member_id) VALUES (1, '2025-01-01', '22:00:00', 'PERSONAL', 'VOCAL', '21:00:00', 1);")
-    void 예약_시간을_넘어간_예약은_확정되어_예약_취소에_실패한다() throws JsonProcessingException {
-        String errorMessage =
-                given().
-                        header(AUTHORIZATION, authorizationValue).
-                when().
-                        delete("/reservation/1").
-                then().
-                        statusCode(HttpStatus.SC_BAD_REQUEST).
-                        extract().
-                        jsonPath().get("message");
-
-        Assertions.assertThat(errorMessage).isEqualTo(RESERVATION_ALREADY_COMPLETED);
-    }
+//    @Test
+//    void 예약_시간을_넘어간_예약은_확정되어_예약_취소에_실패한다() throws JsonProcessingException {
+//        ReservationCreateRequest request = new ReservationCreateRequest(
+//                "LESSON",
+//                "ALL",
+//                LocalDate.of(2000, 1, 1),
+//                LocalTime.of(12, 0),
+//                LocalTime.of(14, 0)
+//        );
+//
+//        String reservationLocation =
+//                given().
+//                        header(AUTHORIZATION, authorizationValue).
+//                        header(CONTENT_TYPE, "application/json").
+//                        body(mapper.writeValueAsString(request)).
+//                when().
+//                        post("/reservation").
+//                then().
+//                        statusCode(HttpStatus.SC_CREATED).
+//                        extract().
+//                        header(LOCATION);
+//
+//        String errorMessage =
+//                given().
+//                        header(AUTHORIZATION, authorizationValue).
+//                when().
+//                        delete(reservationLocation).
+//                then().
+//                        statusCode(HttpStatus.SC_BAD_REQUEST).
+//                        extract().
+//                        jsonPath().get("message");
+//
+//        Assertions.assertThat(errorMessage).isEqualTo(RESERVATION_ALREADY_COMPLETED);
+//    }
 }

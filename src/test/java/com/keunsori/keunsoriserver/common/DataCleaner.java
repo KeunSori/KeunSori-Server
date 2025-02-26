@@ -27,9 +27,6 @@ public class DataCleaner implements InitializingBean {
         List<Object[]> tables = em.createNativeQuery("show tables").getResultList();
         for (Object[] table : tables) {
             String name = table[0].toString();
-            if (name.equals("MEMBER")) {
-                continue;
-            }
             tableNames.add(name);
         }
         System.out.println(tableNames);
