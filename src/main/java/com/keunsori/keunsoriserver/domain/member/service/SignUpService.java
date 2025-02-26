@@ -1,4 +1,4 @@
-package com.keunsori.keunsoriserver.domain.member.sign_up.service;
+package com.keunsori.keunsoriserver.domain.member.service;
 
 import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.DUPLICATED_EMAIL;
 import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.DUPLICATED_STUDENT_ID;
@@ -7,8 +7,8 @@ import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.PASSWORD
 import com.keunsori.keunsoriserver.domain.member.domain.Member;
 import com.keunsori.keunsoriserver.domain.member.repository.MemberRepository;
 import com.keunsori.keunsoriserver.domain.member.domain.vo.MemberStatus;
-import com.keunsori.keunsoriserver.domain.member.sign_up.dto.request.SignUpRequest;
-import com.keunsori.keunsoriserver.domain.member.sign_up.dto.response.SignUpResponse;
+import com.keunsori.keunsoriserver.domain.member.dto.request.SignUpRequest;
+import com.keunsori.keunsoriserver.domain.member.dto.response.SignUpResponse;
 import com.keunsori.keunsoriserver.global.exception.MemberException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
