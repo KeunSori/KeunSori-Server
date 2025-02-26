@@ -1,8 +1,8 @@
-package com.keunsori.keunsoriserver.domain.member.sign_up.controller;
+package com.keunsori.keunsoriserver.domain.member.controller;
 
-import com.keunsori.keunsoriserver.domain.member.sign_up.dto.request.SignUpRequest;
-import com.keunsori.keunsoriserver.domain.member.sign_up.dto.response.SignUpResponse;
-import com.keunsori.keunsoriserver.domain.member.sign_up.service.SignUpService;
+import com.keunsori.keunsoriserver.domain.member.dto.request.SignUpRequest;
+import com.keunsori.keunsoriserver.domain.member.dto.response.SignUpResponse;
+import com.keunsori.keunsoriserver.domain.member.service.SignUpService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
