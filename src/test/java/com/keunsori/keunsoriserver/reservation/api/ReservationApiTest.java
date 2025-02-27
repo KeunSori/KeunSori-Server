@@ -8,6 +8,10 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.HttpHeaders.LOCATION;
 
+import com.keunsori.keunsoriserver.domain.reservation.domain.Reservation;
+import com.keunsori.keunsoriserver.domain.reservation.domain.vo.ReservationType;
+import com.keunsori.keunsoriserver.domain.reservation.domain.vo.Session;
+import com.keunsori.keunsoriserver.domain.reservation.repository.ReservationRepository;
 import org.apache.http.HttpStatus;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,7 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.springframework.test.context.jdbc.Sql;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.keunsori.keunsoriserver.common.ApiTest;
@@ -28,6 +32,10 @@ import java.util.stream.Stream;
 public class ReservationApiTest extends ApiTest {
 
     private String authorizationValue;
+
+
+    @Autowired
+    private ReservationRepository reservationRepository;
 
     @BeforeEach
     void login() throws JsonProcessingException {
@@ -443,13 +451,21 @@ public class ReservationApiTest extends ApiTest {
     }
 
     @Test
-    @Sql(statements = "INSERT INTO reservation (reservation_id, reservation_date, reservation_end_time, reservation_type, reservation_session, reservation_start_time, member_id) VALUES (1, '2025-01-01', '22:00:00', 'PERSONAL', 'VOCAL', '21:00:00', 1);")
     void 예약_시간을_넘어간_예약은_확정되어_예약_취소에_실패한다() throws JsonProcessingException {
+        Reservation pastReservation = Reservation.builder()
+                .session(Session.ALL)
+                .reservationType(ReservationType.TEAM)
+                .date(LocalDate.of(2000, 1, 1))
+                .startTime(LocalTime.of(12, 0))
+                .endTime(LocalTime.of(14, 0))
+                .build();
+        reservationRepository.save(pastReservation);
+
         String errorMessage =
                 given().
                         header(AUTHORIZATION, authorizationValue).
                 when().
-                        delete("/reservation/1").
+                        delete("/reservation/" + pastReservation.getId()).
                 then().
                         statusCode(HttpStatus.SC_BAD_REQUEST).
                         extract().

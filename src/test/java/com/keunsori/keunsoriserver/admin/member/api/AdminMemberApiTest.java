@@ -1,13 +1,12 @@
 package com.keunsori.keunsoriserver.admin.member.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.keunsori.keunsoriserver.admin.TestAdminMemberInitializer;
+import com.keunsori.keunsoriserver.admin.AdminApiTest;
 import com.keunsori.keunsoriserver.domain.member.dto.request.MemberPasswordUpdateRequest;
 import org.apache.http.HttpStatus;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.transaction.annotation.Transactional;
 
 import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.PASSWORD_IS_DIFFERENT_FROM_CHECK;
 import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.PASSWORD_NOT_CORRECT;
@@ -15,12 +14,12 @@ import static io.restassured.RestAssured.given;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 
-public class AdminMemberApiTest extends TestAdminMemberInitializer {
+public class AdminMemberApiTest extends AdminApiTest {
     private String authorizationValue;
 
     @BeforeEach
     void login() throws JsonProcessingException {
-        initializeTestAdminMember();
+        login_with_admin_member();
         authorizationValue = "Bearer " + token;
     }
 
@@ -36,10 +35,9 @@ public class AdminMemberApiTest extends TestAdminMemberInitializer {
 
 
     @Test
-    @Transactional
     void 비밀번호_올바르게_입력하면_변경_성공() throws JsonProcessingException {
-        MemberPasswordUpdateRequest request = new MemberPasswordUpdateRequest("passworda123!",
-                "passwordb123!", "passwordb123!");
+        MemberPasswordUpdateRequest request = new MemberPasswordUpdateRequest("testadmin123!",
+                "password123!", "password123!");
 
         given().
                 header(AUTHORIZATION, authorizationValue).
@@ -52,7 +50,6 @@ public class AdminMemberApiTest extends TestAdminMemberInitializer {
     }
 
     @Test
-    @Transactional
     void 기존_비밀번호_잘못_입력하면_변경_실패() throws JsonProcessingException {
         MemberPasswordUpdateRequest request = new MemberPasswordUpdateRequest("incorrect123!",
                 "asdf123!", "asdf123!");
@@ -73,9 +70,8 @@ public class AdminMemberApiTest extends TestAdminMemberInitializer {
     }
 
     @Test
-    @Transactional
     void 비밀번호_확인_잘못_입력하면_변경_실패() throws JsonProcessingException {
-        MemberPasswordUpdateRequest request = new MemberPasswordUpdateRequest("passworda123!",
+        MemberPasswordUpdateRequest request = new MemberPasswordUpdateRequest("testadmin123!",
                 "asdf123!", "asdf123#");
 
 
