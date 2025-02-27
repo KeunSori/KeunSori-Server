@@ -9,7 +9,6 @@ public record MemberResponse(
     Long id,
     String name,
     String StudentId,
-    MemberStatus status,
     LocalDateTime approvalDate
 ) {
 
@@ -18,7 +17,6 @@ public record MemberResponse(
                 member.getId(),
                 member.getName(),
                 member.getStudentId(),
-                member.getStatus(),
                 member.getApprovalDate()
         );
     }

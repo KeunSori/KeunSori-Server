@@ -59,6 +59,10 @@ public class Member extends BaseEntity {
         this.approvalDate = LocalDateTime.now();
     }
 
+    public void updatePassword(String encodedPassword) {
+        this.password = encodedPassword;
+    }
+
     public boolean isAdmin() {
         return status.equals(MemberStatus.관리자);
     }
