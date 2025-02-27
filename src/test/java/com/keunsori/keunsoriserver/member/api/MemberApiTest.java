@@ -1,7 +1,7 @@
-package com.keunsori.keunsoriserver.admin.member.api;
+package com.keunsori.keunsoriserver.member.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.keunsori.keunsoriserver.admin.AdminApiTest;
+import com.keunsori.keunsoriserver.common.ApiTest;
 import com.keunsori.keunsoriserver.domain.member.dto.request.MemberPasswordUpdateRequest;
 import org.apache.http.HttpStatus;
 import org.assertj.core.api.Assertions;
@@ -14,12 +14,13 @@ import static io.restassured.RestAssured.given;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 
-public class AdminMemberApiTest extends AdminApiTest {
+public class MemberApiTest extends ApiTest {
+
     private String authorizationValue;
 
     @BeforeEach
     void login() throws JsonProcessingException {
-        login_with_admin_member();
+        login_with_general_member();
         authorizationValue = "Bearer " + token;
     }
 
@@ -28,7 +29,7 @@ public class AdminMemberApiTest extends AdminApiTest {
         given().
                 header(AUTHORIZATION, authorizationValue).
                 when().
-                get("/admin/members/me").
+                get("/members/me").
                 then().
                 statusCode(HttpStatus.SC_OK);
     }
@@ -36,7 +37,7 @@ public class AdminMemberApiTest extends AdminApiTest {
 
     @Test
     void 비밀번호_올바르게_입력하면_변경_성공() throws JsonProcessingException {
-        MemberPasswordUpdateRequest request = new MemberPasswordUpdateRequest("testadmin123!",
+        MemberPasswordUpdateRequest request = new MemberPasswordUpdateRequest("test123!",
                 "password123!", "password123!");
 
         given().
@@ -44,7 +45,7 @@ public class AdminMemberApiTest extends AdminApiTest {
                 header(CONTENT_TYPE, "application/json").
                 body(mapper.writeValueAsString(request)).
                 when().
-                patch("/admin/members/me/password").
+                patch("/members/me/password").
                 then().
                 statusCode(HttpStatus.SC_OK);
     }
@@ -60,7 +61,7 @@ public class AdminMemberApiTest extends AdminApiTest {
                 header(CONTENT_TYPE, "application/json").
                 body(mapper.writeValueAsString(request)).
                 when().
-                patch("/admin/members/me/password").
+                patch("/members/me/password").
                 then().
                 statusCode(HttpStatus.SC_UNAUTHORIZED).
                 extract().
@@ -71,7 +72,7 @@ public class AdminMemberApiTest extends AdminApiTest {
 
     @Test
     void 비밀번호_확인_잘못_입력하면_변경_실패() throws JsonProcessingException {
-        MemberPasswordUpdateRequest request = new MemberPasswordUpdateRequest("testadmin123!",
+        MemberPasswordUpdateRequest request = new MemberPasswordUpdateRequest("test123!",
                 "password123!", "password123#");
 
 
@@ -80,7 +81,7 @@ public class AdminMemberApiTest extends AdminApiTest {
                 header(CONTENT_TYPE, "application/json").
                 body(mapper.writeValueAsString(request)).
                 when().
-                patch("/admin/members/me/password").
+                patch("/members/me/password").
                 then().
                 statusCode(HttpStatus.SC_BAD_REQUEST).
                 extract().
@@ -88,4 +89,5 @@ public class AdminMemberApiTest extends AdminApiTest {
 
         Assertions.assertThat(errorMessage).isEqualTo(PASSWORD_IS_DIFFERENT_FROM_CHECK);
     }
+
 }
