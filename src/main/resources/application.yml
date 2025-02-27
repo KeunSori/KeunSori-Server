@@ -8,6 +8,7 @@ spring:
       prod: "prod,datasource"
     include:
       - redis
+      - email
 
 jwt:
   secret: "${JWT_SECRET}"
