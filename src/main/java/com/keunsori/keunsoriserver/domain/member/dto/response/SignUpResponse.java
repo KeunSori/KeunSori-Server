@@ -1,4 +1,4 @@
-package com.keunsori.keunsoriserver.domain.member.sign_up.dto.response;
+package com.keunsori.keunsoriserver.domain.member.dto.response;
 
 public record SignUpResponse(String name,
         String studentId,

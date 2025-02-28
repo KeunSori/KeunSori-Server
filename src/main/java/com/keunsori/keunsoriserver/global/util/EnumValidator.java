@@ -3,8 +3,6 @@ package com.keunsori.keunsoriserver.global.util;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
-import org.springframework.web.bind.MethodArgumentNotValidException;
-
 import com.keunsori.keunsoriserver.global.annotation.ValidEnum;
 
 import java.lang.reflect.Field;
