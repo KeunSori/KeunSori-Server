@@ -1,7 +1,7 @@
 package com.keunsori.keunsoriserver.admin.member.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.keunsori.keunsoriserver.admin.AdminApiTest;
+import com.keunsori.keunsoriserver.common.AdminApiTest;
 import com.keunsori.keunsoriserver.domain.member.dto.request.MemberPasswordUpdateRequest;
 import org.apache.http.HttpStatus;
 import org.assertj.core.api.Assertions;
@@ -28,7 +28,7 @@ public class AdminMemberApiTest extends AdminApiTest {
         given().
                 header(AUTHORIZATION, authorizationValue).
                 when().
-                get("/admin/members/me").
+                get("/admin/me").
                 then().
                 statusCode(HttpStatus.SC_OK);
     }
@@ -44,7 +44,7 @@ public class AdminMemberApiTest extends AdminApiTest {
                 header(CONTENT_TYPE, "application/json").
                 body(mapper.writeValueAsString(request)).
                 when().
-                patch("/admin/members/me/password").
+                patch("/admin/me/password").
                 then().
                 statusCode(HttpStatus.SC_OK);
     }
@@ -60,7 +60,7 @@ public class AdminMemberApiTest extends AdminApiTest {
                 header(CONTENT_TYPE, "application/json").
                 body(mapper.writeValueAsString(request)).
                 when().
-                patch("/admin/members/me/password").
+                patch("/admin/me/password").
                 then().
                 statusCode(HttpStatus.SC_UNAUTHORIZED).
                 extract().
@@ -80,7 +80,7 @@ public class AdminMemberApiTest extends AdminApiTest {
                 header(CONTENT_TYPE, "application/json").
                 body(mapper.writeValueAsString(request)).
                 when().
-                patch("/admin/members/me/password").
+                patch("/admin/me/password").
                 then().
                 statusCode(HttpStatus.SC_BAD_REQUEST).
                 extract().

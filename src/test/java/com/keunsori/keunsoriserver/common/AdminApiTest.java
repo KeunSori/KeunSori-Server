@@ -1,4 +1,4 @@
-package com.keunsori.keunsoriserver.admin;
+package com.keunsori.keunsoriserver.common;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

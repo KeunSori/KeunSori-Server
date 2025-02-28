@@ -2,11 +2,8 @@ package com.keunsori.keunsoriserver.domain.admin.member.controller;
 
 import com.keunsori.keunsoriserver.domain.admin.member.dto.response.MemberApplicantResponse;
 import com.keunsori.keunsoriserver.domain.admin.member.service.AdminMemberService;
-import com.keunsori.keunsoriserver.domain.member.dto.request.MemberPasswordUpdateRequest;
-import com.keunsori.keunsoriserver.domain.member.dto.response.MemberResponse;
-import com.keunsori.keunsoriserver.domain.member.dto.response.MyPageResponse;
+import com.keunsori.keunsoriserver.domain.admin.member.dto.response.MemberResponse;
 import com.keunsori.keunsoriserver.domain.member.service.MemberService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -47,17 +44,5 @@ public class AdminMemberController {
     public ResponseEntity<Void> deleteMemberByAdmin(@PathVariable("id") Long id){
         memberService.deleteMember(id);
         return ResponseEntity.noContent().build();
-    }
-
-    @GetMapping("/me")
-    public ResponseEntity<MyPageResponse> getMyPage() {
-        MyPageResponse response = memberService.getMyPage();
-        return ResponseEntity.ok().body(response);
-    }
-
-    @PatchMapping("/me/password")
-    public ResponseEntity<Void> updatePassword(@Valid @RequestBody MemberPasswordUpdateRequest request){
-        memberService.updatePassword(request);
-        return ResponseEntity.ok().build();
     }
 }
