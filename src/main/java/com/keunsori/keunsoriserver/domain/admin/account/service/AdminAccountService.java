@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AdminAccountService {
 
-    private final MemberRepository memberRepository;
     private final MemberUtil memberUtil;
 
     public AdminMyPageResponse getAdminMyPage() {

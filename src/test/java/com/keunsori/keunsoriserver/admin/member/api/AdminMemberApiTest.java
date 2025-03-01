@@ -1,7 +1,7 @@
 package com.keunsori.keunsoriserver.admin.member.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.keunsori.keunsoriserver.common.AdminApiTest;
+import com.keunsori.keunsoriserver.common.ApiTest;
 import com.keunsori.keunsoriserver.domain.member.dto.request.MemberPasswordUpdateRequest;
 import org.apache.http.HttpStatus;
 import org.assertj.core.api.Assertions;
@@ -14,13 +14,13 @@ import static io.restassured.RestAssured.given;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 
-public class AdminMemberApiTest extends AdminApiTest {
+public class AdminMemberApiTest extends ApiTest {
     private String authorizationValue;
 
     @BeforeEach
     void login() throws JsonProcessingException {
         login_with_admin_member();
-        authorizationValue = "Bearer " + token;
+        authorizationValue = "Bearer " + adminToken;
     }
 
     @Test

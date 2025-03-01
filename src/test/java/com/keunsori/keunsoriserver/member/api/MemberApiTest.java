@@ -21,7 +21,7 @@ public class MemberApiTest extends ApiTest {
     @BeforeEach
     void login() throws JsonProcessingException {
         login_with_general_member();
-        authorizationValue = "Bearer " + token;
+        authorizationValue = "Bearer " + generalToken;
     }
 
     @Test
