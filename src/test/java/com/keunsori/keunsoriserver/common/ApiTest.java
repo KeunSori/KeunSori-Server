@@ -17,7 +17,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.keunsori.keunsoriserver.domain.auth.login.dto.request.LoginRequest;
 import com.keunsori.keunsoriserver.domain.member.domain.Member;
 import com.keunsori.keunsoriserver.domain.member.domain.vo.MemberStatus;
-import com.keunsori.keunsoriserver.domain.member.dto.request.SignUpRequest;
 import com.keunsori.keunsoriserver.domain.member.repository.MemberRepository;
 
 @ActiveProfiles("test")
@@ -36,7 +35,13 @@ public class ApiTest {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    protected String token;
+    protected String memberToken;
+
+    protected String adminToken;
+
+    protected Long memberId;
+
+    protected Long adminId;
 
     @AfterEach
     public void clear() {
@@ -44,7 +49,7 @@ public class ApiTest {
     }
 
     @Test
-    public void login_with_general_member() throws JsonProcessingException {
+    public void loginSetting() throws JsonProcessingException {
         memberRepository.deleteAll();
         Member member = Member.builder()
                 .studentId("C011001")
@@ -53,12 +58,33 @@ public class ApiTest {
                 .status(MemberStatus.일반)
                 .build();
         memberRepository.save(member);
+        memberId = member.getId();
 
-        LoginRequest request = new LoginRequest("C011001", "test123!");
+        Member adminMember = Member.builder()
+                .studentId("C011002")
+                .email("test2@example.com")
+                .password(passwordEncoder.encode("test123!"))
+                .status(MemberStatus.관리자)
+                .build();
+        memberRepository.save(adminMember);
+        adminId = adminMember.getId();
 
-        token = given().
+        LoginRequest memberLoginRequest = new LoginRequest("C011001", "test123!");
+        LoginRequest adminLoginRequest = new LoginRequest("C011002", "test123!");
+
+        memberToken = given().
                         header(CONTENT_TYPE, "application/json").
-                        body(mapper.writeValueAsString(request)).
+                        body(mapper.writeValueAsString(memberLoginRequest)).
+                when().
+                        post("/auth/login").
+                then().
+                        statusCode(SC_OK).
+                        extract().
+                        jsonPath().getString("accessToken");
+
+        adminToken = given().
+                        header(CONTENT_TYPE, "application/json").
+                        body(mapper.writeValueAsString(adminLoginRequest)).
                 when().
                         post("/auth/login").
                 then().

@@ -36,8 +36,11 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
 
     // 탈퇴된 회원 외래키 null 처리 쿼리
     @Modifying(clearAutomatically = true)
-    @Query("UPDATE Reservation r SET r.member = null WHERE r.member.id = :memberId")
-    void unlinkMember(@Param("memberId") Long memberId);
+    @Query("UPDATE Reservation r "
+            + "SET r.member = null "
+            + "WHERE r.member.id = :memberId "
+            + "AND ((r.date = :today AND r.startTime <= :nowTime) OR r.date < :today) ")
+    void unlinkMemberFromPreviousReservations(@Param("memberId") Long memberId, @Param("today") LocalDate today, @Param("nowTime") LocalTime nowTime);
 
     @Query("SELECT COUNT(r) > 0 "
             + "FROM Reservation r "
@@ -47,4 +50,10 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             + "OR   r.endTime BETWEEN :start_time AND :end_time "
             + "OR   :start_time BETWEEN r.startTime AND r.endTime)")
     boolean existsAnotherReservationAtDateAndTimePeriodWithSession(@Param("date") LocalDate date, @Param("session") Session session, @Param("start_time") LocalTime startTime, @Param("end_time") LocalTime endTime);
+
+    @Modifying(clearAutomatically = true)
+    @Query("DELETE Reservation r "
+            + "WHERE r.member = :member "
+            + "AND (r.date > :today OR (r.date = :today AND r.startTime > :nowTime))")
+    void deleteFutureReservationByMember(@Param("member") Member member, @Param("today") LocalDate today, @Param("nowTime") LocalTime nowTime);
 }
