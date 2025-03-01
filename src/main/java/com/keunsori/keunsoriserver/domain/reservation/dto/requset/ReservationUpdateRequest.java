@@ -1,7 +1,5 @@
 package com.keunsori.keunsoriserver.domain.reservation.dto.requset;
 
-import jakarta.validation.constraints.NotBlank;
-
 import com.keunsori.keunsoriserver.domain.reservation.domain.vo.ReservationType;
 import com.keunsori.keunsoriserver.domain.reservation.domain.vo.Session;
 import com.keunsori.keunsoriserver.global.annotation.ValidEnum;

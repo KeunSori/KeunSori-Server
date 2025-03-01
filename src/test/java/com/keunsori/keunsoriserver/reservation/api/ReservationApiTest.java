@@ -33,7 +33,6 @@ public class ReservationApiTest extends ApiTest {
 
     private String authorizationValue;
 
-
     @Autowired
     private ReservationRepository reservationRepository;
 
@@ -45,6 +44,7 @@ public class ReservationApiTest extends ApiTest {
 
     @Test
     void 내_예약_조회에_성공한다() {
+        System.out.println(authorizationValue);
         given().
                 header(AUTHORIZATION, authorizationValue).
         when().

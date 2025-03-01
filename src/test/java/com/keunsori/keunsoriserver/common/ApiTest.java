@@ -18,6 +18,10 @@ import org.springframework.test.context.ActiveProfiles;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.keunsori.keunsoriserver.domain.auth.login.dto.request.LoginRequest;
+import com.keunsori.keunsoriserver.domain.member.domain.Member;
+import com.keunsori.keunsoriserver.domain.member.domain.vo.MemberStatus;
+import com.keunsori.keunsoriserver.domain.member.dto.request.SignUpRequest;
+import com.keunsori.keunsoriserver.domain.member.repository.MemberRepository;
 
 @ActiveProfiles("test")
 @SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
@@ -46,14 +50,14 @@ public class ApiTest {
     public void login_with_general_member() throws JsonProcessingException {
         memberRepository.deleteAll();
         Member member = Member.builder()
-                .studentId("C011001")
-                .email("test@example.com")
+                .studentId("C000001")
+                .email("testMember@example.com")
                 .password(passwordEncoder.encode("test123!"))
                 .status(MemberStatus.일반)
                 .build();
         memberRepository.save(member);
 
-        LoginRequest request = new LoginRequest("C011001", "test123!");
+        LoginRequest request = new LoginRequest("C000001", "test123!");
 
         token = given().
                         header(CONTENT_TYPE, "application/json").
