@@ -16,7 +16,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.jdbc.Sql;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.keunsori.keunsoriserver.common.ApiTest;
@@ -39,13 +38,12 @@ public class ReservationApiTest extends ApiTest {
 
     @BeforeEach
     void login() throws JsonProcessingException {
-        login_with_general_member();
-        authorizationValue = "Bearer " + token;
+        loginSetting();
+        authorizationValue = "Bearer " + memberToken;
     }
 
     @Test
     void 내_예약_조회에_성공한다() {
-        System.out.println(authorizationValue);
         given().
                 header(AUTHORIZATION, authorizationValue).
         when().
