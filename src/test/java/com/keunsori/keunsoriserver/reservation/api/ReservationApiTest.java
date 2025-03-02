@@ -8,6 +8,10 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.HttpHeaders.LOCATION;
 
+import com.keunsori.keunsoriserver.domain.reservation.domain.Reservation;
+import com.keunsori.keunsoriserver.domain.reservation.domain.vo.ReservationType;
+import com.keunsori.keunsoriserver.domain.reservation.domain.vo.Session;
+import com.keunsori.keunsoriserver.domain.reservation.repository.ReservationRepository;
 import org.apache.http.HttpStatus;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,15 +20,10 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.jdbc.Sql;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.keunsori.keunsoriserver.common.ApiTest;
-import com.keunsori.keunsoriserver.domain.reservation.domain.Reservation;
-import com.keunsori.keunsoriserver.domain.reservation.domain.vo.ReservationType;
-import com.keunsori.keunsoriserver.domain.reservation.domain.vo.Session;
 import com.keunsori.keunsoriserver.domain.reservation.dto.requset.ReservationCreateRequest;
-import com.keunsori.keunsoriserver.domain.reservation.repository.ReservationRepository;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -40,7 +39,7 @@ public class ReservationApiTest extends ApiTest {
     @BeforeEach
     void login() throws JsonProcessingException {
         login_with_general_member();
-        authorizationValue = "Bearer " + token;
+        authorizationValue = "Bearer " + generalToken;
     }
 
     @Test
