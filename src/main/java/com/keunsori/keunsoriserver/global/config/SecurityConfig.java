@@ -83,8 +83,8 @@ public class SecurityConfig  {
         configuration.addAllowedHeader("*");
         configuration.addAllowedMethod("*");
         configuration.setAllowCredentials(true);
-//        configuration.addExposedHeader(SET_COOKIE);
-        configuration.addExposedHeader("Refresh-Token");
+        configuration.addExposedHeader(SET_COOKIE);
+        
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

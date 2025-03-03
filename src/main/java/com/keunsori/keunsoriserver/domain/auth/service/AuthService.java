@@ -1,9 +1,6 @@
-package com.keunsori.keunsoriserver.domain.auth.login;
+package com.keunsori.keunsoriserver.domain.auth.service;
 
-import com.keunsori.keunsoriserver.domain.auth.login.dto.request.LoginRequest;
-import com.keunsori.keunsoriserver.domain.auth.login.dto.response.LoginResponse;
 import com.keunsori.keunsoriserver.domain.auth.redis.RefreshTokenService;
-import com.keunsori.keunsoriserver.domain.auth.service.TokenService;
 import com.keunsori.keunsoriserver.domain.member.domain.Member;
 import com.keunsori.keunsoriserver.domain.member.repository.MemberRepository;
 import com.keunsori.keunsoriserver.global.exception.AuthException;
@@ -11,16 +8,17 @@ import com.keunsori.keunsoriserver.global.exception.MemberException;
 import com.keunsori.keunsoriserver.global.properties.JwtProperties;
 import com.keunsori.keunsoriserver.global.util.CookieUtil;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.*;
+import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.INVALID_REFRESH_TOKEN;
+import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.STUDENT_ID_NOT_EXISTS;
 
 @Service
 @RequiredArgsConstructor
-public class LoginService {
+public class AuthService {
+
     private final TokenService tokenService;
     private final RefreshTokenService refreshTokenService;
     private final MemberRepository memberRepository;
