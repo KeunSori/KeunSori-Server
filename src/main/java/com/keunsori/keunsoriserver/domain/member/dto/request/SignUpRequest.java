@@ -2,6 +2,7 @@ package com.keunsori.keunsoriserver.domain.member.dto.request;
 
 import static com.keunsori.keunsoriserver.global.constant.RequestFormatConstant.PASSWORD_REGEX;
 import static com.keunsori.keunsoriserver.global.constant.RequestFormatConstant.STUDENT_ID_REGEX;
+import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.PASSWORD_INVALID_FORMAT;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -22,7 +23,7 @@ public record SignUpRequest(
         String email,
 
         @NotBlank(message = "비밀번호는 필수 입력값입니다.")
-        @Pattern(regexp = PASSWORD_REGEX, message = "비밀번호는 특수문자, 영문자, 숫자를 포함한 8자리 이상 문자열입니다.")
+        @Pattern(regexp = PASSWORD_REGEX, message = PASSWORD_INVALID_FORMAT)
         String password,
 
         @NotBlank(message = "비밀번호를 한 번 더 입력해주세요.")
