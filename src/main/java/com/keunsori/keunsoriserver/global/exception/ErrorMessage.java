@@ -27,7 +27,7 @@ public class ErrorMessage {
     // Auth
     public static final String STUDENT_ID_NOT_EXISTS = "존재하지 않는 학번입니다.";
     public static final String PASSWORD_NOT_CORRECT = "비밀번호가 일치하지 않습니다.";
-    public static final String INVALID_REFRESH_TOKEN = "유효하지 않은 리프레시 토큰입니다.";
+    public static final String INVALID_REFRESH_TOKEN = "유효하지 않은 Refresh-token 입니다.";
 
     // Email
     public static final String EMAIL_NOT_EXISTS_FOR_AUTH = "인증번호를 전송하지 않았거나 인증번호가 만료되었습니다.";
