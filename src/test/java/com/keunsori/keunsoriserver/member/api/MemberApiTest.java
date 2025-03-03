@@ -160,4 +160,42 @@ public class MemberApiTest extends ApiTest {
 
         Assertions.assertThat(errorMessage).isEqualTo(PASSWORD_IS_DIFFERENT_FROM_CHECK);
     }
+
+    @Test
+    void 현재_비밀번호_틀리고_새_비밀번호_패턴_안맞을때_현재_비밀번호_틀림_에러로_뜬다() throws JsonProcessingException {
+        MemberPasswordUpdateRequest request = new MemberPasswordUpdateRequest("test123#",
+                "password", "password");
+
+        String errorMessage = given().
+                header(AUTHORIZATION, authorizationValue).
+                header(CONTENT_TYPE, "application/json").
+                body(mapper.writeValueAsString(request)).
+                when().
+                patch("/members/me/password").
+                then().
+                statusCode(HttpStatus.SC_UNAUTHORIZED).
+                extract().
+                jsonPath().get("message");
+
+        Assertions.assertThat(errorMessage).isEqualTo(PASSWORD_NOT_CORRECT);
+    }
+
+    @Test
+    void 새_비밀번호_패턴_안맞고_비밀번호_확인_틀릴때_패턴_안맞음_에러로_뜬다() throws JsonProcessingException {
+        MemberPasswordUpdateRequest request = new MemberPasswordUpdateRequest("test123!",
+                "password", "password1");
+
+        String errorMessage = given().
+                header(AUTHORIZATION, authorizationValue).
+                header(CONTENT_TYPE, "application/json").
+                body(mapper.writeValueAsString(request)).
+                when().
+                patch("/members/me/password").
+                then().
+                statusCode(HttpStatus.SC_BAD_REQUEST).
+                extract().
+                jsonPath().get("message");
+
+        Assertions.assertThat(errorMessage).isEqualTo(PASSWORD_INVALID_FORMAT);
+    }
 }
