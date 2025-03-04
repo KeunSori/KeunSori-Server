@@ -7,6 +7,7 @@ import static com.keunsori.keunsoriserver.global.constant.EnvironmentConstant.LO
 import static com.keunsori.keunsoriserver.global.constant.EnvironmentConstant.LOCAL_URL_3;
 import static com.keunsori.keunsoriserver.global.constant.EnvironmentConstant.PROD_URL;
 import static com.keunsori.keunsoriserver.global.constant.EnvironmentConstant.PROD_URL2;
+import static com.keunsori.keunsoriserver.global.constant.EnvironmentConstant.PROD_URL3;
 import static org.springframework.http.HttpHeaders.SET_COOKIE;
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -75,8 +76,8 @@ public class SecurityConfig  {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOriginPatterns(List.of(
-            LOCAL_URL_1, LOCAL_URL_2, LOCAL_URL_3, DEV_URL, DEV_URL2, PROD_URL, PROD_URL2
+        configuration.setAllowedOrigins(List.of(
+            LOCAL_URL_1, LOCAL_URL_2, LOCAL_URL_3, DEV_URL, DEV_URL2, PROD_URL, PROD_URL2, PROD_URL3
         ));
 
         configuration.addAllowedHeader("*");
