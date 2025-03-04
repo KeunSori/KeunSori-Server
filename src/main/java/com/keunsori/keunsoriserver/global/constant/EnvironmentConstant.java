@@ -10,5 +10,5 @@ public class EnvironmentConstant {
     public static final String DEV_URL2 = "https://dev.keunsori.com";
 
     public static final String PROD_URL = "https://keun-sori-web.vercel.app";
-    public static final String PROD_URL2 = "https://www.keunsori.com";
+    public static final String PROD_URL2 = "https://keunsori.com";
 }
