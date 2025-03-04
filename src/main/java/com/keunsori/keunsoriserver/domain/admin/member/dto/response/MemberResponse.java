@@ -1,6 +1,5 @@
-package com.keunsori.keunsoriserver.domain.member.dto.response;
+package com.keunsori.keunsoriserver.domain.admin.member.dto.response;
 
-import com.keunsori.keunsoriserver.domain.member.domain.vo.MemberStatus;
 import com.keunsori.keunsoriserver.domain.member.domain.Member;
 
 import java.time.LocalDateTime;
@@ -9,7 +8,6 @@ public record MemberResponse(
     Long id,
     String name,
     String StudentId,
-    MemberStatus status,
     LocalDateTime approvalDate
 ) {
 
@@ -18,7 +16,6 @@ public record MemberResponse(
                 member.getId(),
                 member.getName(),
                 member.getStudentId(),
-                member.getStatus(),
                 member.getApprovalDate()
         );
     }
