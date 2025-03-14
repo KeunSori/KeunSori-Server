@@ -43,13 +43,6 @@ public class MemberService {
             throw new AuthException(PASSWORD_NOT_CORRECT);
         }
 
-        // 새 비밀번호 패턴 검증
-        Pattern pattern = Pattern.compile(PASSWORD_REGEX);
-        Matcher matcher = pattern.matcher(request.newPassword());
-        if(!matcher.matches()){
-            throw new MemberException(PASSWORD_INVALID_FORMAT);
-        }
-
         // 새 비밀번호 확인 일치 검증
         if(!request.newPassword().equals(request.passwordConfirm())) {
             throw new MemberException(PASSWORD_IS_DIFFERENT_FROM_CHECK);
