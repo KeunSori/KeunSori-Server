@@ -13,6 +13,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static com.keunsori.keunsoriserver.global.constant.RequestFormatConstant.PASSWORD_REGEX;
 import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.*;
 
 @Service
@@ -34,10 +38,12 @@ public class MemberService {
     public void updatePassword(MemberPasswordUpdateRequest request) {
         Member member = memberUtil.getLoggedInMember();
 
+        // 현재 비밀번호 일치 검증
         if(!passwordEncoder.matches(request.currentPassword(), member.getPassword())){
             throw new AuthException(PASSWORD_NOT_CORRECT);
         }
 
+        // 새 비밀번호 확인 일치 검증
         if(!request.newPassword().equals(request.passwordConfirm())) {
             throw new MemberException(PASSWORD_IS_DIFFERENT_FROM_CHECK);
         }
