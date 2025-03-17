@@ -8,8 +8,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.PASSWORD_IS_DIFFERENT_FROM_CHECK;
-import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.PASSWORD_NOT_CORRECT;
+import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.*;
 import static io.restassured.RestAssured.given;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
@@ -50,10 +49,9 @@ public class AdminMemberApiTest extends ApiTest {
     }
 
     @Test
-    void 기존_비밀번호_잘못_입력하면_변경_실패() throws JsonProcessingException {
+    void 기존_비밀번호_잘못_입력하면_400_에러로_변경_실패() throws JsonProcessingException {
         MemberPasswordUpdateRequest request = new MemberPasswordUpdateRequest("incorrect123!",
                 "password123!", "password123!");
-
 
         String errorMessage = given().
                 header(AUTHORIZATION, authorizationValue).
@@ -62,11 +60,11 @@ public class AdminMemberApiTest extends ApiTest {
                 when().
                 patch("/admin/me/password").
                 then().
-                statusCode(HttpStatus.SC_UNAUTHORIZED).
+                statusCode(HttpStatus.SC_BAD_REQUEST).
                 extract().
                 jsonPath().get("message");
 
-        Assertions.assertThat(errorMessage).isEqualTo(PASSWORD_NOT_CORRECT);
+        Assertions.assertThat(errorMessage).isEqualTo(INVALID_CURRENT_PASSWORD);
     }
 
     @Test
