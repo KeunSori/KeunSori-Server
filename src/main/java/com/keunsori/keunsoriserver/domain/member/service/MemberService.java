@@ -5,7 +5,6 @@ import com.keunsori.keunsoriserver.domain.member.dto.request.MemberPasswordUpdat
 import com.keunsori.keunsoriserver.domain.member.dto.response.MyPageResponse;
 import com.keunsori.keunsoriserver.domain.member.repository.MemberRepository;
 import com.keunsori.keunsoriserver.domain.reservation.repository.ReservationRepository;
-import com.keunsori.keunsoriserver.global.exception.AuthException;
 import com.keunsori.keunsoriserver.global.exception.MemberException;
 import com.keunsori.keunsoriserver.global.util.MemberUtil;
 import lombok.RequiredArgsConstructor;
@@ -40,7 +39,7 @@ public class MemberService {
 
         // 현재 비밀번호 일치 검증
         if(!passwordEncoder.matches(request.currentPassword(), member.getPassword())){
-            throw new AuthException(PASSWORD_NOT_CORRECT);
+            throw new MemberException(INVALID_CURRENT_PASSWORD);
         }
 
         // 새 비밀번호 확인 일치 검증

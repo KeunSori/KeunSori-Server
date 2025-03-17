@@ -122,7 +122,7 @@ public class MemberApiTest extends ApiTest {
     }
 
     @Test
-    void 기존_비밀번호_잘못_입력하면_변경_실패() throws JsonProcessingException {
+    void 기존_비밀번호_잘못_입력하면_400_에러로_변경_실패() throws JsonProcessingException {
         MemberPasswordUpdateRequest request = new MemberPasswordUpdateRequest("incorrect123!",
                 "password123!", "password123!");
 
@@ -134,11 +134,11 @@ public class MemberApiTest extends ApiTest {
                 when().
                 patch("/members/me/password").
                 then().
-                statusCode(HttpStatus.SC_UNAUTHORIZED).
+                statusCode(HttpStatus.SC_BAD_REQUEST).
                 extract().
                 jsonPath().get("message");
 
-        Assertions.assertThat(errorMessage).isEqualTo(PASSWORD_NOT_CORRECT);
+        Assertions.assertThat(errorMessage).isEqualTo(INVALID_CURRENT_PASSWORD);
     }
 
     @Test
