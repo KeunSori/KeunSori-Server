@@ -60,12 +60,24 @@ public class Member extends BaseEntity {
         this.approvalDate = LocalDateTime.now();
     }
 
-    public void updatePassword(String encodedPassword) {
-        this.password = encodedPassword;
-    }
+    /**
+     * 데이터 조회 로직
+     */
 
     public boolean isAdmin() {
         return status.equals(MemberStatus.관리자);
+    }
+
+    public boolean hasEmail(String email) {
+        return this.email.equals(email);
+    }
+
+    /**
+     * 데이터 변경 로직
+     */
+
+    public void updatePassword(String encodedPassword) {
+        this.password = encodedPassword;
     }
 
     @PrePersist
