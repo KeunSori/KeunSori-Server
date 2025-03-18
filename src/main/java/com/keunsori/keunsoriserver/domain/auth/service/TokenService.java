@@ -2,20 +2,26 @@ package com.keunsori.keunsoriserver.domain.auth.service;
 
 import com.keunsori.keunsoriserver.domain.member.domain.vo.MemberStatus;
 import com.keunsori.keunsoriserver.global.properties.JwtProperties;
+import com.keunsori.keunsoriserver.global.properties.RedisProperties;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
 public class TokenService {
 
     private final JwtProperties jwtProperties;
+    private final RedisTemplate<String, String> redisTemplate;
 
     // Access Token 생성
     public String generateAccessToken(String studentId, String name, MemberStatus status) {
@@ -24,6 +30,11 @@ public class TokenService {
 
     // Refresh Token 생성 (Redis에 저장 포함)
     public String generateRefreshToken(String studentId, String name, MemberStatus status) {
+        String refreshToken = createToken(studentId, name, status, jwtProperties.REFRESH_TOKEN_VALIDITY_TIME);
+
+        ValueOperations<String, String> ops = redisTemplate.opsForValue();
+        ops.set(studentId, refreshToken, jwtProperties.REFRESH_TOKEN_VALIDITY_TIME, TimeUnit.MILLISECONDS);
+
         return createToken(studentId, name, status, jwtProperties.REFRESH_TOKEN_VALIDITY_TIME);
     }
 

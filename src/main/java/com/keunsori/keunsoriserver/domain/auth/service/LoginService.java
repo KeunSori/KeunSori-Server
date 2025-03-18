@@ -1,9 +1,6 @@
-package com.keunsori.keunsoriserver.domain.auth.login;
+package com.keunsori.keunsoriserver.domain.auth.service;
 
-import com.keunsori.keunsoriserver.domain.auth.login.dto.request.LoginRequest;
-import com.keunsori.keunsoriserver.domain.auth.login.dto.response.LoginResponse;
 import com.keunsori.keunsoriserver.domain.auth.redis.RefreshTokenService;
-import com.keunsori.keunsoriserver.domain.auth.service.TokenService;
 import com.keunsori.keunsoriserver.domain.member.domain.Member;
 import com.keunsori.keunsoriserver.domain.member.repository.MemberRepository;
 import com.keunsori.keunsoriserver.global.exception.AuthException;
@@ -12,7 +9,6 @@ import com.keunsori.keunsoriserver.global.properties.JwtProperties;
 import com.keunsori.keunsoriserver.global.util.CookieUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,8 +24,8 @@ public class LoginService {
     @Transactional
     public void login(Member member, HttpServletResponse response){
 
-        String accessToken=tokenService.generateAccessToken(member.getStudentId(), member.getName(),member.getStatus());
-        String refreshToken=tokenService.generateRefreshToken(member.getStudentId(), member.getName(),member.getStatus());
+        String accessToken = tokenService.generateAccessToken(member.getStudentId(), member.getName(),member.getStatus());
+        String refreshToken = tokenService.generateRefreshToken(member.getStudentId(), member.getName(),member.getStatus());
 
         refreshTokenService.saveRefreshToken(member.getStudentId(),refreshToken, JwtProperties.REFRESH_TOKEN_VALIDITY_TIME);
 

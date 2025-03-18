@@ -39,7 +39,8 @@ public class SwaggerConfig {
 
         return new OpenAPI()
                 .servers(List.of(server))
-                .addSecurityItem(securityRequirement())
+                .addSecurityItem(new SecurityRequirement().addList("Authorization"))
+                .addSecurityItem(new SecurityRequirement().addList("accessToken"))
                 .components(authSetting());
     }
 
@@ -52,7 +53,13 @@ public class SwaggerConfig {
                                 .scheme("bearer")
                                 .bearerFormat("JWT")
                                 .in(SecurityScheme.In.HEADER)
-                                .name(AUTHORIZATION));
+                                .name(AUTHORIZATION))
+                .addSecuritySchemes(
+                        "accessToken",
+                        new SecurityScheme()
+                                .type(SecurityScheme.Type.APIKEY)
+                                .in(SecurityScheme.In.COOKIE)
+                                .name("accessToken"));
     }
 
     private SecurityRequirement securityRequirement() {

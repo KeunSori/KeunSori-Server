@@ -24,8 +24,15 @@ public class AuthService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    public void login(Member member, HttpServletResponse response){
+    public void login(String studentId, HttpServletResponse response){
+        Member member = memberRepository.findByStudentId(studentId)
+                .orElseThrow(() -> new MemberException(STUDENT_ID_NOT_EXISTS));
 
+        proccesslogin(member, response);
+    }
+
+    @Transactional
+    public void proccesslogin(Member member, HttpServletResponse response){
         String accessToken=tokenService.generateAccessToken(member.getStudentId(), member.getName(),member.getStatus());
         String refreshToken=tokenService.generateRefreshToken(member.getStudentId(), member.getName(),member.getStatus());
 
