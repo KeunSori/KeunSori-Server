@@ -42,6 +42,11 @@ public class MemberService {
             throw new MemberException(INVALID_CURRENT_PASSWORD);
         }
 
+        // 새 비밀번호가 현재 비밀번호와 다른지 검증
+        if(request.currentPassword().equals(request.newPassword())){
+            throw new MemberException(PASSWORD_SAME_AS_OLD);
+        }
+
         // 새 비밀번호 확인 일치 검증
         if(!request.newPassword().equals(request.passwordConfirm())) {
             throw new MemberException(PASSWORD_IS_DIFFERENT_FROM_CHECK);
