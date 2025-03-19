@@ -47,11 +47,6 @@ public class MemberService {
             throw new MemberException(PASSWORD_SAME_AS_OLD);
         }
 
-        // 새 비밀번호 확인 일치 검증
-        if(!request.newPassword().equals(request.passwordConfirm())) {
-            throw new MemberException(PASSWORD_IS_DIFFERENT_FROM_CHECK);
-        }
-
         String encodedPassword = passwordEncoder.encode(request.newPassword());
         member.updatePassword(encodedPassword);
     }
