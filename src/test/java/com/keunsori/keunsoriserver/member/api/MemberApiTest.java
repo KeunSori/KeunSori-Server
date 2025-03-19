@@ -109,7 +109,7 @@ public class MemberApiTest extends ApiTest {
     @Test
     void 비밀번호_올바르게_입력하면_변경_성공() throws JsonProcessingException {
         MemberPasswordUpdateRequest request = new MemberPasswordUpdateRequest("test123!",
-                "password123!", "password123!");
+                "password123!");
 
         given().
                 header(AUTHORIZATION, authorizationValue).
@@ -122,9 +122,9 @@ public class MemberApiTest extends ApiTest {
     }
 
     @Test
-    void 기존_비밀번호_잘못_입력하면_400_에러로_변경_실패() throws JsonProcessingException {
+    void 기존_비밀번호_잘못_입력하면_변경_실패() throws JsonProcessingException {
         MemberPasswordUpdateRequest request = new MemberPasswordUpdateRequest("incorrect123!",
-                "password123!", "password123!");
+                "password123!");
 
 
         String errorMessage = given().
@@ -142,9 +142,9 @@ public class MemberApiTest extends ApiTest {
     }
 
     @Test
-    void 비밀번호_확인_잘못_입력하면_변경_실패() throws JsonProcessingException {
+    void 기존_비밀번호와_새_비밀번호가_같으면_에러_반환() throws JsonProcessingException {
         MemberPasswordUpdateRequest request = new MemberPasswordUpdateRequest("test123!",
-                "password123!", "password123#");
+                "test123!");
 
 
         String errorMessage = given().
@@ -158,13 +158,15 @@ public class MemberApiTest extends ApiTest {
                 extract().
                 jsonPath().get("message");
 
-        Assertions.assertThat(errorMessage).isEqualTo(PASSWORD_IS_DIFFERENT_FROM_CHECK);
+        Assertions.assertThat(errorMessage).isEqualTo(PASSWORD_SAME_AS_OLD);
     }
 
+
+
     @Test
-    void 새_비밀번호_패턴_안맞고_비밀번호_확인_틀릴때_패턴_안맞음_에러로_뜬다() throws JsonProcessingException {
+    void 새_비밀번호_패턴_안맞으면_에러_반환() throws JsonProcessingException {
         MemberPasswordUpdateRequest request = new MemberPasswordUpdateRequest("test123!",
-                "password", "password1");
+                "password");
 
         String errorMessage = given().
                 header(AUTHORIZATION, authorizationValue).
