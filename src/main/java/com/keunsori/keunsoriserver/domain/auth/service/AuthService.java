@@ -3,22 +3,19 @@ package com.keunsori.keunsoriserver.domain.auth.service;
 import com.keunsori.keunsoriserver.domain.auth.dto.request.PasswordInitializeRequest;
 import com.keunsori.keunsoriserver.domain.member.domain.Member;
 import com.keunsori.keunsoriserver.domain.member.repository.MemberRepository;
-import com.keunsori.keunsoriserver.global.exception.EmailException;
 import com.keunsori.keunsoriserver.global.exception.MemberException;
-import com.keunsori.keunsoriserver.global.exception.RandomException;
 import com.keunsori.keunsoriserver.global.util.EmailUtil;
+import com.keunsori.keunsoriserver.global.util.RandomUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.util.Base64;
-
 import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.*;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class AuthService {
@@ -36,21 +33,11 @@ public class AuthService {
             throw new MemberException(STUDENT_ID_DOES_NOT_MATCH_WITH_EMAIL);
         }
 
-        String initializedPassword = generateRandomPassword();
+        String initializedPassword = RandomUtil.generateRandomPassword();
         member.updatePassword(passwordEncoder.encode(initializedPassword));
 
         emailUtil.sendPasswordInitializeEmail(request.email(), initializedPassword);
-    }
 
-    private String generateRandomPassword() {
-        try {
-            byte[] randomBytes = new byte[16];
-            SecureRandom random = SecureRandom.getInstanceStrong();
-
-            random.nextBytes(randomBytes);
-            return Base64.getUrlEncoder().encodeToString(randomBytes);
-        } catch (NoSuchAlgorithmException e) {
-            throw new RandomException(INITIALIZED_PASSWORD_GENERATION_FAILED);
-        }
+        log.info("[AuthService] 비밀번호 초기화: studentId: {}", request.studentId());
     }
 }
