@@ -9,6 +9,7 @@ public class ErrorMessage {
     public static final String PASSWORD_INVALID_FORMAT = "비밀번호는 특수문자, 영문자, 숫자를 포함한 8자리 이상 문자열입니다.";
     public static final String INVALID_CURRENT_PASSWORD = "현재 비밀번호가 올바르지 않습니다.";
     public static final String STUDENT_ID_DOES_NOT_MATCH_WITH_EMAIL = "가입한 학번과 이메일이 일치하지 않습니다";
+    public static final String PASSWORD_SAME_AS_OLD = "새 비밀번호가 기존 비밀번호와 동일합니다.";
 
     // Admin Member
     public static final String INVALID_STATUS_FOR_APPROVAL = "회원이 승인 대기 상태가 아닙니다.";

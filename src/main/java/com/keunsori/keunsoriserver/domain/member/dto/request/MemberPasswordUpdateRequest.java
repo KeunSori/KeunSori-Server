@@ -11,8 +11,6 @@ public record MemberPasswordUpdateRequest(
         String currentPassword,
         @NotBlank(message = "새 비밀번호를 입력해주세요.")
         @Pattern(regexp = PASSWORD_REGEX, message = PASSWORD_INVALID_FORMAT)
-        String newPassword,
-        @NotBlank(message = "새 비밀번호를 확인을 입력해주세요.")
-        String passwordConfirm
+        String newPassword
 ) {
 }
