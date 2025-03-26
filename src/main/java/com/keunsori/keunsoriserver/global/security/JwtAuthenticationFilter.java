@@ -39,15 +39,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
-        String accesstoken = CookieUtil.getCookieValue(request, "Access-Token");
+        String accessToken = CookieUtil.getCookieValue(request, "Access-Token");
         String refreshToken = CookieUtil.getCookieValue(request, "Refresh-Token");
 
-        try{
-            if (accesstoken != null) {
-                tokenUtil.validateToken(accesstoken);
+        if (accessToken == null) {
+            String authHeader = request.getHeader("Authorization");
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                accessToken = authHeader.substring(7); // "Bearer " 뒷부분만 추출
+            }
+        }
 
-                String studentId = tokenUtil.getStudentIdFromToken(accesstoken);
-                String status = tokenUtil.getStatusFromToken(accesstoken);
+
+        try{
+            if (accessToken != null) {
+                tokenUtil.validateToken(accessToken);
+
+                String studentId = tokenUtil.getStudentIdFromToken(accessToken);
+                String status = tokenUtil.getStatusFromToken(accessToken);
 
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(studentId, null, List.of(()->status));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
