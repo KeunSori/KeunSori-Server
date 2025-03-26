@@ -61,8 +61,4 @@ public class SwaggerConfig {
                                 .in(SecurityScheme.In.COOKIE)
                                 .name("accessToken"));
     }
-
-    private SecurityRequirement securityRequirement() {
-        return new SecurityRequirement().addList(AUTHORIZATION);
-    }
 }

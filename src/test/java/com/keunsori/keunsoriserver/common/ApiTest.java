@@ -57,15 +57,17 @@ public class ApiTest {
 
         LoginRequest request = new LoginRequest("C000001", "test123!");
 
-        generalToken = given().
-                        header(CONTENT_TYPE, "application/json").
-                        body(mapper.writeValueAsString(request)).
+        var response = given()
+                .header(CONTENT_TYPE, "application/json")
+                .body(mapper.writeValueAsString(request)).
                 when().
-                        post("/auth/login").
+                post("/auth/login").
                 then().
                         statusCode(SC_OK).
                         extract().
-                        jsonPath().getString("accessToken");
+                        response();
+
+        generalToken = response.getCookie("Access-Token");
     }
 
     @Test
@@ -81,14 +83,16 @@ public class ApiTest {
 
         LoginRequest request = new LoginRequest("A000001", "testadmin123!");
 
-        adminToken = given().
-                header(CONTENT_TYPE, "application/json").
-                body(mapper.writeValueAsString(request)).
+        var response = given()
+                .header(CONTENT_TYPE, "application/json")
+                .body(mapper.writeValueAsString(request)).
                 when().
                 post("/auth/login").
                 then().
                 statusCode(SC_OK).
                 extract().
-                jsonPath().getString("accessToken");
+                response();
+
+        adminToken = response.getCookie("Access-Token");
     }
 }

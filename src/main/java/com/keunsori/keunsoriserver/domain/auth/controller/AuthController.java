@@ -26,11 +26,6 @@ public class AuthController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/reissue")
-    public ResponseEntity<String> reissue(@CookieValue(value = "Refresh-Token", required = false) String refreshToken, HttpServletResponse response){
-        authService.reissueToken(refreshToken, response);
-        return ResponseEntity.ok().build();
-    }
     //로그아웃
     @PostMapping("/logout")
     public ResponseEntity<String> logout(@CookieValue(value = "Refresh-Token", required = false) String refreshToken, HttpServletResponse response){

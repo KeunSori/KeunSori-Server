@@ -1,24 +1,26 @@
-package com.keunsori.keunsoriserver.domain.auth.service;
+package com.keunsori.keunsoriserver.global.util;
 
 import com.keunsori.keunsoriserver.domain.member.domain.vo.MemberStatus;
+import com.keunsori.keunsoriserver.global.exception.AuthException;
 import com.keunsori.keunsoriserver.global.properties.JwtProperties;
-import com.keunsori.keunsoriserver.global.properties.RedisProperties;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
+import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.EXPIRED_TOKEN;
+import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.INVALID_TOKEN;
+
 @Service
 @RequiredArgsConstructor
-public class TokenService {
+public class TokenUtil {
 
     private final JwtProperties jwtProperties;
     private final RedisTemplate<String, String> redisTemplate;
@@ -56,15 +58,16 @@ public class TokenService {
     }
 
     // 토큰 유효성 검사
-    public boolean validateToken(String token) {
+    public void validateToken(String token) {
         try {
             token = removePrefix(token);  // Bearer 접두어 제거 후 검증
-            Jwts.parser().setSigningKey(jwtProperties.getSecret()).parseClaimsJws(token);
-            return true;
+            Jwts.parser()
+                    .setSigningKey(jwtProperties.getSecret())
+                    .parseClaimsJws(token);
         } catch (ExpiredJwtException e) {
-            return false; // 토큰 만료
+           throw new AuthException(EXPIRED_TOKEN); // 토큰 만료
         } catch (Exception e) {
-            return false; // 유효하지 않은 토큰
+            throw new AuthException(INVALID_TOKEN); // 유효하지 않은 토큰
         }
     }
 
@@ -99,7 +102,7 @@ public class TokenService {
                 .getTime();
     }
 
-    // Bearer 접두어 제거
+    // Swagger에서 테스트할 경우 Bearer 접두어 제거
     private String removePrefix(String token) {
         String prefix = jwtProperties.PREFIX;
         if (token != null && token.startsWith(prefix + " ")) {

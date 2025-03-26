@@ -1,4 +1,4 @@
-package com.keunsori.keunsoriserver.domain.auth.redis;
+package com.keunsori.keunsoriserver.domain.auth.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
