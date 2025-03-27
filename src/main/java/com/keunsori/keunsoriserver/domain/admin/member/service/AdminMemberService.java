@@ -3,7 +3,7 @@ package com.keunsori.keunsoriserver.domain.admin.member.service;
 import com.keunsori.keunsoriserver.domain.admin.member.dto.response.MemberApplicantResponse;
 import com.keunsori.keunsoriserver.domain.member.domain.Member;
 import com.keunsori.keunsoriserver.domain.member.domain.vo.MemberStatus;
-import com.keunsori.keunsoriserver.domain.member.dto.response.MemberResponse;
+import com.keunsori.keunsoriserver.domain.admin.member.dto.response.MemberResponse;
 import com.keunsori.keunsoriserver.domain.member.repository.MemberRepository;
 import com.keunsori.keunsoriserver.global.exception.MemberException;
 import lombok.RequiredArgsConstructor;

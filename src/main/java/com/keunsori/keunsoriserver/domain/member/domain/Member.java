@@ -5,6 +5,7 @@ import com.keunsori.keunsoriserver.domain.member.domain.vo.MemberStatus;
 import com.keunsori.keunsoriserver.global.exception.MemberException;
 import jakarta.persistence.*;
 
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,7 +17,7 @@ import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.INVALID_
 
 @Entity
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Member extends BaseEntity {
 
     @Id
@@ -24,7 +25,7 @@ public class Member extends BaseEntity {
     @Column(name = "member_id")
     private Long id;
 
-    @Column(length = 7)
+    @Column(length = 7, unique = true, nullable = false)
     private String studentId;
 
     @Column(length = 50)
@@ -57,6 +58,10 @@ public class Member extends BaseEntity {
         }
         this.status = MemberStatus.일반;
         this.approvalDate = LocalDateTime.now();
+    }
+
+    public void updatePassword(String encodedPassword) {
+        this.password = encodedPassword;
     }
 
     public boolean isAdmin() {
