@@ -39,5 +39,5 @@ public class ErrorMessage {
     public static final String EMAIL_VERIFY_NUMBER_GENERATION_FAILED = "인증번호 생성중 에러가 발생했습니다.";
 
     // Random
-    public static final String INITIALIZED_PASSWORD_GENERATION_FAILED = "초기화 비밀번호 생성에 실패하였습니다.";
+    public static final String INITIALIZED_PASSWORD_GENERATION_FAILED = "임시 비밀번호 생성에 실패하였습니다.";
 }

@@ -28,7 +28,7 @@ public class EmailUtil {
         SimpleMailMessage message = new SimpleMailMessage(templateMessage);
         message.setTo(email);
         message.setSubject("[큰소리] 비밀번호 초기화");
-        message.setText("초기화된 비밀번호는 [" + initializedPassword + "] 입니다. 초기화 후 마이페이지에서 비밀번호를 변경해주세요.");
+        message.setText("초기화된 비밀번호는 [" + initializedPassword + "] 입니다. 로그인 후 마이페이지에서 비밀번호를 변경해주세요.");
 
         mailSender.send(message);
     }
