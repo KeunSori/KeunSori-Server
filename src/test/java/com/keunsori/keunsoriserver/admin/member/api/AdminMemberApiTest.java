@@ -3,12 +3,13 @@ package com.keunsori.keunsoriserver.admin.member.api;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.keunsori.keunsoriserver.common.ApiTest;
 import com.keunsori.keunsoriserver.domain.member.dto.request.MemberPasswordUpdateRequest;
+import com.keunsori.keunsoriserver.global.exception.ErrorCode;
 import org.apache.http.HttpStatus;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.*;
+import static com.keunsori.keunsoriserver.global.exception.ErrorCode.*;
 import static io.restassured.RestAssured.given;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
@@ -64,6 +65,6 @@ public class AdminMemberApiTest extends ApiTest {
                 extract().
                 jsonPath().get("message");
 
-        Assertions.assertThat(errorMessage).isEqualTo(INVALID_CURRENT_PASSWORD);
+        Assertions.assertThat(errorMessage).isEqualTo(INVALID_CURRENT_PASSWORD.getMassage());
     }
 }

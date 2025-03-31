@@ -2,6 +2,7 @@ package com.keunsori.keunsoriserver.global.exception;
 
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -22,46 +23,47 @@ public class GlobalExceptionHandler {
                 .findFirst()
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
                 .orElse("유효성 검사 실패");
-
-        ErrorResponse response = new ErrorResponse(HttpStatus.BAD_REQUEST.value(),errorMessage);
+        ErrorCode errorCode = ErrorCode.INVALID_INPUT_VALUE;
+        ErrorResponse response = new ErrorResponse(errorCode.getStatus(), errorCode.getCode(), errorMessage);
         log.info(ex.getMessage());
-        return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(response,HttpStatus.valueOf(errorCode.getStatus()));
     }
 
     //Member 도메인 예외처리(400)
     @ExceptionHandler(MemberException.class)
     public ResponseEntity<ErrorResponse> handleMemberException(MemberException ex) {
-        ErrorResponse response = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
+        ErrorResponse response = new ErrorResponse(ex.getErrorCode().getStatus(), ex.getErrorCode().getCode(), ex.getMessage());
         log.info(ex.getMessage());
-        return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(response, HttpStatusCode.valueOf(ex.getErrorCode().getStatus()));
     }
 
     //Auth 도메인 예외처리(401)
     @ExceptionHandler(AuthException.class)
     public ResponseEntity<ErrorResponse> handleAuthException(AuthException ex) {
-        ErrorResponse response = new ErrorResponse(HttpStatus.UNAUTHORIZED.value(), ex.getMessage());
+        ErrorResponse response = new ErrorResponse(ex.getErrorCode().getStatus(), ex.getErrorCode().getCode(), ex.getMessage());
         log.info(ex.getMessage());
-        return new ResponseEntity<>(response,HttpStatus.UNAUTHORIZED);
+        return new ResponseEntity<>(response,HttpStatusCode.valueOf(ex.getErrorCode().getStatus()));
     }
 
     @ExceptionHandler(ReservationException.class)
     public ResponseEntity<ErrorResponse> handleReservationException(ReservationException ex) {
-        ErrorResponse response = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
+        ErrorResponse response = new ErrorResponse(ex.getErrorCode().getStatus(), ex.getErrorCode().getCode(), ex.getMessage());
         log.info(ex.getMessage());
-        return ResponseEntity.badRequest().body(response);
+        return new ResponseEntity<>(response, HttpStatusCode.valueOf(ex.getErrorCode().getStatus()));
     }
 
     @ExceptionHandler(EmailException.class)
     public ResponseEntity<ErrorResponse> handleEmailException(ReservationException ex) {
-        ErrorResponse response = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
+        ErrorResponse response = new ErrorResponse(ex.getErrorCode().getStatus(), ex.getErrorCode().getCode(), ex.getMessage());
         log.info(ex.getMessage());
-        return ResponseEntity.badRequest().body(response);
+        return new ResponseEntity<>(response, HttpStatusCode.valueOf(ex.getErrorCode().getStatus()));
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleException(Exception ex) {
-        ErrorResponse response = new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), ex.getMessage());
+        ErrorCode errorCode = ErrorCode.INTERNAL_SERVER_ERROR;
+        ErrorResponse response = new ErrorResponse(errorCode.getStatus(), errorCode.getCode(), ex.getMessage());
         log.error(ex.getMessage(), ex);
-        return ResponseEntity.internalServerError().body(response);
+        return new ResponseEntity<>(response, HttpStatusCode.valueOf(errorCode.getStatus()));
     }
 }

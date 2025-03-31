@@ -1,6 +1,6 @@
 package com.keunsori.keunsoriserver.member.api;
 
-import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.*;
+import static com.keunsori.keunsoriserver.global.exception.ErrorCode.*;
 import static io.restassured.RestAssured.given;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
@@ -50,9 +50,10 @@ public class MemberApiTest extends ApiTest {
                 .post("/signup")
         .then()
                 .statusCode(400)
-                .extract().jsonPath().getString("message");
+                .extract().jsonPath().
+                getString("message");
 
-        Assertions.assertThat(message).isEqualTo(DUPLICATED_STUDENT_ID);
+        Assertions.assertThat(message).isEqualTo(DUPLICATED_STUDENT_ID.getMassage());
     }
 
     @Test
@@ -91,7 +92,7 @@ public class MemberApiTest extends ApiTest {
                         .statusCode(400)
                         .extract().jsonPath().getString("message");
 
-        Assertions.assertThat(message).isEqualTo(DUPLICATED_STUDENT_ID);
+        Assertions.assertThat(message).isEqualTo(DUPLICATED_STUDENT_ID.getMassage());
     }
 
 
@@ -138,14 +139,13 @@ public class MemberApiTest extends ApiTest {
                 extract().
                 jsonPath().get("message");
 
-        Assertions.assertThat(errorMessage).isEqualTo(INVALID_CURRENT_PASSWORD);
+        Assertions.assertThat(errorMessage).isEqualTo(INVALID_CURRENT_PASSWORD.getMassage());
     }
 
     @Test
     void 기존_비밀번호와_새_비밀번호가_같으면_에러_반환() throws JsonProcessingException {
         MemberPasswordUpdateRequest request = new MemberPasswordUpdateRequest("test123!",
                 "test123!");
-
 
         String errorMessage = given().
                 header(AUTHORIZATION, authorizationValue).
@@ -158,7 +158,7 @@ public class MemberApiTest extends ApiTest {
                 extract().
                 jsonPath().get("message");
 
-        Assertions.assertThat(errorMessage).isEqualTo(PASSWORD_SAME_AS_OLD);
+        Assertions.assertThat(errorMessage).isEqualTo(PASSWORD_SAME_AS_OLD.getMassage());
     }
 
 
@@ -179,6 +179,6 @@ public class MemberApiTest extends ApiTest {
                 extract().
                 jsonPath().get("message");
 
-        Assertions.assertThat(errorMessage).isEqualTo(PASSWORD_INVALID_FORMAT);
+        Assertions.assertThat(errorMessage).isEqualTo(PASSWORD_INVALID_FORMAT.getMassage());
     }
 }

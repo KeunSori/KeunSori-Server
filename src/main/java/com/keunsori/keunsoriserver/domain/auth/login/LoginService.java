@@ -1,7 +1,5 @@
 package com.keunsori.keunsoriserver.domain.auth.login;
 
-import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.PASSWORD_NOT_CORRECT;
-import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.STUDENT_ID_NOT_EXISTS;
 
 import com.keunsori.keunsoriserver.domain.auth.login.dto.request.LoginRequest;
 import com.keunsori.keunsoriserver.domain.auth.login.dto.response.LoginResponse;
@@ -15,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import static com.keunsori.keunsoriserver.global.exception.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor

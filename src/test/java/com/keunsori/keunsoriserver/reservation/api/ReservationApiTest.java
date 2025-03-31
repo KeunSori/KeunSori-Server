@@ -1,8 +1,6 @@
 package com.keunsori.keunsoriserver.reservation.api;
 
-import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.ANOTHER_RESERVATION_ALREADY_EXISTS;
-import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.INVALID_RESERVATION_TIME;
-import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.RESERVATION_ALREADY_COMPLETED;
+import static com.keunsori.keunsoriserver.global.exception.ErrorCode.*;
 import static io.restassured.RestAssured.given;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
@@ -135,7 +133,7 @@ public class ReservationApiTest extends ApiTest {
                     extract().
                     jsonPath().get("message");
 
-        Assertions.assertThat(errorMessage).isEqualTo(INVALID_RESERVATION_TIME);
+        Assertions.assertThat(errorMessage).isEqualTo(INVALID_RESERVATION_TIME.getMassage());
     }
 
     @Test
@@ -160,7 +158,7 @@ public class ReservationApiTest extends ApiTest {
                         extract().
                         jsonPath().get("message");
 
-        Assertions.assertThat(errorMessage).isEqualTo(INVALID_RESERVATION_TIME);
+        Assertions.assertThat(errorMessage).isEqualTo(INVALID_RESERVATION_TIME.getMassage());
     }
 
     static Stream<Arguments> overlapReservationTimeTestData() {
@@ -213,7 +211,7 @@ public class ReservationApiTest extends ApiTest {
                 extract().
                 jsonPath().get("message");
 
-        Assertions.assertThat(errorMessage).isEqualTo(ANOTHER_RESERVATION_ALREADY_EXISTS);
+        Assertions.assertThat(errorMessage).isEqualTo(ANOTHER_RESERVATION_ALREADY_EXISTS.getMassage());
     }
 
     @ParameterizedTest
@@ -332,7 +330,7 @@ public class ReservationApiTest extends ApiTest {
                         extract().
                         jsonPath().get("message");
 
-        Assertions.assertThat(errorMessage).isEqualTo(ANOTHER_RESERVATION_ALREADY_EXISTS);
+        Assertions.assertThat(errorMessage).isEqualTo(ANOTHER_RESERVATION_ALREADY_EXISTS.getMassage());
     }
 
     @ParameterizedTest
@@ -471,6 +469,6 @@ public class ReservationApiTest extends ApiTest {
                         extract().
                         jsonPath().get("message");
 
-        Assertions.assertThat(errorMessage).isEqualTo(RESERVATION_ALREADY_COMPLETED);
+        Assertions.assertThat(errorMessage).isEqualTo(RESERVATION_ALREADY_COMPLETED.getMassage());
     }
 }

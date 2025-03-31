@@ -1,8 +1,5 @@
 package com.keunsori.keunsoriserver.domain.email.service;
 
-import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.EMAIL_NOT_EXISTS_FOR_AUTH;
-import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.EMAIL_VERIFY_NUMBER_GENERATION_FAILED;
-
 import org.springframework.stereotype.Service;
 
 import com.keunsori.keunsoriserver.domain.email.domain.EmailAuthentication;
@@ -15,6 +12,8 @@ import com.keunsori.keunsoriserver.global.util.EmailUtil;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import lombok.RequiredArgsConstructor;
+
+import static com.keunsori.keunsoriserver.global.exception.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor

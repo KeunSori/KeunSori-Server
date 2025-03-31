@@ -1,8 +1,5 @@
 package com.keunsori.keunsoriserver.domain.auth.controller;
 
-import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.INVALID_REFRESH_TOKEN;
-import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.MEMBER_NOT_EXISTS_WITH_STUDENT_ID;
-
 import com.keunsori.keunsoriserver.domain.auth.login.LoginService;
 import com.keunsori.keunsoriserver.domain.auth.login.dto.request.LoginRequest;
 import com.keunsori.keunsoriserver.domain.auth.redis.RefreshTokenService;
@@ -17,6 +14,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import static com.keunsori.keunsoriserver.global.exception.ErrorCode.*;
 
 @RestController
 @RequestMapping("/auth")
