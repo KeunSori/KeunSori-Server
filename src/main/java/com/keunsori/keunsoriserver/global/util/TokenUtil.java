@@ -10,7 +10,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.EXPIRED_TOKEN;
 import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.INVALID_TOKEN;
 
-@Service
+@Component
 @RequiredArgsConstructor
 public class TokenUtil {
 

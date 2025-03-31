@@ -83,7 +83,7 @@ public class ApiTest {
 
         LoginRequest request = new LoginRequest("A000001", "testadmin123!");
 
-        var response = given()
+        adminToken = given()
                 .header(CONTENT_TYPE, "application/json")
                 .body(mapper.writeValueAsString(request)).
                 when().
@@ -91,8 +91,7 @@ public class ApiTest {
                 then().
                 statusCode(SC_OK).
                 extract().
-                response();
+                cookie("Access-Token");
 
-        adminToken = response.getCookie("Access-Token");
-    }
+            }
 }
