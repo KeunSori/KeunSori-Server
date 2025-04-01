@@ -1,14 +1,15 @@
-package com.keunsori.keunsoriserver.domain.auth.service;
+package com.keunsori.keunsoriserver.domain.auth.repository;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Repository;
+
 
 import java.util.concurrent.TimeUnit;
 
-@Service
+@Repository
 @RequiredArgsConstructor
-public class RefreshTokenService {
+public class RefreshTokenRepository {
     private final StringRedisTemplate stringRedisTemplate;
 
     //Refresh Token 저장하기

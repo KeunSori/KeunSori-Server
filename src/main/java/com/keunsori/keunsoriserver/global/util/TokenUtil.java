@@ -9,11 +9,10 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
+
 
 import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.EXPIRED_TOKEN;
 import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.INVALID_TOKEN;
@@ -23,21 +22,15 @@ import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.INVALID_
 public class TokenUtil {
 
     private final JwtProperties jwtProperties;
-    private final RedisTemplate<String, String> redisTemplate;
 
     // Access Token 생성
     public String generateAccessToken(String studentId, String name, MemberStatus status) {
-        return createToken(studentId, name, status, jwtProperties.ACCESS_TOKEN_VALIDITY_TIME);
+        return createToken(studentId, name, status, JwtProperties.ACCESS_TOKEN_VALIDITY_TIME);
     }
 
-    // Refresh Token 생성 (Redis에 저장 포함)
+    // Refresh Token 생성
     public String generateRefreshToken(String studentId, String name, MemberStatus status) {
-        String refreshToken = createToken(studentId, name, status, jwtProperties.REFRESH_TOKEN_VALIDITY_TIME);
-
-        ValueOperations<String, String> ops = redisTemplate.opsForValue();
-        ops.set(studentId, refreshToken, jwtProperties.REFRESH_TOKEN_VALIDITY_TIME, TimeUnit.MILLISECONDS);
-
-        return createToken(studentId, name, status, jwtProperties.REFRESH_TOKEN_VALIDITY_TIME);
+        return createToken(studentId, name, status, JwtProperties.REFRESH_TOKEN_VALIDITY_TIME);
     }
 
     // JWT 토큰 생성 로직
@@ -104,7 +97,7 @@ public class TokenUtil {
 
     // Swagger에서 테스트할 경우 Bearer 접두어 제거
     private String removePrefix(String token) {
-        String prefix = jwtProperties.PREFIX;
+        String prefix = JwtProperties.PREFIX;
         if (token != null && token.startsWith(prefix + " ")) {
             return token.substring(prefix.length() + 1);
         }
