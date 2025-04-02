@@ -8,6 +8,7 @@ import static com.keunsori.keunsoriserver.global.constant.EnvironmentConstant.LO
 import static com.keunsori.keunsoriserver.global.constant.EnvironmentConstant.LOCAL_URL_3;
 import static com.keunsori.keunsoriserver.global.constant.EnvironmentConstant.PROD_URL;
 import static com.keunsori.keunsoriserver.global.constant.EnvironmentConstant.PROD_URL2;
+import static com.keunsori.keunsoriserver.global.constant.EnvironmentConstant.PROD_URL3;
 import static org.springframework.http.HttpHeaders.SET_COOKIE;
 import static org.springframework.security.config.Customizer.withDefaults;
 
