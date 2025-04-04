@@ -49,7 +49,7 @@ public class MemberApiTest extends ApiTest {
         .when()
                 .post("/signup")
         .then()
-                .statusCode(400)
+                .statusCode(409)
                 .extract().jsonPath().
                 getString("message");
 
@@ -89,7 +89,7 @@ public class MemberApiTest extends ApiTest {
                         .when()
                         .post("/signup")
                         .then()
-                        .statusCode(400)
+                        .statusCode(409)
                         .extract().jsonPath().getString("message");
 
         Assertions.assertThat(message).isEqualTo(DUPLICATED_STUDENT_ID.getMassage());

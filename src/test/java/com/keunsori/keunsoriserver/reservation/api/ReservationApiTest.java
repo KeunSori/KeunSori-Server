@@ -207,7 +207,7 @@ public class ReservationApiTest extends ApiTest {
         when().
                 post("/reservation").
         then().
-                statusCode(HttpStatus.SC_BAD_REQUEST).
+                statusCode(HttpStatus.SC_CONFLICT).
                 extract().
                 jsonPath().get("message");
 
@@ -287,7 +287,7 @@ public class ReservationApiTest extends ApiTest {
         when().
                 post("/reservation").
         then().
-                statusCode(HttpStatus.SC_BAD_REQUEST);
+                statusCode(HttpStatus.SC_CONFLICT);
     }
 
     @ParameterizedTest
@@ -326,7 +326,7 @@ public class ReservationApiTest extends ApiTest {
                 when().
                         post("/reservation").
                 then().
-                        statusCode(HttpStatus.SC_BAD_REQUEST).
+                        statusCode(HttpStatus.SC_CONFLICT).
                         extract().
                         jsonPath().get("message");
 
@@ -368,7 +368,7 @@ public class ReservationApiTest extends ApiTest {
         when().
                 post("/reservation").
         then().
-                statusCode(HttpStatus.SC_BAD_REQUEST);
+                statusCode(HttpStatus.SC_CONFLICT);
     }
 
     static Stream<Arguments> successReservationTimeTestData() {
