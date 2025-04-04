@@ -1,12 +1,18 @@
 package com.keunsori.keunsoriserver.global.security;
 
-import com.keunsori.keunsoriserver.domain.auth.login.JwtTokenManager;
+import com.keunsori.keunsoriserver.domain.auth.repository.RefreshTokenRepository;
+import com.keunsori.keunsoriserver.domain.member.domain.Member;
+import com.keunsori.keunsoriserver.domain.member.repository.MemberRepository;
+import com.keunsori.keunsoriserver.global.exception.AuthException;
+import com.keunsori.keunsoriserver.global.util.TokenUtil;
+import com.keunsori.keunsoriserver.global.util.CookieUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -14,37 +20,62 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.List;
 
+import static com.keunsori.keunsoriserver.global.exception.ErrorCode.*;
+
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-    private final JwtTokenManager jwtTokenManager;
+    private final TokenUtil tokenUtil;
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final MemberRepository memberRepository;
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        String path=request.getServletPath();
+        String path = request.getServletPath();
         return path.startsWith("/auth/login");
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
-        throws ServletException, IOException {
-        String authenticatedToken = request.getHeader(jwtTokenManager.getHeader());
-        String token = null;
+            throws ServletException, IOException {
+        String accessToken = CookieUtil.getCookieValue(request, "Access-Token");
+        String refreshToken = CookieUtil.getCookieValue(request, "Refresh-Token");
 
-        //Bearer 제거해서 토큰만 추출
-        if(authenticatedToken != null && authenticatedToken.startsWith(jwtTokenManager.getPrefix())){
-            token = authenticatedToken.substring(jwtTokenManager.getPrefix().length());
+        if (accessToken == null) {
+            String authHeader = request.getHeader("Authorization");
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                accessToken = authHeader.substring(7); // "Bearer " 뒷부분만 추출
+            }
         }
 
-        if(token != null && jwtTokenManager.validateToken(token)){
-            String studentId = jwtTokenManager.getStudentIdFromToken(token);
-            String status = jwtTokenManager.getStatusFromToken(token);
-            System.out.println(status);
-            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(studentId,null, List.of(()->status));
 
+        if (accessToken != null) {
+            tokenUtil.validateToken(accessToken);
+
+            String studentId = tokenUtil.getStudentIdFromToken(accessToken);
+            String status = tokenUtil.getStatusFromToken(accessToken);
+
+            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(studentId, null, List.of(() -> status));
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+        } else if (refreshToken != null) {
+            String studentId = tokenUtil.getStudentIdFromToken(refreshToken);
+            String storedRefreshToken = refreshTokenRepository.getRefreshToken(studentId);
+
+            if (storedRefreshToken == null || !storedRefreshToken.equals(refreshToken)) {
+                throw new AuthException(INVALID_REFRESH_TOKEN);
+            }
+
+            Member member = memberRepository.findByStudentIdIgnoreCase(studentId)
+                    .orElseThrow(() -> new AuthException(STUDENT_ID_NOT_EXISTS));
+
+            String newAccessToken = tokenUtil.generateAccessToken(member.getStudentId(), member.getName(), member.getStatus());
+            CookieUtil.addAccessTokenCookie(response, newAccessToken);
+
+            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(studentId, null, List.of(new SimpleGrantedAuthority(member.getStatus().name())));
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
-        chain.doFilter(request,response);
-    }
 
+        chain.doFilter(request, response);
+
+    }
 }

@@ -37,6 +37,8 @@ public enum ErrorCode {
     STUDENT_ID_NOT_EXISTS(404, "AUTH-001", "존재하지 않는 학번입니다."),
     PASSWORD_NOT_CORRECT(401, "AUTH-002", "비밀번호가 일치하지 않습니다.") ,
     INVALID_REFRESH_TOKEN(401, "AUTH-003", "유효하지 않은 리프레시 토큰입니다."),
+    INVALID_TOKEN(401, "AUTH-004", "유효하지 않은 토큰입니다."),
+    EXPIRED_TOKEN(401, "AUTH-005", "만료된 토큰입니다."),
 
     // Email
     EMAIL_NOT_EXISTS_FOR_AUTH(400, "EMAIL-001", "인증번호를 전송하지 않았거나 인증번호가 만료되었습니다."),
