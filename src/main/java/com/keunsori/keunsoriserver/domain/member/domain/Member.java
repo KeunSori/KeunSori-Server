@@ -12,8 +12,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.INVALID_STATUS_FOR_APPROVAL;
-
+import static com.keunsori.keunsoriserver.global.exception.ErrorCode.*;
 
 @Entity
 @Getter

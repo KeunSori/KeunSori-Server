@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.MEMBER_NOT_EXISTS_WITH_STUDENT_ID;
+import static com.keunsori.keunsoriserver.global.exception.ErrorCode.*;
 
 @Service
 @Transactional(readOnly = true)

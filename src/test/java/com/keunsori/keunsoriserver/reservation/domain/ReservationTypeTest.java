@@ -1,6 +1,6 @@
 package com.keunsori.keunsoriserver.reservation.domain;
 
-import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.INVALID_RESERVATION_TYPE;
+import static com.keunsori.keunsoriserver.global.exception.ErrorCode.*;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -47,6 +47,6 @@ public class ReservationTypeTest {
         Assertions.assertThatThrownBy(
                         () -> ReservationType.from(actual))
                 .isInstanceOf(ReservationException.class)
-                .hasMessage(INVALID_RESERVATION_TYPE);
+                .hasMessage(INVALID_RESERVATION_TYPE.getMassage());
     }
 }

@@ -1,7 +1,5 @@
 package com.keunsori.keunsoriserver.global.util;
 
-import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.MEMBER_NOT_EXISTS_WITH_STUDENT_ID;
-
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -11,6 +9,8 @@ import com.keunsori.keunsoriserver.domain.member.repository.MemberRepository;
 import com.keunsori.keunsoriserver.global.exception.MemberException;
 
 import lombok.RequiredArgsConstructor;
+
+import static com.keunsori.keunsoriserver.global.exception.ErrorCode.*;
 
 @Component
 @RequiredArgsConstructor

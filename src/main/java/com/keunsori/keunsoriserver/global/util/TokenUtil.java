@@ -8,14 +8,11 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
 
-
-import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.EXPIRED_TOKEN;
-import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.INVALID_TOKEN;
+import static com.keunsori.keunsoriserver.global.exception.ErrorCode.*;
 
 @Component
 @RequiredArgsConstructor

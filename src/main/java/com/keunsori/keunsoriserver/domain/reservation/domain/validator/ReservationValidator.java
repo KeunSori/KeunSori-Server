@@ -1,11 +1,5 @@
 package com.keunsori.keunsoriserver.domain.reservation.domain.validator;
 
-import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.ANOTHER_RESERVATION_ALREADY_EXISTS;
-import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.INVALID_RESERVATION_DATE;
-import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.INVALID_RESERVATION_TIME;
-import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.RESERVATION_ALREADY_COMPLETED;
-import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.RESERVATION_NOT_EQUAL_MEMBER;
-
 import org.springframework.stereotype.Component;
 
 import com.keunsori.keunsoriserver.domain.member.domain.Member;
@@ -20,6 +14,8 @@ import com.keunsori.keunsoriserver.global.exception.ReservationException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import lombok.RequiredArgsConstructor;
+
+import static com.keunsori.keunsoriserver.global.exception.ErrorCode.*;
 
 @Component
 @RequiredArgsConstructor

@@ -1,7 +1,5 @@
 package com.keunsori.keunsoriserver.domain.email.domain;
 
-import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.EMAIL_VERIFY_FAILED;
-
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 
@@ -10,6 +8,8 @@ import com.keunsori.keunsoriserver.global.exception.EmailException;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import static com.keunsori.keunsoriserver.global.exception.ErrorCode.*;
 
 @Getter
 @RedisHash(value = "emailAuthentication", timeToLive = 300)

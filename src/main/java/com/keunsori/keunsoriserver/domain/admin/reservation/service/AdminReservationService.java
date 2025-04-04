@@ -23,7 +23,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.*;
+import static com.keunsori.keunsoriserver.global.exception.ErrorCode.*;
 
 @Service
 @Transactional(readOnly = true)
