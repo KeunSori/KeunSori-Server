@@ -10,13 +10,12 @@ import com.keunsori.keunsoriserver.global.util.CookieUtil;
 import com.keunsori.keunsoriserver.global.util.TokenUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import com.keunsori.keunsoriserver.global.util.EmailUtil;
-import com.keunsori.keunsoriserver.global.util.RandomUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import static com.keunsori.keunsoriserver.global.constant.UrlConstant.PASSWORD_CHANGE_LINK;
 import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.STUDENT_ID_NOT_EXISTS;
 import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.*;
 
@@ -29,7 +28,6 @@ public class AuthService {
     private final TokenUtil tokenUtil;
     private final RefreshTokenRepository refreshTokenRepository;
     private final MemberRepository memberRepository;
-    private final PasswordEncoder passwordEncoder;
     private final EmailUtil emailUtil;
 
     public void login(String studentId, HttpServletResponse response) {
@@ -55,19 +53,17 @@ public class AuthService {
         CookieUtil.deleteCookie(response, "Refresh-Token");
     }
 
-    @Transactional
     public void initializePassword(PasswordInitializeRequest request) {
         Member member = memberRepository.findByStudentIdIgnoreCase(request.studentId())
                 .orElseThrow(() -> new MemberException(MEMBER_NOT_EXISTS_WITH_STUDENT_ID));
 
-        if (!member.hasEmail(request.email())) {
-            throw new MemberException(STUDENT_ID_DOES_NOT_MATCH_WITH_EMAIL);
-        }
+        member.validateEmail(request.email());
 
-        String initializedPassword = RandomUtil.generateRandomPassword();
-        member.updatePassword(passwordEncoder.encode(initializedPassword));
+        String encryptedEmail = ""; // TODO : email 암호화
 
-        emailUtil.sendPasswordInitializeEmail(request.email(), initializedPassword);
+        String passwordChangeLink = PASSWORD_CHANGE_LINK + "?key=" + encryptedEmail;
+
+        emailUtil.sendPasswordInitializeLink(request.email(), passwordChangeLink);
 
         log.info("[AuthService] 비밀번호 초기화: studentId: {}", request.studentId());
     }

@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.INVALID_STATUS_FOR_APPROVAL;
+import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.STUDENT_ID_DOES_NOT_MATCH_WITH_EMAIL;
 
 
 @Entity
@@ -58,6 +59,15 @@ public class Member extends BaseEntity {
         }
         this.status = MemberStatus.일반;
         this.approvalDate = LocalDateTime.now();
+    }
+
+    /**
+     * 데이터 검증 로직
+     */
+    public boolean validateEmail(String email) {
+        if (!this.email.equals(email)) {
+            throw new MemberException(STUDENT_ID_DOES_NOT_MATCH_WITH_EMAIL);
+        }
     }
 
     /**

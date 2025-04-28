@@ -4,7 +4,6 @@ import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Component;
 
-import java.util.Random;
 import lombok.RequiredArgsConstructor;
 
 @Component
@@ -24,11 +23,12 @@ public class EmailUtil {
         mailSender.send(message);
     }
 
-    public void sendPasswordInitializeEmail(String email, String initializedPassword) {
+    public void sendPasswordInitializeLink(String email, String initializeLink) {
         SimpleMailMessage message = new SimpleMailMessage(templateMessage);
         message.setTo(email);
-        message.setSubject("[큰소리] 비밀번호 초기화");
-        message.setText("초기화된 비밀번호는 [" + initializedPassword + "] 입니다. 로그인 후 마이페이지에서 비밀번호를 변경해주세요.");
+        message.setSubject("[큰소리] 비밀번호 초기화 링크");
+        message.setText("다음 링크로 접속해서 비밀번호를 초기화 해주세요. 링크는 10분간 유효합니다.\n" +
+                        initializeLink);
 
         mailSender.send(message);
     }
