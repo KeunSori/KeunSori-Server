@@ -1,6 +1,6 @@
 package com.keunsori.keunsoriserver.auth.service;
 
-import com.keunsori.keunsoriserver.domain.auth.dto.request.PasswordInitializeRequest;
+import com.keunsori.keunsoriserver.domain.auth.dto.request.PasswordFindRequest;
 import com.keunsori.keunsoriserver.domain.auth.service.AuthService;
 import com.keunsori.keunsoriserver.domain.member.domain.Member;
 import com.keunsori.keunsoriserver.domain.member.repository.MemberRepository;
@@ -45,7 +45,7 @@ public class AuthServiceTest {
                 .email("test@gmail.com")
                 .build();
 
-        PasswordInitializeRequest request = new PasswordInitializeRequest(
+        PasswordFindRequest request = new PasswordFindRequest(
                 "C011013",
                 "test@gmail.com"
         );
@@ -54,7 +54,7 @@ public class AuthServiceTest {
         given(passwordEncoder.encode(anyString())).willReturn("NEW_PASSWORD_HASH");
 
         // when
-        authService.initializePassword(request);
+        authService.findPassword(request);
 
         // then
         Assertions.assertThat(member.getPassword()).isEqualTo("NEW_PASSWORD_HASH");
@@ -63,7 +63,7 @@ public class AuthServiceTest {
     @Test
     void 비밀번호_초기화_실패_미존재_학번() {
         // given
-        PasswordInitializeRequest request = new PasswordInitializeRequest(
+        PasswordFindRequest request = new PasswordFindRequest(
                 "C011013",
                 "test@gmail.com"
         );
@@ -71,7 +71,7 @@ public class AuthServiceTest {
         given(memberRepository.findByStudentIdIgnoreCase("C011013")).willReturn(Optional.empty());
 
         // when & then
-        Assertions.assertThatThrownBy(() -> authService.initializePassword(request))
+        Assertions.assertThatThrownBy(() -> authService.findPassword(request))
                 .isInstanceOf(MemberException.class)
                 .hasMessage(MEMBER_NOT_EXISTS_WITH_STUDENT_ID);
     }
@@ -85,7 +85,7 @@ public class AuthServiceTest {
                 .email("test@gmail.com")
                 .build();
 
-        PasswordInitializeRequest request = new PasswordInitializeRequest(
+        PasswordFindRequest request = new PasswordFindRequest(
                 "C011013",
                 "test2@gmail.com"
         );
@@ -93,7 +93,7 @@ public class AuthServiceTest {
         given(memberRepository.findByStudentIdIgnoreCase("C011013")).willReturn(Optional.of(member));
 
         // when & then
-        Assertions.assertThatThrownBy(() -> authService.initializePassword(request))
+        Assertions.assertThatThrownBy(() -> authService.findPassword(request))
                 .isInstanceOf(MemberException.class)
                 .hasMessage(STUDENT_ID_DOES_NOT_MATCH_WITH_EMAIL);
     }

@@ -1,6 +1,6 @@
 package com.keunsori.keunsoriserver.domain.auth.controller;
 
-import com.keunsori.keunsoriserver.domain.auth.dto.request.PasswordInitializeRequest;
+import com.keunsori.keunsoriserver.domain.auth.dto.request.PasswordFindRequest;
 import com.keunsori.keunsoriserver.domain.auth.login.dto.request.LoginRequest;
 import com.keunsori.keunsoriserver.domain.auth.service.AuthService;
 
@@ -29,9 +29,9 @@ public class AuthController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/password/initialize")
-    public ResponseEntity<Void> initializePassword(@Valid @RequestBody PasswordInitializeRequest request){
-        authService.initializePassword(request);
+    @PostMapping("/password/find")
+    public ResponseEntity<Void> findPassword(@Valid @RequestBody PasswordFindRequest request){
+        authService.findPassword(request);
         return ResponseEntity.ok().build();
     }
 }

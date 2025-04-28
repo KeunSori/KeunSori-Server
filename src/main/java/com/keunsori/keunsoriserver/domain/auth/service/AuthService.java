@@ -1,7 +1,7 @@
 package com.keunsori.keunsoriserver.domain.auth.service;
 
 import com.keunsori.keunsoriserver.domain.auth.repository.RefreshTokenRepository;
-import com.keunsori.keunsoriserver.domain.auth.dto.request.PasswordInitializeRequest;
+import com.keunsori.keunsoriserver.domain.auth.dto.request.PasswordFindRequest;
 import com.keunsori.keunsoriserver.domain.member.domain.Member;
 import com.keunsori.keunsoriserver.domain.member.repository.MemberRepository;
 import com.keunsori.keunsoriserver.global.exception.MemberException;
@@ -53,7 +53,7 @@ public class AuthService {
         CookieUtil.deleteCookie(response, "Refresh-Token");
     }
 
-    public void initializePassword(PasswordInitializeRequest request) {
+    public void findPassword(PasswordFindRequest request) {
         Member member = memberRepository.findByStudentIdIgnoreCase(request.studentId())
                 .orElseThrow(() -> new MemberException(MEMBER_NOT_EXISTS_WITH_STUDENT_ID));
 
