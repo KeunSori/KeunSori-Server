@@ -49,9 +49,9 @@ public class AdminMemberApiTest extends ApiTest {
                 header(AUTHORIZATION, authorizationValue).
                 header(CONTENT_TYPE, "application/json").
                 body(mapper.writeValueAsString(request)).
-                when().
+        when().
                 patch("/admin/me/password").
-                then().
+        then().
                 statusCode(HttpStatus.SC_OK);
     }
 
