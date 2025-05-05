@@ -4,7 +4,6 @@ import com.keunsori.keunsoriserver.domain.auth.dto.request.PasswordFindRequest;
 import com.keunsori.keunsoriserver.domain.auth.dto.request.PasswordUpdateRequest;
 import com.keunsori.keunsoriserver.domain.auth.login.dto.request.LoginRequest;
 import com.keunsori.keunsoriserver.domain.auth.service.AuthService;
-
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -32,7 +31,8 @@ public class AuthController {
     }
 
     @PostMapping("/password/update-link/send")
-    public ResponseEntity<Void> findPassword(@Valid @RequestBody PasswordFindRequest request){
+    @Operation(summary = "비밀번호를 변경할 수 있는 링크를 전송합니다.")
+    public ResponseEntity<Void> findPassword(@Valid @RequestBody PasswordFindRequest request) {
         authService.findPassword(request);
         return ResponseEntity.ok().build();
     }
