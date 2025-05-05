@@ -1,6 +1,6 @@
 package com.keunsori.keunsoriserver.auth.service;
 
-import com.keunsori.keunsoriserver.domain.auth.dto.request.PasswordFindRequest;
+import com.keunsori.keunsoriserver.domain.auth.dto.request.PasswordUpdateLinkSendRequest;
 import com.keunsori.keunsoriserver.domain.auth.service.AuthService;
 import com.keunsori.keunsoriserver.domain.member.domain.Member;
 import com.keunsori.keunsoriserver.domain.member.repository.MemberRepository;
@@ -51,7 +51,7 @@ public class AuthServiceTest {
                 .email("test@gmail.com")
                 .build();
 
-        PasswordFindRequest request = new PasswordFindRequest(
+        PasswordUpdateLinkSendRequest request = new PasswordUpdateLinkSendRequest(
                 "C011013",
                 "test@gmail.com"
         );
@@ -60,7 +60,7 @@ public class AuthServiceTest {
         given(tokenUtil.generatePasswordUpdateToken("C011013")).willReturn("PW_CHANGE_TOKEN");
 
         // when
-        authService.findPassword(request);
+        authService.sendPasswordUpdateLink(request);
 
         // then
         verify(emailUtil, times(1)).sendPasswordInitializeLink(anyString(), anyString());
@@ -69,7 +69,7 @@ public class AuthServiceTest {
     @Test
     void 비밀번호_변경_링크_전송_실패_미존재_학번() {
         // given
-        PasswordFindRequest request = new PasswordFindRequest(
+        PasswordUpdateLinkSendRequest request = new PasswordUpdateLinkSendRequest(
                 "C011013",
                 "test@gmail.com"
         );
@@ -77,7 +77,7 @@ public class AuthServiceTest {
         given(memberRepository.findByStudentIdIgnoreCase("C011013")).willReturn(Optional.empty());
 
         // when & then
-        Assertions.assertThatThrownBy(() -> authService.findPassword(request))
+        Assertions.assertThatThrownBy(() -> authService.sendPasswordUpdateLink(request))
                 .isInstanceOf(MemberException.class)
                 .hasMessage(MEMBER_NOT_EXISTS_WITH_STUDENT_ID);
     }
@@ -91,7 +91,7 @@ public class AuthServiceTest {
                 .email("test@gmail.com")
                 .build();
 
-        PasswordFindRequest request = new PasswordFindRequest(
+        PasswordUpdateLinkSendRequest request = new PasswordUpdateLinkSendRequest(
                 "C011013",
                 "test2@gmail.com"
         );
@@ -99,7 +99,7 @@ public class AuthServiceTest {
         given(memberRepository.findByStudentIdIgnoreCase("C011013")).willReturn(Optional.of(member));
 
         // when & then
-        Assertions.assertThatThrownBy(() -> authService.findPassword(request))
+        Assertions.assertThatThrownBy(() -> authService.sendPasswordUpdateLink(request))
                 .isInstanceOf(MemberException.class)
                 .hasMessage(STUDENT_ID_DOES_NOT_MATCH_WITH_EMAIL);
     }
