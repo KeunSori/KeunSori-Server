@@ -1,5 +1,6 @@
 package com.keunsori.keunsoriserver.domain.auth.service;
 
+import com.keunsori.keunsoriserver.domain.auth.dto.request.PasswordUpdateRequest;
 import com.keunsori.keunsoriserver.domain.auth.repository.RefreshTokenRepository;
 import com.keunsori.keunsoriserver.domain.auth.dto.request.PasswordFindRequest;
 import com.keunsori.keunsoriserver.domain.member.domain.Member;
@@ -12,6 +13,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import com.keunsori.keunsoriserver.global.util.EmailUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +31,7 @@ public class AuthService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final MemberRepository memberRepository;
     private final EmailUtil emailUtil;
+    private final PasswordEncoder passwordEncoder;
 
     public void login(String studentId, HttpServletResponse response) {
         Member member = memberRepository.findByStudentId(studentId)
@@ -59,12 +62,24 @@ public class AuthService {
 
         member.validateEmail(request.email());
 
-        String encryptedEmail = ""; // TODO : email 암호화
-
-        String passwordChangeLink = PASSWORD_CHANGE_LINK + "?key=" + encryptedEmail;
-
+        String token = tokenUtil.generatePasswordUpdateToken(member.getStudentId());
+        String passwordChangeLink = PASSWORD_CHANGE_LINK + "?key=" + token;
         emailUtil.sendPasswordInitializeLink(request.email(), passwordChangeLink);
 
         log.info("[AuthService] 비밀번호 초기화: studentId: {}", request.studentId());
+    }
+
+    @Transactional
+    public void updatePassword(PasswordUpdateRequest request) {
+        tokenUtil.validateToken(request.token());
+        String studentId = tokenUtil.getStudentIdFromToken(request.token());
+
+        Member member = memberRepository.findByStudentId(studentId)
+                .orElseThrow(() -> new MemberException(MEMBER_NOT_EXISTS_WITH_STUDENT_ID));
+
+        String encodedPassword = passwordEncoder.encode(request.newPassword());
+        member.updatePassword(encodedPassword);
+
+        log.info("[AuthService] 링크를 통한 비밀번호 변경: studentId: {}", studentId);
     }
 }

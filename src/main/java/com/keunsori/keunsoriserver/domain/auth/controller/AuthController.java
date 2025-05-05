@@ -1,9 +1,11 @@
 package com.keunsori.keunsoriserver.domain.auth.controller;
 
 import com.keunsori.keunsoriserver.domain.auth.dto.request.PasswordFindRequest;
+import com.keunsori.keunsoriserver.domain.auth.dto.request.PasswordUpdateRequest;
 import com.keunsori.keunsoriserver.domain.auth.login.dto.request.LoginRequest;
 import com.keunsori.keunsoriserver.domain.auth.service.AuthService;
 
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +34,13 @@ public class AuthController {
     @PostMapping("/password/find")
     public ResponseEntity<Void> findPassword(@Valid @RequestBody PasswordFindRequest request){
         authService.findPassword(request);
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/password/update")
+    @Operation(summary = "사용자가 클릭한 비밀번호 변경 링크 기준으로 비밀번호를 변경합니다.")
+    public ResponseEntity<Void> updatePassword(@Valid @RequestBody PasswordUpdateRequest request) {
+        authService.updatePassword(request);
         return ResponseEntity.ok().build();
     }
 }
