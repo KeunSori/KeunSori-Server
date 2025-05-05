@@ -64,7 +64,7 @@ public class Member extends BaseEntity {
     /**
      * 데이터 검증 로직
      */
-    public boolean validateEmail(String email) {
+    public void validateEmail(String email) {
         if (!this.email.equals(email)) {
             throw new MemberException(STUDENT_ID_DOES_NOT_MATCH_WITH_EMAIL);
         }
