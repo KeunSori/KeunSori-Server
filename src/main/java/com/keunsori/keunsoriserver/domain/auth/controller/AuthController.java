@@ -31,13 +31,13 @@ public class AuthController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/password/find")
+    @PostMapping("/password/update-link/send")
     public ResponseEntity<Void> findPassword(@Valid @RequestBody PasswordFindRequest request){
         authService.findPassword(request);
         return ResponseEntity.ok().build();
     }
 
-    @PatchMapping("/password/update")
+    @PatchMapping("/password")
     @Operation(summary = "사용자가 클릭한 비밀번호 변경 링크 기준으로 비밀번호를 변경합니다.")
     public ResponseEntity<Void> updatePassword(@Valid @RequestBody PasswordUpdateRequest request) {
         authService.updatePassword(request);
