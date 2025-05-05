@@ -6,6 +6,7 @@ import com.keunsori.keunsoriserver.domain.member.domain.Member;
 import com.keunsori.keunsoriserver.domain.member.repository.MemberRepository;
 import com.keunsori.keunsoriserver.global.exception.MemberException;
 import com.keunsori.keunsoriserver.global.util.EmailUtil;
+import com.keunsori.keunsoriserver.global.util.TokenUtil;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,6 +21,8 @@ import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.MEMBER_N
 import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.STUDENT_ID_DOES_NOT_MATCH_WITH_EMAIL;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 public class AuthServiceTest {
@@ -33,11 +36,14 @@ public class AuthServiceTest {
     @Mock
     private EmailUtil emailUtil;
 
+    @Mock
+    private TokenUtil tokenUtil;
+
     @InjectMocks
     private AuthService authService;
 
     @Test
-    void 비밀번호_초기화_성공() {
+    void 비밀번호_변경_링크_전송_성공() {
         // given
         Member member = Member.builder()
                 .studentId("C011013")
@@ -51,17 +57,17 @@ public class AuthServiceTest {
         );
 
         given(memberRepository.findByStudentIdIgnoreCase("C011013")).willReturn(Optional.of(member));
-        given(passwordEncoder.encode(anyString())).willReturn("NEW_PASSWORD_HASH");
+        given(tokenUtil.generatePasswordUpdateToken("C011013")).willReturn("PW_CHANGE_TOKEN");
 
         // when
         authService.findPassword(request);
 
         // then
-        Assertions.assertThat(member.getPassword()).isEqualTo("NEW_PASSWORD_HASH");
+        verify(emailUtil, times(1)).sendPasswordInitializeLink(anyString(), anyString());
     }
 
     @Test
-    void 비밀번호_초기화_실패_미존재_학번() {
+    void 비밀번호_변경_링크_전송_실패_미존재_학번() {
         // given
         PasswordFindRequest request = new PasswordFindRequest(
                 "C011013",
@@ -77,7 +83,7 @@ public class AuthServiceTest {
     }
 
     @Test
-    void 비밀번호_초기화_실패_학번_이메일_불일치() {
+    void 비밀번호_변경_링크_전송_실패_학번_이메일_불일치() {
         // given
         Member member = Member.builder()
                 .studentId("C011013")
