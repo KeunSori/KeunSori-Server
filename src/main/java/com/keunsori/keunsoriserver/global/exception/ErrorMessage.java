@@ -7,7 +7,10 @@ public class ErrorMessage {
     public static final String DUPLICATED_EMAIL = "이미 존재하는 이메일입니다.";
     public static final String PASSWORD_IS_DIFFERENT_FROM_CHECK = "비밀번호와 비밀번호 확인 입력값이 다릅니다.";
     public static final String PASSWORD_INVALID_FORMAT = "비밀번호는 특수문자, 영문자, 숫자를 포함한 8자리 이상 문자열입니다.";
+    public static final String STUDENT_ID_INVALID_FORMAT = "학번 형식이 올바르지 않습니다.";
+    public static final String EMAIL_INVALID_FORMAT = "이메일 형식이 올바르지 않습니다.";
     public static final String INVALID_CURRENT_PASSWORD = "현재 비밀번호가 올바르지 않습니다.";
+    public static final String STUDENT_ID_DOES_NOT_MATCH_WITH_EMAIL = "가입한 학번과 이메일이 일치하지 않습니다";
     public static final String PASSWORD_SAME_AS_OLD = "새 비밀번호가 기존 비밀번호와 동일합니다.";
 
     // Admin Member
@@ -38,4 +41,7 @@ public class ErrorMessage {
     public static final String EMAIL_NOT_EXISTS_FOR_AUTH = "인증번호를 전송하지 않았거나 인증번호가 만료되었습니다.";
     public static final String EMAIL_VERIFY_FAILED = "인증번호가 일치하지 않습니다.";
     public static final String EMAIL_VERIFY_NUMBER_GENERATION_FAILED = "인증번호 생성중 에러가 발생했습니다.";
+
+    // Random
+    public static final String INITIALIZED_PASSWORD_GENERATION_FAILED = "임시 비밀번호 생성에 실패하였습니다.";
 }
