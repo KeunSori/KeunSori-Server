@@ -66,7 +66,7 @@ public class AuthService {
         String passwordChangeLink = PASSWORD_CHANGE_LINK + "?key=" + token;
         emailUtil.sendPasswordInitializeLink(request.email(), passwordChangeLink);
 
-        log.info("[AuthService] 비밀번호 재설정 이메일 전송: studentId: {}", request.studentId());
+        log.info("[AuthService] 비밀번호 재설정 이메일 전송ㅇ: studentId: {}", request.studentId());
     }
 
     @Transactional
