@@ -20,7 +20,7 @@ public class CookieUtil {
     public static void addCookie(HttpServletResponse response, String name, String value, int maxAge){
         Cookie cookie = new Cookie(name, value);
         cookie.setHttpOnly(true);
-        cookie.setSecure(true);
+        cookie.setSecure(false);     //https에서만 접근 가능하게만 허용하는 쿠키 -> 이걸 false로 바꾸면 -> 기본 프론트에서 http-> https로 바꿔서 사용 가능하게 만듦
         cookie.setPath("/");
         cookie.setMaxAge(maxAge);
         response.addCookie(cookie);

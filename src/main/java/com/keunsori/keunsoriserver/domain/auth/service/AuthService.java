@@ -33,7 +33,7 @@ public class AuthService {
     private final EmailUtil emailUtil;
     private final PasswordEncoder passwordEncoder;
 
-    public void login(String studentId, HttpServletResponse response) {
+    public String login(String studentId, HttpServletResponse response) {
         Member member = memberRepository.findByStudentId(studentId)
                 .orElseThrow(() -> new MemberException(STUDENT_ID_NOT_EXISTS));
 
@@ -44,6 +44,9 @@ public class AuthService {
 
         CookieUtil.addAccessTokenCookie(response, accessToken);
         CookieUtil.addRefreshTokenCookie(response, refreshToken);
+
+        //스웨거 API 테스트 통과용 Access Token 반환
+        return accessToken;
     }
 
     public void logout(String refreshToken, HttpServletResponse response){

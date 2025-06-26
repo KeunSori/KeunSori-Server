@@ -17,7 +17,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.keunsori.keunsoriserver.domain.auth.login.dto.request.LoginRequest;
+import com.keunsori.keunsoriserver.domain.auth.login.dto.LoginRequest;
 
 @ActiveProfiles("test")
 @SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)

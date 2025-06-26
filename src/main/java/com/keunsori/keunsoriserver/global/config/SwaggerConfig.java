@@ -56,11 +56,11 @@ public class SwaggerConfig {
                                 .name(AUTHORIZATION)
                 )
                 .addSecuritySchemes(
-                        "accessToken",
+                        "Access-Token",
                         new SecurityScheme()
                                 .type(SecurityScheme.Type.APIKEY)
                                 .in(SecurityScheme.In.COOKIE)
-                                .name("accessToken")
+                                .name("Access-Token")
                 );
     }
 }
