@@ -2,7 +2,7 @@ package com.keunsori.keunsoriserver.domain.auth.controller;
 
 import com.keunsori.keunsoriserver.domain.auth.dto.request.PasswordUpdateLinkSendRequest;
 import com.keunsori.keunsoriserver.domain.auth.dto.request.PasswordUpdateRequest;
-import com.keunsori.keunsoriserver.domain.auth.login.dto.request.LoginRequest;
+import com.keunsori.keunsoriserver.domain.auth.login.dto.LoginRequest;
 import com.keunsori.keunsoriserver.domain.auth.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletResponse;
