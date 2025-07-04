@@ -33,7 +33,7 @@ public class AuthService {
     private final EmailUtil emailUtil;
     private final PasswordEncoder passwordEncoder;
 
-    public void login(String studentId, HttpServletResponse response) {
+    public Member login(String studentId, HttpServletResponse response) {
         Member member = memberRepository.findByStudentId(studentId)
                 .orElseThrow(() -> new MemberException(STUDENT_ID_NOT_EXISTS));
 
@@ -44,6 +44,8 @@ public class AuthService {
 
         CookieUtil.addAccessTokenCookie(response, accessToken);
         CookieUtil.addRefreshTokenCookie(response, refreshToken);
+
+        return member;
     }
 
     public void logout(String refreshToken, HttpServletResponse response){

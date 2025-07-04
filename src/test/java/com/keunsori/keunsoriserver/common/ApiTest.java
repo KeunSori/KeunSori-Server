@@ -4,6 +4,7 @@ import static io.restassured.RestAssured.given;
 import static jakarta.servlet.http.HttpServletResponse.SC_OK;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 
+import com.keunsori.keunsoriserver.domain.auth.login.dto.LoginRequest;
 import com.keunsori.keunsoriserver.domain.member.domain.Member;
 import com.keunsori.keunsoriserver.domain.member.domain.vo.MemberStatus;
 import com.keunsori.keunsoriserver.domain.member.repository.MemberRepository;
@@ -17,7 +18,6 @@ import org.springframework.test.context.ActiveProfiles;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.keunsori.keunsoriserver.domain.auth.login.dto.request.LoginRequest;
 
 @ActiveProfiles("test")
 @SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
