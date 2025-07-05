@@ -3,7 +3,9 @@ package com.keunsori.keunsoriserver.domain.auth.controller;
 import com.keunsori.keunsoriserver.domain.auth.dto.request.PasswordUpdateLinkSendRequest;
 import com.keunsori.keunsoriserver.domain.auth.dto.request.PasswordUpdateRequest;
 import com.keunsori.keunsoriserver.domain.auth.login.dto.LoginRequest;
+import com.keunsori.keunsoriserver.domain.auth.login.dto.LoginResponse;
 import com.keunsori.keunsoriserver.domain.auth.service.AuthService;
+import com.keunsori.keunsoriserver.domain.member.domain.Member;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -19,9 +21,9 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<Void> login(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response){
-        authService.login(loginRequest.studentId(), response);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response){
+        LoginResponse loginResponse = authService.login(loginRequest, response);
+        return ResponseEntity.ok(loginResponse);
     }
 
     @PostMapping("/logout")

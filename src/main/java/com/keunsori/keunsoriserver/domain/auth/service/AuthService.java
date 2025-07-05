@@ -1,6 +1,8 @@
 package com.keunsori.keunsoriserver.domain.auth.service;
 
 import com.keunsori.keunsoriserver.domain.auth.dto.request.PasswordUpdateRequest;
+import com.keunsori.keunsoriserver.domain.auth.login.dto.LoginRequest;
+import com.keunsori.keunsoriserver.domain.auth.login.dto.LoginResponse;
 import com.keunsori.keunsoriserver.domain.auth.repository.RefreshTokenRepository;
 import com.keunsori.keunsoriserver.domain.auth.dto.request.PasswordUpdateLinkSendRequest;
 import com.keunsori.keunsoriserver.domain.member.domain.Member;
@@ -33,9 +35,13 @@ public class AuthService {
     private final EmailUtil emailUtil;
     private final PasswordEncoder passwordEncoder;
 
-    public void login(String studentId, HttpServletResponse response) {
-        Member member = memberRepository.findByStudentId(studentId)
+    public LoginResponse login(LoginRequest loginRequest, HttpServletResponse response) {
+        Member member = memberRepository.findByStudentId(loginRequest.studentId())
                 .orElseThrow(() -> new MemberException(STUDENT_ID_NOT_EXISTS));
+
+        if(!passwordEncoder.matches(loginRequest.password(), member.getPassword())) {
+            throw new MemberException(INVALID_PASSWORD);
+        }
 
         String accessToken = tokenUtil.generateAccessToken(member.getStudentId(), member.getName(), member.getStatus());
         String refreshToken = tokenUtil.generateRefreshToken(member.getStudentId(), member.getName(), member.getStatus());
@@ -44,6 +50,8 @@ public class AuthService {
 
         CookieUtil.addAccessTokenCookie(response, accessToken);
         CookieUtil.addRefreshTokenCookie(response, refreshToken);
+
+        return LoginResponse.from(member);
     }
 
     public void logout(String refreshToken, HttpServletResponse response){
