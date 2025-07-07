@@ -1,14 +1,6 @@
 package com.keunsori.keunsoriserver.global.config;
 
-import static com.keunsori.keunsoriserver.global.constant.EnvironmentConstant.DEV_URL;
-import static com.keunsori.keunsoriserver.global.constant.EnvironmentConstant.DEV_URL2;
-import static com.keunsori.keunsoriserver.global.constant.EnvironmentConstant.DEV_URL3;
-import static com.keunsori.keunsoriserver.global.constant.EnvironmentConstant.LOCAL_URL_1;
-import static com.keunsori.keunsoriserver.global.constant.EnvironmentConstant.LOCAL_URL_2;
-import static com.keunsori.keunsoriserver.global.constant.EnvironmentConstant.LOCAL_URL_3;
-import static com.keunsori.keunsoriserver.global.constant.EnvironmentConstant.PROD_URL;
-import static com.keunsori.keunsoriserver.global.constant.EnvironmentConstant.PROD_URL2;
-import static com.keunsori.keunsoriserver.global.constant.EnvironmentConstant.PROD_URL3;
+import static com.keunsori.keunsoriserver.global.constant.EnvironmentConstant.*;
 import static org.springframework.http.HttpHeaders.SET_COOKIE;
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -78,14 +70,13 @@ public class SecurityConfig  {
         CorsConfiguration configuration = new CorsConfiguration();
 
         configuration.setAllowedOriginPatterns(List.of(
-            LOCAL_URL_1, LOCAL_URL_2, LOCAL_URL_3, DEV_URL, DEV_URL2, DEV_URL3, PROD_URL, PROD_URL2
+            LOCAL_URL_1, LOCAL_URL_2, LOCAL_URL_3, LOCAL_URL_4, LOCAL_URL_5, DEV_URL, DEV_URL2, DEV_URL3, PROD_URL, PROD_URL2
         ));
 
         configuration.addAllowedHeader("*");
         configuration.addAllowedMethod("*");
         configuration.setAllowCredentials(true);
         configuration.addExposedHeader(SET_COOKIE);
-        
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
