@@ -1,6 +1,14 @@
 package com.keunsori.keunsoriserver.global.config;
 
-import static com.keunsori.keunsoriserver.global.constant.EnvironmentConstant.*;
+import static com.keunsori.keunsoriserver.global.constant.EnvironmentConstant.DEV_URL;
+import static com.keunsori.keunsoriserver.global.constant.EnvironmentConstant.DEV_URL2;
+import static com.keunsori.keunsoriserver.global.constant.EnvironmentConstant.DEV_URL3;
+import static com.keunsori.keunsoriserver.global.constant.EnvironmentConstant.LOCAL_URL_1;
+import static com.keunsori.keunsoriserver.global.constant.EnvironmentConstant.LOCAL_URL_2;
+import static com.keunsori.keunsoriserver.global.constant.EnvironmentConstant.LOCAL_URL_3;
+import static com.keunsori.keunsoriserver.global.constant.EnvironmentConstant.PROD_URL;
+import static com.keunsori.keunsoriserver.global.constant.EnvironmentConstant.PROD_URL2;
+import static com.keunsori.keunsoriserver.global.constant.EnvironmentConstant.PROD_URL3;
 import static org.springframework.http.HttpHeaders.SET_COOKIE;
 import static org.springframework.security.config.Customizer.withDefaults;
 
