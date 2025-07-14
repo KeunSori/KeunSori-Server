@@ -1,6 +1,7 @@
 package com.keunsori.keunsoriserver.domain.admin.reservation.service;
 
 import com.keunsori.keunsoriserver.domain.admin.reservation.domain.DailySchedule;
+import com.keunsori.keunsoriserver.domain.admin.reservation.domain.WeeklySchedule;
 import com.keunsori.keunsoriserver.domain.admin.reservation.dto.request.DailyScheduleUpdateOrCreateRequest;
 import com.keunsori.keunsoriserver.domain.admin.reservation.dto.request.WeeklyScheduleUpdateRequest;
 import com.keunsori.keunsoriserver.domain.admin.reservation.dto.response.DailyAvailableResponse;
@@ -12,6 +13,7 @@ import com.keunsori.keunsoriserver.domain.reservation.domain.validator.Reservati
 import com.keunsori.keunsoriserver.domain.reservation.repository.ReservationRepository;
 import com.keunsori.keunsoriserver.global.exception.ReservationException;
 import com.keunsori.keunsoriserver.global.util.DateUtil;
+import com.keunsori.keunsoriserver.global.util.DayOfWeekUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,10 +49,14 @@ public class AdminReservationService {
 
     @Transactional
     public void saveWeeklySchedule(List<WeeklyScheduleUpdateRequest> requests) {
-        requests.stream()
+        List<WeeklySchedule> weeklySchedules = requests.stream()
                 .peek(request -> validateScheduleTime(request.startTime(), request.endTime()))
                 .map(WeeklyScheduleUpdateRequest::toEntity)
-                .forEach(weeklyScheduleRepository::save);
+                .collect(Collectors.toList());
+
+        cleanUpOutOfTimeReservations(weeklySchedules);
+
+        weeklyScheduleRepository.saveAll(weeklySchedules);
     }
 
     @Transactional
@@ -68,7 +74,8 @@ public class AdminReservationService {
         if(dailySchedule.isActive()){
             // active이면 설정된 시간 범위 밖 예약들 삭제
             List<Reservation> reservationsToDelete = reservationRepository.findAllByDate(dailySchedule.getDate()).stream()
-                    .filter(reservation -> reservation.isValidTimeFor(dailySchedule)).toList();
+                    .filter(reservation -> reservation.isOutOfTimeRange(dailySchedule.getStartTime(), dailySchedule.getEndTime()))
+                    .toList();
             reservationRepository.deleteAll(reservationsToDelete);
         } else {
             // unactive 시 예약들 삭제
@@ -115,6 +122,26 @@ public class AdminReservationService {
     private void validateScheduleTime(LocalTime startTime, LocalTime endTime) {
         if (!endTime.isAfter(startTime)) {
             throw new ReservationException(INVALID_SCHEDULE_TIME);
+        }
+    }
+
+    private void cleanUpOutOfTimeReservations(List<WeeklySchedule> weeklySchedules){
+        for(WeeklySchedule schedule : weeklySchedules ) {
+            DayOfWeek day = schedule.getDayOfWeek();
+
+            List<Reservation> reservationsOnDay = reservationRepository.findByDateGreaterThanEqual(LocalDate.now())
+                    .stream()
+                    .filter(r -> r.getDate().getDayOfWeek().equals(day))
+                    .collect(Collectors.toList());
+
+            if (schedule.isActive()) {
+                List<Reservation> toDelete = reservationsOnDay.stream()
+                        .filter(r -> r.isOutOfTimeRange(schedule.getStartTime(), schedule.getEndTime()))
+                        .toList();
+                reservationRepository.deleteAll(toDelete);
+            } else {
+                reservationRepository.deleteAll(reservationsOnDay);
+            }
         }
     }
 }

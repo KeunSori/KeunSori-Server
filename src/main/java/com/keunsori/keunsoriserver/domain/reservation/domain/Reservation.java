@@ -103,8 +103,8 @@ public class Reservation {
         return member.getName();
     }
 
-    public boolean isValidTimeFor(DailySchedule dailySchedule){
-        return this.getStartTime().isBefore(dailySchedule.getStartTime()) ||
-                this.getEndTime().isAfter(dailySchedule.getEndTime());
+    public boolean isOutOfTimeRange(LocalTime startTime, LocalTime endTime){
+        return this.getStartTime().isBefore(startTime) ||
+                this.getEndTime().isAfter(endTime);
     }
 }
