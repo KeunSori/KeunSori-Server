@@ -4,6 +4,7 @@ import static io.restassured.RestAssured.given;
 import static jakarta.servlet.http.HttpServletResponse.SC_OK;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 
+import com.keunsori.keunsoriserver.domain.auth.login.dto.LoginRequest;
 import com.keunsori.keunsoriserver.domain.member.domain.Member;
 import com.keunsori.keunsoriserver.domain.member.domain.vo.MemberStatus;
 import com.keunsori.keunsoriserver.domain.member.repository.MemberRepository;
@@ -17,7 +18,6 @@ import org.springframework.test.context.ActiveProfiles;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.keunsori.keunsoriserver.domain.auth.login.dto.request.LoginRequest;
 
 @ActiveProfiles("test")
 @SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
@@ -57,15 +57,17 @@ public class ApiTest {
 
         LoginRequest request = new LoginRequest("C000001", "test123!");
 
-        generalToken = given().
-                        header(CONTENT_TYPE, "application/json").
-                        body(mapper.writeValueAsString(request)).
+        var response = given()
+                .header(CONTENT_TYPE, "application/json")
+                .body(mapper.writeValueAsString(request)).
                 when().
-                        post("/auth/login").
+                post("/auth/login").
                 then().
                         statusCode(SC_OK).
                         extract().
-                        jsonPath().getString("accessToken");
+                        response();
+
+        generalToken = response.getCookie("Access-Token");
     }
 
     @Test
@@ -81,14 +83,15 @@ public class ApiTest {
 
         LoginRequest request = new LoginRequest("A000001", "testadmin123!");
 
-        adminToken = given().
-                header(CONTENT_TYPE, "application/json").
-                body(mapper.writeValueAsString(request)).
+        adminToken = given()
+                .header(CONTENT_TYPE, "application/json")
+                .body(mapper.writeValueAsString(request)).
                 when().
                 post("/auth/login").
                 then().
                 statusCode(SC_OK).
                 extract().
-                jsonPath().getString("accessToken");
-    }
+                cookie("Access-Token");
+
+            }
 }
