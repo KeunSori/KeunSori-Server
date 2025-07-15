@@ -22,6 +22,8 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
 
     List<Reservation> findAllByDateBetweenOrderByDateAscStartTimeAsc(LocalDate start, LocalDate end);
 
+    List<Reservation> findByDateGreaterThanEqual(LocalDate date);
+
     void deleteAllByDate(LocalDate date);
 
 

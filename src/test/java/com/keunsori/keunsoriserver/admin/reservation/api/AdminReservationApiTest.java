@@ -17,8 +17,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.temporal.TemporalAdjuster;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.IntStream;
 
 import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.*;
 import static io.restassured.RestAssured.given;
@@ -185,6 +188,56 @@ public class AdminReservationApiTest extends ApiTest {
                         jsonPath().get("message");
 
         Assertions.assertThat(errorMessage).isEqualTo(INVALID_SCHEDULE_TIME);
+    }
+
+    @Test
+    void 주간_설정_시_범위_밖_예약은_삭제된다() throws JsonProcessingException {
+        List<Reservation> reservationList1 = IntStream.range(1, 8)
+                .mapToObj(i -> Reservation.builder()
+                        .session(Session.ALL)
+                        .reservationType(ReservationType.TEAM)
+                        .date(LocalDate.now().plusDays(i))
+                        .startTime(LocalTime.of(12, 0))
+                        .endTime(LocalTime.of(14, 0))
+                        .build())
+                .toList();
+        List<Reservation> reservationList2 = IntStream.range(1, 8)
+                .mapToObj(i -> Reservation.builder()
+                        .session(Session.ALL)
+                        .reservationType(ReservationType.TEAM)
+                        .date(LocalDate.now().plusDays(i))
+                        .startTime(LocalTime.of(20, 0))
+                        .endTime(LocalTime.of(22, 0))
+                        .build())
+                .toList();
+        reservationRepository.saveAll(reservationList1);
+        reservationRepository.saveAll(reservationList2);
+
+        List<Reservation> beforeUpdateReservation = reservationRepository.findByDateGreaterThanEqual(LocalDate.now());
+        Assertions.assertThat(beforeUpdateReservation).hasSize(14);
+
+        List<WeeklyScheduleUpdateRequest> requests = List.of(
+                new WeeklyScheduleUpdateRequest(0, false, LocalTime.of(10, 0), LocalTime.of(23, 0)),
+                new WeeklyScheduleUpdateRequest(1, true,  LocalTime.of(10, 0), LocalTime.of(20, 0)),
+                new WeeklyScheduleUpdateRequest(2, false, LocalTime.of(10, 0), LocalTime.of(23, 0)),
+                new WeeklyScheduleUpdateRequest(3, true, LocalTime.of(10, 0), LocalTime.of(21, 0)),
+                new WeeklyScheduleUpdateRequest(4, false, LocalTime.of(10, 0), LocalTime.of(23, 0)),
+                new WeeklyScheduleUpdateRequest(5, false, LocalTime.of(10, 0), LocalTime.of(23, 0)),
+                new WeeklyScheduleUpdateRequest(6, true, LocalTime.of(12, 0), LocalTime.of(20, 0))
+        );
+
+
+        given().
+                header(AUTHORIZATION, authorizationValue).
+                header(CONTENT_TYPE, "application/json").
+                body(mapper.writeValueAsString(requests)).
+                when().
+                put("/admin/reservation/weekly-schedule").
+                then().
+                statusCode(HttpStatus.SC_OK);
+
+        List<Reservation> remainedReservation = reservationRepository.findByDateGreaterThanEqual(LocalDate.now());
+        Assertions.assertThat(remainedReservation).hasSize(3);
     }
 
     @Test
