@@ -17,8 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
-import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.MEMBER_NOT_EXISTS_WITH_STUDENT_ID;
-import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.STUDENT_ID_DOES_NOT_MATCH_WITH_EMAIL;
+import static com.keunsori.keunsoriserver.global.exception.ErrorCode.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
@@ -79,7 +78,7 @@ public class AuthServiceTest {
         // when & then
         Assertions.assertThatThrownBy(() -> authService.sendPasswordUpdateLink(request))
                 .isInstanceOf(MemberException.class)
-                .hasMessage(MEMBER_NOT_EXISTS_WITH_STUDENT_ID);
+                .hasMessage(MEMBER_NOT_EXISTS_WITH_STUDENT_ID.getMassage());
     }
 
     @Test
@@ -101,6 +100,6 @@ public class AuthServiceTest {
         // when & then
         Assertions.assertThatThrownBy(() -> authService.sendPasswordUpdateLink(request))
                 .isInstanceOf(MemberException.class)
-                .hasMessage(STUDENT_ID_DOES_NOT_MATCH_WITH_EMAIL);
+                .hasMessage(STUDENT_ID_DOES_NOT_MATCH_WITH_EMAIL.getMassage());
     }
 }

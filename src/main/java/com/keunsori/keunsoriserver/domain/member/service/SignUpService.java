@@ -1,8 +1,5 @@
 package com.keunsori.keunsoriserver.domain.member.service;
 
-import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.DUPLICATED_EMAIL;
-import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.DUPLICATED_STUDENT_ID;
-import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.PASSWORD_IS_DIFFERENT_FROM_CHECK;
 
 import com.keunsori.keunsoriserver.domain.member.domain.Member;
 import com.keunsori.keunsoriserver.domain.member.repository.MemberRepository;
@@ -14,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import static com.keunsori.keunsoriserver.global.exception.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor

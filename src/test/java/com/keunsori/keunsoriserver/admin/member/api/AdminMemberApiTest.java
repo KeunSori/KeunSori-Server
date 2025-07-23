@@ -12,7 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.*;
+import static com.keunsori.keunsoriserver.global.exception.ErrorCode.*;
 import static io.restassured.RestAssured.given;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
@@ -72,7 +72,7 @@ public class AdminMemberApiTest extends ApiTest {
                 extract().
                 jsonPath().get("message");
 
-        Assertions.assertThat(errorMessage).isEqualTo(INVALID_CURRENT_PASSWORD);
+        Assertions.assertThat(errorMessage).isEqualTo(INVALID_CURRENT_PASSWORD.getMassage());
     }
 
     @Test
@@ -113,11 +113,11 @@ public class AdminMemberApiTest extends ApiTest {
                         when().
                         delete("/admin/members/0").
                         then().
-                        statusCode(HttpStatus.SC_BAD_REQUEST).
+                        statusCode(HttpStatus.SC_NOT_FOUND).
                         extract().
                         jsonPath().get("message");
 
-        Assertions.assertThat(errorMessage).isEqualTo(MEMBER_NOT_EXISTS_WITH_STUDENT_ID);
+        Assertions.assertThat(errorMessage).isEqualTo(MEMBER_NOT_EXISTS_WITH_STUDENT_ID.getMassage());
     }
 
     @Test
@@ -170,6 +170,6 @@ public class AdminMemberApiTest extends ApiTest {
                         extract().
                         jsonPath().get("message");
 
-        Assertions.assertThat(errorMessage).isEqualTo(INVALID_STATUS_FOR_APPROVAL);
+        Assertions.assertThat(errorMessage).isEqualTo(INVALID_STATUS_FOR_APPROVAL.getMassage());
     }
 }

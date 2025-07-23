@@ -19,9 +19,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import static com.keunsori.keunsoriserver.global.exception.ErrorCode.*;
 import static com.keunsori.keunsoriserver.global.constant.UrlConstant.PASSWORD_CHANGE_LINK;
-import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.STUDENT_ID_NOT_EXISTS;
-import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.*;
 
 @Service
 @Slf4j

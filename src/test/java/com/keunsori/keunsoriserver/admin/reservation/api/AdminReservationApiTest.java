@@ -20,7 +20,7 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.*;
+import static com.keunsori.keunsoriserver.global.exception.ErrorCode.*;
 import static io.restassured.RestAssured.given;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
@@ -121,7 +121,7 @@ public class AdminReservationApiTest extends ApiTest {
                         extract().
                         jsonPath().get("message");
 
-        Assertions.assertThat(errorMessage).isEqualTo(INVALID_SCHEDULE_TIME);
+        Assertions.assertThat(errorMessage).isEqualTo(INVALID_SCHEDULE_TIME.getMassage());
     }
 
     @Test
@@ -148,7 +148,7 @@ public class AdminReservationApiTest extends ApiTest {
                         extract().
                         jsonPath().get("message");
 
-        Assertions.assertThat(errorMessage).isEqualTo(INVALID_SCHEDULE_TIME);
+        Assertions.assertThat(errorMessage).isEqualTo(INVALID_SCHEDULE_TIME.getMassage());
     }
 
     @Test
@@ -166,7 +166,7 @@ public class AdminReservationApiTest extends ApiTest {
                         statusCode(HttpStatus.SC_BAD_REQUEST).
                         extract().
                         jsonPath().get("message");
-        Assertions.assertThat(errorMessage).isEqualTo(INVALID_DATE_SCHEDULE);
+        Assertions.assertThat(errorMessage).isEqualTo(INVALID_DATE_SCHEDULE.getMassage());
     }
     @Test
     void 종료시간이_시작시간보다_앞서는_경우_일자별_설정에_실패한다() throws JsonProcessingException {
@@ -184,7 +184,7 @@ public class AdminReservationApiTest extends ApiTest {
                         extract().
                         jsonPath().get("message");
 
-        Assertions.assertThat(errorMessage).isEqualTo(INVALID_SCHEDULE_TIME);
+        Assertions.assertThat(errorMessage).isEqualTo(INVALID_SCHEDULE_TIME.getMassage());
     }
 
     @Test
@@ -275,6 +275,6 @@ public class AdminReservationApiTest extends ApiTest {
                         .extract()
                         .jsonPath().get("message");
 
-        Assertions.assertThat(errorMessage).isEqualTo(RESERVATION_ALREADY_COMPLETED);
+        Assertions.assertThat(errorMessage).isEqualTo(RESERVATION_ALREADY_COMPLETED.getMassage());
     }
 }

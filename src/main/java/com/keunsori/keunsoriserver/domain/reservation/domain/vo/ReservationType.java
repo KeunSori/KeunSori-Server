@@ -1,8 +1,8 @@
 package com.keunsori.keunsoriserver.domain.reservation.domain.vo;
 
-import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.INVALID_RESERVATION_TYPE;
-
 import com.keunsori.keunsoriserver.global.exception.ReservationException;
+
+import static com.keunsori.keunsoriserver.global.exception.ErrorCode.*;
 
 public enum ReservationType {
     TEAM, PERSONAL, LESSON;

@@ -1,7 +1,6 @@
 package com.keunsori.keunsoriserver.global.util;
 
 import com.keunsori.keunsoriserver.domain.member.domain.vo.MemberStatus;
-import com.keunsori.keunsoriserver.global.constant.TokenConstant;
 import com.keunsori.keunsoriserver.global.exception.AuthException;
 import com.keunsori.keunsoriserver.global.properties.JwtProperties;
 import io.jsonwebtoken.Claims;
@@ -9,16 +8,13 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
 
-
+import static com.keunsori.keunsoriserver.global.exception.ErrorCode.*;
 import static com.keunsori.keunsoriserver.domain.member.domain.vo.MemberStatus.일반;
 import static com.keunsori.keunsoriserver.global.constant.TokenConstant.PASSWORD_UPDATE_TOKEN_VALIDITY_TIME;
-import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.EXPIRED_TOKEN;
-import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.INVALID_TOKEN;
 
 @Component
 @RequiredArgsConstructor

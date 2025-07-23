@@ -1,8 +1,12 @@
 package com.keunsori.keunsoriserver.global.exception;
 
-public class EmailException extends RuntimeException {
+import lombok.Getter;
 
-    public EmailException(String message) {
-        super(message);
+@Getter
+public class EmailException extends RuntimeException {
+    private ErrorCode errorCode;
+    public EmailException(ErrorCode errorCode) {
+        super(errorCode.getMassage());
+        this.errorCode = errorCode;
     }
 }

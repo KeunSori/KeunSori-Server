@@ -1,8 +1,12 @@
 package com.keunsori.keunsoriserver.global.exception;
 
-public class ReservationException extends RuntimeException {
+import lombok.Getter;
 
-    public ReservationException(String errorMessage) {
-        super(errorMessage);
+@Getter
+public class ReservationException extends RuntimeException {
+    private ErrorCode errorCode;
+    public ReservationException(ErrorCode errorCode) {
+        super(errorCode.getMassage());
+        this.errorCode = errorCode;
     }
 }
