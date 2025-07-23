@@ -1,5 +1,7 @@
 package com.keunsori.keunsoriserver.global.config;
 
+import static com.keunsori.keunsoriserver.global.constant.EnvironmentConstant.DEV_SERVER_URL;
+import static com.keunsori.keunsoriserver.global.constant.EnvironmentConstant.LOCAL_SERVER_URL;
 import static org.springframework.http.HttpHeaders.*;
 
 import io.swagger.v3.oas.models.Components;
@@ -14,7 +16,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
-import com.keunsori.keunsoriserver.global.properties.SwaggerProperties;
 import com.keunsori.keunsoriserver.global.util.EnvironmentUtil;
 
 @Configuration
@@ -30,11 +31,11 @@ public class SwaggerConfig {
 
         Server server = new Server();
         if (activeProfile.equalsIgnoreCase("dev")) {
-            server.setUrl(SwaggerProperties.DEV_SERVER_URL);
+            server.setUrl(DEV_SERVER_URL);
         }
 
         if (activeProfile.equalsIgnoreCase("local")) {
-            server.setUrl(SwaggerProperties.LOCAL_SERVER_URL);
+            server.setUrl(LOCAL_SERVER_URL);
         }
 
         return new OpenAPI()
@@ -56,11 +57,11 @@ public class SwaggerConfig {
                                 .name(AUTHORIZATION)
                 )
                 .addSecuritySchemes(
-                        "accessToken",
+                        "Access-Token",
                         new SecurityScheme()
                                 .type(SecurityScheme.Type.APIKEY)
                                 .in(SecurityScheme.In.COOKIE)
-                                .name("accessToken")
+                                .name("Access-Token")
                 );
     }
 }

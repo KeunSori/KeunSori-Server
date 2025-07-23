@@ -18,21 +18,19 @@ public class CookieUtil {
     }
 
     public static void addCookie(HttpServletResponse response, String name, String value, int maxAge){
-        Cookie cookie = new Cookie(name, value);
-        cookie.setHttpOnly(true);
-        cookie.setSecure(true);
-        cookie.setPath("/");
-        cookie.setMaxAge(maxAge);
-        response.addCookie(cookie);
+        String cookieValue = String.format(
+                "%s=%s; Path=/; Max-Age=%d; HttpOnly; Secure; SameSite=None",
+                name, value, maxAge
+        );
+        response.addHeader("Set-Cookie", cookieValue);
     }
 
     public static void deleteCookie(HttpServletResponse response, String name){
-        Cookie cookie = new Cookie(name, "");
-        cookie.setHttpOnly(true);
-        cookie.setSecure(true);
-        cookie.setPath("/");
-        cookie.setMaxAge(0);
-        response.addCookie(cookie);
+        String cookieValue = String.format(
+                "%s=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=None",
+                name
+        );
+        response.addHeader("Set-Cookie", cookieValue);
     }
 
     public static String getCookieValue(HttpServletRequest request, String name){

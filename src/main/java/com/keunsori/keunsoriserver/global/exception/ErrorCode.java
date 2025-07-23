@@ -15,9 +15,10 @@ public enum ErrorCode {
     PASSWORD_INVALID_FORMAT(400, "MEMBER-005", "비밀번호는 특수문자, 영문자, 숫자를 포함한 8자리 이상 문자열입니다."),
     INVALID_CURRENT_PASSWORD(400, "MEMBER-006", "현재 비밀번호가 올바르지 않습니다."),
     PASSWORD_SAME_AS_OLD(400, "MEMBER-007", "새 비밀번호가 기존 비밀번호와 동일합니다."),
+    STUDENT_ID_DOES_NOT_MATCH_WITH_EMAIL(400, "MEMBER-008", "가입한 학번과 이메일이 일치하지 않습니다"),
 
     // Admin Member
-    INVALID_STATUS_FOR_APPROVAL(403, "ADMIN-MEMBER-001", "회원이 승인 대기 상태가 아닙니다."),
+    INVALID_STATUS_FOR_APPROVAL(400, "ADMIN-MEMBER-001", "회원이 승인 대기 상태가 아닙니다."),
 
     // Reservation
     RESERVATION_NOT_EXISTS_WITH_ID(404, "RESERVATION-001", "해당 아이디 값을 가진 예약이 존재하지 않습니다."),
@@ -35,7 +36,7 @@ public enum ErrorCode {
 
     // Auth
     STUDENT_ID_NOT_EXISTS(404, "AUTH-001", "존재하지 않는 학번입니다."),
-    PASSWORD_NOT_CORRECT(401, "AUTH-002", "비밀번호가 일치하지 않습니다.") ,
+    INVALID_PASSWORD(401, "AUTH-002", "비밀번호가 일치하지 않습니다.") ,
     INVALID_REFRESH_TOKEN(401, "AUTH-003", "유효하지 않은 리프레시 토큰입니다."),
     INVALID_TOKEN(401, "AUTH-004", "유효하지 않은 토큰입니다."),
     EXPIRED_TOKEN(401, "AUTH-005", "만료된 토큰입니다."),

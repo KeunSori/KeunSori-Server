@@ -13,6 +13,8 @@ import org.springframework.stereotype.Component;
 import java.util.Date;
 
 import static com.keunsori.keunsoriserver.global.exception.ErrorCode.*;
+import static com.keunsori.keunsoriserver.domain.member.domain.vo.MemberStatus.일반;
+import static com.keunsori.keunsoriserver.global.constant.TokenConstant.PASSWORD_UPDATE_TOKEN_VALIDITY_TIME;
 
 @Component
 @RequiredArgsConstructor
@@ -28,6 +30,10 @@ public class TokenUtil {
     // Refresh Token 생성
     public String generateRefreshToken(String studentId, String name, MemberStatus status) {
         return createToken(studentId, name, status, JwtProperties.REFRESH_TOKEN_VALIDITY_TIME);
+    }
+
+    public String generatePasswordUpdateToken(String studentId) {
+        return createToken(studentId, "", 일반, PASSWORD_UPDATE_TOKEN_VALIDITY_TIME);
     }
 
     // JWT 토큰 생성 로직

@@ -1,4 +1,4 @@
-package com.keunsori.keunsoriserver.domain.auth.login.dto.request;
+package com.keunsori.keunsoriserver.domain.auth.login.dto;
 
 import static com.keunsori.keunsoriserver.global.constant.RequestFormatConstant.PASSWORD_REGEX;
 import static com.keunsori.keunsoriserver.global.constant.RequestFormatConstant.STUDENT_ID_REGEX;
