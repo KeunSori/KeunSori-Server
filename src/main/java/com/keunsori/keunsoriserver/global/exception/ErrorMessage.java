@@ -30,6 +30,15 @@ public class ErrorMessage {
     public static final String INVALID_DATE_SCHEDULE = "설정하는 날짜가 이미 지난 날짜입니다.";
     public static final String INVALID_SCHEDULE_TIME = "시작 시간과 끝 시간의 순서가 올바르지 않습니다.";
 
+    // Regular Reservation
+    public static final String INVALID_REGULAR_RESERVATION_TYPE = "존재하지 않는 정기 예약 유형입니다.";
+    public static final String REGULAR_RESERVATION_NOT_DELETABLE = "정기 예약은 관리자 또는 예약 팀장만 삭제할 수 있습니다.";
+    public static final String INVALID_REGULAR_RESERVATION_TIME = "정기 예약 종료 시간은 예약 시작 시간보다 나중이어야 합니다.";
+    public static final String INVALID_REGULAR_RESERVATION_DATE = "정기 예약 날짜는 과거 날짜면 안됩니다.";
+    public static final String ANOTHER_REGULAR_RESERVATION_ALREADY_EXISTS = "해당 시간에 이미 다른 정기 예약이 존재합니다.";
+    public static final String REGULAR_RESERVATION_NOT_EXISTS = "일부 정기 예약이 존재하지 않습니다.";
+
+
     // Auth
     public static final String STUDENT_ID_NOT_EXISTS = "존재하지 않는 학번입니다.";
     public static final String INVALID_PASSWORD = "비밀번호가 일치하지 않습니다.";
