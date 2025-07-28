@@ -13,7 +13,6 @@ import com.keunsori.keunsoriserver.domain.reservation.domain.validator.Reservati
 import com.keunsori.keunsoriserver.domain.reservation.repository.ReservationRepository;
 import com.keunsori.keunsoriserver.global.exception.ReservationException;
 import com.keunsori.keunsoriserver.global.util.DateUtil;
-import com.keunsori.keunsoriserver.global.util.DayOfWeekUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,7 +53,8 @@ public class AdminReservationService {
                 .map(WeeklyScheduleUpdateRequest::toEntity)
                 .collect(Collectors.toList());
 
-        cleanUpOutOfTWeeklyScheduleReservations(weeklySchedules);
+        List<Reservation> toDelete = getReservationsToDeleteByWeeklySchedules(weeklySchedules);
+        reservationRepository.deleteAll(toDelete);
 
         weeklyScheduleRepository.saveAll(weeklySchedules);
     }
@@ -71,8 +71,8 @@ public class AdminReservationService {
         validateNotPastDateSchedule(dailySchedule);
         validateScheduleTime(dailySchedule.getStartTime(),dailySchedule.getEndTime());
 
-        List<Reservation> reservations = reservationRepository.findAllByDate(dailySchedule.getDate());
-        deleteReservationsOutsideOfSchedule(dailySchedule, reservations);
+        List<Reservation> toDelete = getReservationsToDeleteByDailySchedules(dailySchedule);
+        reservationRepository.deleteAll(toDelete);
 
         dailyScheduleRepository.save(dailySchedule);
     }
@@ -149,6 +149,44 @@ public class AdminReservationService {
             reservationRepository.deleteAll(toDelete);
         } else {
             reservationRepository.deleteAll(reservations);
+        }
+    }
+
+    private List<Reservation> getReservationsToDeleteByWeeklySchedules(List<WeeklySchedule> weeklySchedules){
+        List<Reservation> toDelete = null;
+
+        for(WeeklySchedule schedule : weeklySchedules ) {
+            DayOfWeek day = schedule.getDayOfWeek();
+
+            List<Reservation> reservationsOnDay = reservationRepository.findByDateGreaterThanEqual(LocalDate.now())
+                    .stream()
+                    .filter(r -> r.getDate().getDayOfWeek().equals(day))
+                    .collect(Collectors.toList());
+
+            //deleteReservationsOutsideOfSchedule(schedule, reservationsOnDay);
+            if (schedule.isActive()) {
+                List<Reservation> toDeleteOnDay = reservationsOnDay.stream()
+                        .filter(r -> r.isOutOfTimeRange(schedule.getStartTime(), schedule.getEndTime()))
+                        .toList();
+                toDelete.addAll(toDeleteOnDay);
+            } else {
+                toDelete.addAll(reservationsOnDay);
+            }
+        }
+        return toDelete;
+    }
+
+    private List<Reservation> getReservationsToDeleteByDailySchedules(DailySchedule schedule){
+
+        List<Reservation> reservations = reservationRepository.findAllByDate(schedule.getDate());
+
+        if (schedule.isActive()) {
+            List<Reservation> toDelete = reservations.stream()
+                    .filter(r -> r.isOutOfTimeRange(schedule.getStartTime(), schedule.getEndTime()))
+                    .toList();
+                return toDelete;
+            } else {
+                return  reservations;
         }
     }
 }
