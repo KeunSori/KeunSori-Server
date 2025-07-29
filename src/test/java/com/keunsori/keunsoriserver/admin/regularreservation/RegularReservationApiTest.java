@@ -3,6 +3,7 @@ package com.keunsori.keunsoriserver.admin.regularreservation;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.keunsori.keunsoriserver.admin.init.ApiTestWithWeeklyScheduleInit;
 import com.keunsori.keunsoriserver.domain.admin.regularreservation.dto.request.RegularReservationCreateRequest;
+import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -13,7 +14,6 @@ import java.time.LocalTime;
 import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.ANOTHER_REGULAR_RESERVATION_ALREADY_EXISTS;
 import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.INVALID_REGULAR_RESERVATION_TIME;
 import static io.restassured.RestAssured.given;
-import static jakarta.servlet.http.HttpServletResponse.*;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
@@ -35,7 +35,7 @@ public class RegularReservationApiTest extends ApiTestWithWeeklyScheduleInit {
         .when()
                 .get("/admin/regular-reservation")
         .then()
-                .statusCode(SC_OK);
+                .statusCode(HttpStatus.SC_OK);
     }
 
     @Test
@@ -60,7 +60,7 @@ public class RegularReservationApiTest extends ApiTestWithWeeklyScheduleInit {
         .when()
                 .post("/admin/regular-reservation")
         .then()
-                .statusCode(SC_CREATED);
+                .statusCode(HttpStatus.SC_CREATED);
     }
 
     @Test
@@ -85,7 +85,7 @@ public class RegularReservationApiTest extends ApiTestWithWeeklyScheduleInit {
                 .when()
                         .post("/admin/regular-reservation")
                 .then()
-                        .statusCode(SC_BAD_REQUEST)
+                        .statusCode(HttpStatus.SC_BAD_REQUEST)
                         .extract().jsonPath().get("message");
 
         assertThat(errorMessage).isEqualTo(INVALID_REGULAR_RESERVATION_TIME);
@@ -125,7 +125,7 @@ public class RegularReservationApiTest extends ApiTestWithWeeklyScheduleInit {
         .when()
                 .post("/admin/regular-reservation")
         .then()
-                .statusCode(SC_CREATED);
+                .statusCode(HttpStatus.SC_CREATED);
 
         // 겹친 정기 예약은 생성 실패
         String errorMessage =
@@ -136,7 +136,7 @@ public class RegularReservationApiTest extends ApiTestWithWeeklyScheduleInit {
                 .when()
                         .post("/admin/regular-reservation")
                 .then()
-                        .statusCode(SC_BAD_REQUEST)
+                        .statusCode(HttpStatus.SC_BAD_REQUEST)
                         .extract().jsonPath().get("message");
 
         assertThat(errorMessage).isEqualTo(ANOTHER_REGULAR_RESERVATION_ALREADY_EXISTS);
@@ -165,7 +165,7 @@ public class RegularReservationApiTest extends ApiTestWithWeeklyScheduleInit {
                 .when()
                         .post("/admin/regular-reservation")
                 .then()
-                        .statusCode(SC_CREATED)
+                        .statusCode(HttpStatus.SC_CREATED)
                         .extract().header("Location");
 
         Long id = Long.parseLong(location.substring(location.lastIndexOf("/") + 1));
@@ -177,7 +177,7 @@ public class RegularReservationApiTest extends ApiTestWithWeeklyScheduleInit {
         .when()
                 .delete("/admin/regular-reservation")
         .then()
-                .statusCode(SC_NO_CONTENT);
+                .statusCode(HttpStatus.SC_NO_CONTENT);
     }
 
 }
