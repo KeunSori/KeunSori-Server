@@ -1,17 +1,14 @@
 package com.keunsori.keunsoriserver.admin.regularreservation;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.keunsori.keunsoriserver.common.ApiTest;
+import com.keunsori.keunsoriserver.admin.init.ApiTestWithWeeklyScheduleInit;
 import com.keunsori.keunsoriserver.domain.admin.regularreservation.dto.request.RegularReservationCreateRequest;
-import com.keunsori.keunsoriserver.domain.reservation.domain.Reservation;
-import org.antlr.v4.runtime.tree.pattern.ParseTreePattern;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.List;
 
 import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.ANOTHER_REGULAR_RESERVATION_ALREADY_EXISTS;
 import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.INVALID_REGULAR_RESERVATION_TIME;
@@ -21,7 +18,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 
-public class RegularReservationApiTest extends ApiTest {
+public class RegularReservationApiTest extends ApiTestWithWeeklyScheduleInit {
 
     private String authorizationValue;
 
@@ -50,7 +47,7 @@ public class RegularReservationApiTest extends ApiTest {
                 "사무라이 하트",
                 LocalTime.of(18, 30),
                 LocalTime.of(20,0),
-                "A123456",
+                "C000001",
                 LocalDate.now(),
                 LocalDate.now().plusWeeks(2)
         );
@@ -75,7 +72,7 @@ public class RegularReservationApiTest extends ApiTest {
                 "오류 테스트 팀",
                 LocalTime.of(19,0),
                 LocalTime.of(18,0),
-                "A123456",
+                "C000001",
                 LocalDate.now(),
                 LocalDate.now().plusWeeks(1)
         );
@@ -103,7 +100,7 @@ public class RegularReservationApiTest extends ApiTest {
                 "중복 테스트 팀",
                 LocalTime.of(10,0),
                 LocalTime.of(12,0),
-                "A123456",
+                "C000001",
                 LocalDate.now(),
                 LocalDate.now().plusWeeks(1)
         );
@@ -115,7 +112,7 @@ public class RegularReservationApiTest extends ApiTest {
                 "중복 테스트 팀",
                 LocalTime.of(11,0),
                 LocalTime.of(13,0),
-                "A123456",
+                "C000001",
                 LocalDate.now(),
                 LocalDate.now().plusWeeks(1)
         );
@@ -154,7 +151,7 @@ public class RegularReservationApiTest extends ApiTest {
                 "삭제 테스트 팀",
                 LocalTime.of(20,0),
                 LocalTime.of(21,0),
-                "A123456",
+                "C000001",
                 LocalDate.now(),
                 LocalDate.now().plusWeeks(1)
         );
