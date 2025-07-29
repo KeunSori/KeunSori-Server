@@ -36,8 +36,8 @@ public class RegularReservationValidator {
 
     // 정기 예약 삭제 시 팀장 또는 관리자 여부 검증
     public void validateDeletable(RegularReservation regularReservation, Member loginMember){
-        if(!isTeamLeaderOrAdmin(regularReservation, loginMember)){
-            throw new RegularReservationException(REGULAR_RESERVATION_NOT_DELETABLE);
+        if (!loginMember.isAdmin()) {
+            regularReservation.validateReservedBy(loginMember);
         }
     }
 
@@ -62,10 +62,6 @@ public class RegularReservationValidator {
         if(regularReservationRepository.existsOverlapReservation(dayOfWeek, startTime, endTime)){
             throw new RegularReservationException(ANOTHER_REGULAR_RESERVATION_ALREADY_EXISTS);
         }
-    }
-
-    private boolean isTeamLeaderOrAdmin(RegularReservation regularReservation, Member loginMember){
-        return regularReservation.hasMember(loginMember) || loginMember.isAdmin();
     }
 }
 

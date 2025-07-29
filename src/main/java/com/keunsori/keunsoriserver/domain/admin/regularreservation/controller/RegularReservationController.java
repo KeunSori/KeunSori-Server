@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.time.DayOfWeek;
 import java.util.List;
 
 @RestController
@@ -22,12 +21,6 @@ public class RegularReservationController {
     @GetMapping
     public ResponseEntity<List<RegularReservationResponse>> getRegularReservations() {
         List<RegularReservationResponse> regularReservationResponses = regularReservationService.findAllRegularReservations();
-        return ResponseEntity.ok().body(regularReservationResponses);
-    }
-
-    @GetMapping("/by-day")
-    public ResponseEntity<List<RegularReservationResponse>> getRegularReservationsByDay(@RequestParam DayOfWeek dayOfWeek){
-        List<RegularReservationResponse> regularReservationResponses = regularReservationService.findRegularReservationsByDayOfWeek(dayOfWeek);
         return ResponseEntity.ok().body(regularReservationResponses);
     }
 

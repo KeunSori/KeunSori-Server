@@ -8,5 +8,5 @@ import java.util.Optional;
 
 public interface WeeklyScheduleRepository extends JpaRepository<WeeklySchedule, DayOfWeek> {
 
-    Optional<WeeklySchedule> findByDayOfWeek(DayOfWeek dayOfWeek);
+    WeeklySchedule getByDayOfWeek(DayOfWeek dayOfWeek);
 }

@@ -38,9 +38,7 @@ public class AdminReservationService {
 
     public List<WeeklyScheduleResponse> findAllWeeklySchedules() {
         return Arrays.stream(DayOfWeek.values())
-                .map(day -> weeklyScheduleRepository.findByDayOfWeek(day)
-                        .map(WeeklyScheduleResponse::from)
-                        .orElseGet(() -> WeeklyScheduleResponse.createInactiveDay(day)))
+                .map(day -> WeeklyScheduleResponse.from(weeklyScheduleRepository.getByDayOfWeek(day)))
                 .sorted(Comparator.comparing(WeeklyScheduleResponse::getDayOfWeekNum))
                 .collect(Collectors.toList());
     }
@@ -89,6 +87,17 @@ public class AdminReservationService {
         reservationRepository.delete(reservation);
     }
 
+    @Transactional
+    public void deleteReservationsByAdmin(List<Long> reservationIds) {
+        List<Reservation> reservations = reservationRepository.findAllById(reservationIds);
+
+        if (reservations.size() != reservationIds.size()) {
+            throw new ReservationException(RESERVATION_NOT_FOUND);
+        }
+
+        reservationRepository.deleteAll(reservations);
+    }
+
     public List<DailyAvailableResponse> findDailyAvailableByMonth(String yearMonth) {
 
         LocalDate start = DateUtil.parseMonthToFirstDate(yearMonth);
@@ -99,11 +108,8 @@ public class AdminReservationService {
     }
 
     private DailyAvailableResponse convertDateToDailyAvailableResponse(LocalDate date) {
-        return dailyScheduleRepository.findByDate(date)
-                .map(DailyAvailableResponse::from)
-                .orElseGet(() -> weeklyScheduleRepository.findByDayOfWeek(date.getDayOfWeek())
-                        .map(schedule -> DailyAvailableResponse.of(date, schedule))
-                        .orElseGet(() -> DailyAvailableResponse.createInactiveDate(date)));
+        DailySchedule dailySchedule = dailyScheduleRepository.getByDate(date);
+        return DailyAvailableResponse.from(dailySchedule);
     }
 
     private void validateNotPastDateSchedule(DailySchedule schedule){

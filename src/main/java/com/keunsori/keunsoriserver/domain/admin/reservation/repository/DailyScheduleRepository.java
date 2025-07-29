@@ -7,5 +7,5 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 public interface DailyScheduleRepository extends JpaRepository<DailySchedule, LocalDate> {
-    Optional<DailySchedule> findByDate(LocalDate date);
+    DailySchedule getByDate(LocalDate date);
 }

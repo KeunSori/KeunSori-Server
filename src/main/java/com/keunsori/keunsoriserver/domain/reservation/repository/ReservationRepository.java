@@ -1,5 +1,6 @@
 package com.keunsori.keunsoriserver.domain.reservation.repository;
 
+import com.keunsori.keunsoriserver.domain.admin.regularreservation.domain.RegularReservation;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.keunsori.keunsoriserver.domain.member.domain.Member;
@@ -24,7 +25,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
 
     void deleteAllByDate(LocalDate date);
 
-
+    void deleteAllByRegularReservation(RegularReservation regularReservation);
 
     @Query("SELECT COUNT(r) > 0 "
             + "FROM Reservation r "

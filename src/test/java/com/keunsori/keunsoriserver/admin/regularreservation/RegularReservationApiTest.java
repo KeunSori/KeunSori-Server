@@ -3,11 +3,15 @@ package com.keunsori.keunsoriserver.admin.regularreservation;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.keunsori.keunsoriserver.common.ApiTest;
 import com.keunsori.keunsoriserver.domain.admin.regularreservation.dto.request.RegularReservationCreateRequest;
+import com.keunsori.keunsoriserver.domain.reservation.domain.Reservation;
+import org.antlr.v4.runtime.tree.pattern.ParseTreePattern;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.ANOTHER_REGULAR_RESERVATION_ALREADY_EXISTS;
 import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.INVALID_REGULAR_RESERVATION_TIME;
@@ -38,25 +42,17 @@ public class RegularReservationApiTest extends ApiTest {
     }
 
     @Test
-    void 정기_예약_요일별_조회_성공() {
-        given()
-                .header(AUTHORIZATION, authorizationValue)
-                .queryParam("dayOfWeek", DayOfWeek.MONDAY)
-        .when()
-                .get("/admin/regular-reservation/by-day")
-        .then()
-                .statusCode(SC_OK);
-    }
-
-    @Test
     void 정기_예약_생성_성공() throws Exception {
         RegularReservationCreateRequest regularReservationCreateRequest = new RegularReservationCreateRequest(
                 "TEAM",
+                "ALL",
                 DayOfWeek.FRIDAY,
                 "사무라이 하트",
                 LocalTime.of(18, 30),
                 LocalTime.of(20,0),
-                "A123456"
+                "A123456",
+                LocalDate.now(),
+                LocalDate.now().plusWeeks(2)
         );
 
         given()
@@ -71,14 +67,17 @@ public class RegularReservationApiTest extends ApiTest {
     }
 
     @Test
-    void 시작_시간이_종료_시간보다_늦으면_정기_예약_생성_실패() throws Exception {
+    void 시작_시간이_종료_시간보다_늦으면_정기_예약_생성_실패() throws JsonProcessingException {
         RegularReservationCreateRequest regularReservationCreateRequest = new RegularReservationCreateRequest(
                 "TEAM",
+                "ALL",
                 DayOfWeek.MONDAY,
                 "오류 테스트 팀",
                 LocalTime.of(19,0),
                 LocalTime.of(18,0),
-                "A123456"
+                "A123456",
+                LocalDate.now(),
+                LocalDate.now().plusWeeks(1)
         );
 
         String errorMessage =
@@ -87,7 +86,7 @@ public class RegularReservationApiTest extends ApiTest {
                         .header(CONTENT_TYPE, "application/json")
                         .body(mapper.writeValueAsString(regularReservationCreateRequest))
                 .when()
-                        .post("admin/regular-reservation")
+                        .post("/admin/regular-reservation")
                 .then()
                         .statusCode(SC_BAD_REQUEST)
                         .extract().jsonPath().get("message");
@@ -96,23 +95,29 @@ public class RegularReservationApiTest extends ApiTest {
     }
 
     @Test
-    void 정기_예약_시간이_겹치면_정기_예약_생성_실패() throws Exception {
+    void 정기_예약_시간이_겹치면_정기_예약_생성_실패() throws JsonProcessingException {
         RegularReservationCreateRequest regularReservationCreateRequest = new RegularReservationCreateRequest(
                 "TEAM",
+                "ALL",
                 DayOfWeek.THURSDAY,
                 "중복 테스트 팀",
                 LocalTime.of(10,0),
                 LocalTime.of(12,0),
-                "A123456"
+                "A123456",
+                LocalDate.now(),
+                LocalDate.now().plusWeeks(1)
         );
 
         RegularReservationCreateRequest regularReservationCreateRequest2 = new RegularReservationCreateRequest(
                 "TEAM",
+                "ALL",
                 DayOfWeek.THURSDAY,
                 "중복 테스트 팀",
                 LocalTime.of(11,0),
                 LocalTime.of(13,0),
-                "A123456"
+                "A123456",
+                LocalDate.now(),
+                LocalDate.now().plusWeeks(1)
         );
 
         // 첫 정기 예약 생성은 성공
@@ -121,7 +126,7 @@ public class RegularReservationApiTest extends ApiTest {
                 .header(CONTENT_TYPE, "application/json")
                 .body(mapper.writeValueAsString(regularReservationCreateRequest))
         .when()
-                .post("admin/regular-reservation")
+                .post("/admin/regular-reservation")
         .then()
                 .statusCode(SC_CREATED);
 
@@ -132,7 +137,7 @@ public class RegularReservationApiTest extends ApiTest {
                         .header(CONTENT_TYPE, "application/json")
                         .body(mapper.writeValueAsString(regularReservationCreateRequest2))
                 .when()
-                        .post("admin/regular-reservation")
+                        .post("/admin/regular-reservation")
                 .then()
                         .statusCode(SC_BAD_REQUEST)
                         .extract().jsonPath().get("message");
@@ -144,11 +149,14 @@ public class RegularReservationApiTest extends ApiTest {
     void 정기_예약_삭제_성공() throws Exception {
         RegularReservationCreateRequest regularReservationCreateRequest = new RegularReservationCreateRequest(
                 "TEAM",
+                "ALL",
                 DayOfWeek.SUNDAY,
                 "삭제 테스트 팀",
                 LocalTime.of(20,0),
                 LocalTime.of(21,0),
-                "A123456"
+                "A123456",
+                LocalDate.now(),
+                LocalDate.now().plusWeeks(1)
         );
 
         // 정기 예약 생성
@@ -158,20 +166,21 @@ public class RegularReservationApiTest extends ApiTest {
                         .header(CONTENT_TYPE, "application/json")
                         .body(mapper.writeValueAsString(regularReservationCreateRequest))
                 .when()
-                        .post("admin/regular-reservation")
+                        .post("/admin/regular-reservation")
                 .then()
                         .statusCode(SC_CREATED)
                         .extract().header("Location");
 
-        Long id = Long.parseLong(location.split("/")[location.split("/").length-1]);
+        Long id = Long.parseLong(location.substring(location.lastIndexOf("/") + 1));
 
         // 정기 예약 삭제
         given()
                 .header(AUTHORIZATION, authorizationValue)
                 .queryParam("regularReservationIds", id)
         .when()
-                .delete("admin/regular-reservation")
+                .delete("/admin/regular-reservation")
         .then()
                 .statusCode(SC_NO_CONTENT);
     }
+
 }

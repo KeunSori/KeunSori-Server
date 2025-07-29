@@ -9,8 +9,6 @@ import java.time.LocalTime;
 import java.util.List;
 
 public interface RegularReservationRepository extends JpaRepository<RegularReservation, Long> {
-    List<RegularReservation> findAllByDayOfWeek(DayOfWeek dayOfWeek);
-
     List<RegularReservation> findAllByOrderByDayOfWeekAscStartTimeAsc();
 
     // 팀장 학번으로 정기예약 조회 (팀장 예약 현황에서 사용)
@@ -18,7 +16,7 @@ public interface RegularReservationRepository extends JpaRepository<RegularReser
 
 
     @Query("""
-        SELECT CASE WHEN COUNT(r) > 0 THEN true ELSE false END
+        SELECT COUNT(r) > 0
         FROM RegularReservation r
         WHERE r.dayOfWeek = :dayOfWeek
         AND r.startTime < :endTime
@@ -30,4 +28,7 @@ public interface RegularReservationRepository extends JpaRepository<RegularReser
             LocalTime endTime
     );
 
+    boolean existsByMember_Id(Long memberId);
+
+    
 }

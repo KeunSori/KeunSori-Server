@@ -53,4 +53,11 @@ public class AdminReservationController {
         adminReservationService.deleteReservationByAdmin(reservationId);
         return ResponseEntity.noContent().build();
     }
+
+    // 관리자 예약 다중 삭제
+    @DeleteMapping
+    public ResponseEntity<Void> deleteReservationsByAdmin(@RequestParam List<Long> reservationIds) {
+        adminReservationService.deleteReservationsByAdmin(reservationIds);
+        return ResponseEntity.noContent().build();
+    }
 }

@@ -1,7 +1,5 @@
 package com.keunsori.keunsoriserver.domain.reservation.service;
 
-import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.RESERVATION_NOT_EXISTS_WITH_ID;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +20,8 @@ import java.time.LocalDate;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
+
+import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.*;
 
 @Service
 @Transactional(readOnly = true)
@@ -58,6 +58,36 @@ public class ReservationService {
 
         reservationValidator.validateReservationDeletable(reservation, member);
         reservationRepository.delete(reservation);
+    }
+
+    @Transactional
+    public void deleteMyReservations(List<Long> reservationIds) {
+        Member loginMember = memberUtil.getLoggedInMember();
+
+        List<Reservation> reservations = reservationRepository.findAllById(reservationIds);
+
+        if (reservations.size() != reservationIds.size()) {
+            throw new ReservationException(RESERVATION_NOT_FOUND);
+        }
+
+        for (Reservation reservation : reservations) {
+
+            // 정기예약 기반인 경우에만 팀장 본인 또는 관리자만 삭제 가능
+            if (reservation.getRegularReservation() != null) {
+                if (!reservation.hasMember(loginMember)) {
+                    throw new ReservationException(RESERVATION_NOT_EQUALS_TEAM_LEADER);
+                }
+            }
+
+            // 일반 개별 예약은 본인만 삭제 가능
+            else {
+                if (!reservation.hasMember(loginMember)) {
+                    throw new ReservationException(RESERVATION_NOT_EQUAL_MEMBER);
+                }
+            }
+        }
+
+        reservationRepository.deleteAll(reservations);
     }
 
     @Transactional
