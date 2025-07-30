@@ -14,7 +14,6 @@ import com.keunsori.keunsoriserver.domain.reservation.domain.vo.Session;
 import com.keunsori.keunsoriserver.domain.reservation.dto.requset.ReservationCreateRequest;
 import com.keunsori.keunsoriserver.domain.reservation.repository.ReservationRepository;
 import com.keunsori.keunsoriserver.global.exception.MemberException;
-import com.keunsori.keunsoriserver.global.exception.RegularReservationException;
 import com.keunsori.keunsoriserver.global.util.MemberUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -60,12 +59,7 @@ public class RegularReservationService {
     public void deleteRegularReservation(List<Long> regularReservationIds) {
         Member loginMember = memberUtil.getLoggedInMember();
 
-        List<RegularReservation> regularReservations = regularReservationRepository.findAllById(regularReservationIds);
-
-        // 요청 정기 예약 ID 수 != 조회된 정기 예약 아이템 수 -> 일부 예약 아이템이 존재하지 않는다.
-        if(regularReservations.size() != regularReservationIds.size()){
-            throw new RegularReservationException(PARTIAL_REGULAR_RESERVATION_MISSING);
-        }
+        List<RegularReservation> regularReservations = regularReservationValidator.validateAndGetAllExists(regularReservationIds);
 
         for (RegularReservation regularReservation : regularReservations) {
             regularReservationValidator.validateDeletable(regularReservation, loginMember);

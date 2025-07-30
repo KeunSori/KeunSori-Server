@@ -1,11 +1,14 @@
 package com.keunsori.keunsoriserver.domain.admin.reservation.domain;
 
+import com.keunsori.keunsoriserver.global.exception.ReservationException;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+
+import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.INVALID_RESERVATION_TIME;
 
 @Entity
 @Getter
@@ -31,5 +34,15 @@ public class DailySchedule {
 
     public boolean isPastDate(){
         return date.isBefore(LocalDate.now());
+    }
+
+    public boolean isTimeWithin(LocalTime startTime, LocalTime endTime) {
+        return !startTime.isBefore(this.startTime) && !endTime.isAfter(this.endTime);
+    }
+
+    public void validateTimeWithin(LocalTime startTime, LocalTime endTime) {
+        if (!isTimeWithin(startTime, endTime)) {
+            throw new ReservationException(INVALID_RESERVATION_TIME);
+        }
     }
 }
