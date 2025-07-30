@@ -3,9 +3,14 @@ package com.keunsori.keunsoriserver.admin.regularreservation;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.keunsori.keunsoriserver.admin.init.ApiTestWithWeeklyScheduleInit;
 import com.keunsori.keunsoriserver.domain.admin.regularreservation.dto.request.RegularReservationCreateRequest;
+import com.keunsori.keunsoriserver.domain.member.domain.Member;
+import com.keunsori.keunsoriserver.domain.member.domain.vo.MemberStatus;
+import com.keunsori.keunsoriserver.domain.member.repository.MemberRepository;
 import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -22,10 +27,25 @@ public class RegularReservationApiTest extends ApiTestWithWeeklyScheduleInit {
 
     private String authorizationValue;
 
+    @Autowired
+    MemberRepository memberRepository;
+
+    @Autowired
+    PasswordEncoder passwordEncoder;
+
     @BeforeEach
     void setUp() throws JsonProcessingException {
         login_with_admin_member();
         authorizationValue = "Bearer " + adminToken;
+
+        if (!memberRepository.existsByStudentId("C000001")) {
+            memberRepository.save(Member.builder()
+                    .studentId("C000001")
+                    .email("test@example.com")
+                    .password(passwordEncoder.encode("test123!"))
+                    .status(MemberStatus.일반)
+                    .build());
+        }
     }
 
     @Test
@@ -39,7 +59,7 @@ public class RegularReservationApiTest extends ApiTestWithWeeklyScheduleInit {
     }
 
     @Test
-    void 정기_예약_생성_성공() throws Exception {
+    void 정기_예약_생성_성공() throws JsonProcessingException {
         RegularReservationCreateRequest regularReservationCreateRequest = new RegularReservationCreateRequest(
                 "TEAM",
                 "ALL",
@@ -56,7 +76,6 @@ public class RegularReservationApiTest extends ApiTestWithWeeklyScheduleInit {
                 .header(AUTHORIZATION, authorizationValue)
                 .header(CONTENT_TYPE, "application/json")
                 .body(mapper.writeValueAsString(regularReservationCreateRequest))
-
         .when()
                 .post("/admin/regular-reservation")
         .then()
@@ -143,7 +162,7 @@ public class RegularReservationApiTest extends ApiTestWithWeeklyScheduleInit {
     }
 
     @Test
-    void 정기_예약_삭제_성공() throws Exception {
+    void 정기_예약_삭제_성공() throws JsonProcessingException {
         RegularReservationCreateRequest regularReservationCreateRequest = new RegularReservationCreateRequest(
                 "TEAM",
                 "ALL",

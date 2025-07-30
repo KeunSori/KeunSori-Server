@@ -38,7 +38,9 @@ public class AdminReservationService {
 
     public List<WeeklyScheduleResponse> findAllWeeklySchedules() {
         return Arrays.stream(DayOfWeek.values())
-                .map(day -> WeeklyScheduleResponse.from(weeklyScheduleRepository.getByDayOfWeek(day)))
+                .map(day -> weeklyScheduleRepository.findByDayOfWeek(day)
+                        .map(WeeklyScheduleResponse::from)
+                        .orElseGet(() -> WeeklyScheduleResponse.createInactiveDay(day)))
                 .sorted(Comparator.comparing(WeeklyScheduleResponse::getDayOfWeekNum))
                 .collect(Collectors.toList());
     }
@@ -108,8 +110,11 @@ public class AdminReservationService {
     }
 
     private DailyAvailableResponse convertDateToDailyAvailableResponse(LocalDate date) {
-        DailySchedule dailySchedule = dailyScheduleRepository.getByDate(date);
-        return DailyAvailableResponse.from(dailySchedule);
+        return dailyScheduleRepository.findByDate(date)
+                .map(DailyAvailableResponse::from)
+                .orElseGet(() -> weeklyScheduleRepository.findByDayOfWeek(date.getDayOfWeek())
+                        .map(schedule -> DailyAvailableResponse.of(date, schedule))
+                        .orElseGet(() -> DailyAvailableResponse.createInactiveDate(date)));
     }
 
     private void validateNotPastDateSchedule(DailySchedule schedule){

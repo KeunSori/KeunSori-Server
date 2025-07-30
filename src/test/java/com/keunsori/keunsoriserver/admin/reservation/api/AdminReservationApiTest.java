@@ -1,7 +1,7 @@
 package com.keunsori.keunsoriserver.admin.reservation.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.keunsori.keunsoriserver.common.ApiTest;
+import com.keunsori.keunsoriserver.admin.init.ApiTestWithWeeklyScheduleInit;
 import com.keunsori.keunsoriserver.domain.admin.reservation.dto.request.DailyScheduleUpdateOrCreateRequest;
 import com.keunsori.keunsoriserver.domain.admin.reservation.dto.request.WeeklyScheduleUpdateRequest;
 import com.keunsori.keunsoriserver.domain.member.repository.MemberRepository;
@@ -25,7 +25,7 @@ import static io.restassured.RestAssured.given;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 
-public class AdminReservationApiTest extends ApiTest {
+public class AdminReservationApiTest extends ApiTestWithWeeklyScheduleInit {
     private String authorizationValue;
 
     @Autowired
