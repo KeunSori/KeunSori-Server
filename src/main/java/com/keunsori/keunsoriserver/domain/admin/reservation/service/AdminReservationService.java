@@ -53,7 +53,7 @@ public class AdminReservationService {
                 .map(WeeklyScheduleUpdateRequest::toEntity)
                 .collect(Collectors.toList());
 
-        List<Reservation> toDelete = getReservationsToDeleteByWeeklySchedules(weeklySchedules);
+        List<Reservation> toDelete = findReservationsToDeleteByWeeklySchedules(weeklySchedules);
         reservationRepository.deleteAll(toDelete);
 
         weeklyScheduleRepository.saveAll(weeklySchedules);
@@ -71,7 +71,7 @@ public class AdminReservationService {
         validateNotPastDateSchedule(dailySchedule);
         validateScheduleTime(dailySchedule.getStartTime(),dailySchedule.getEndTime());
 
-        List<Reservation> toDelete = getReservationsToDeleteByDailySchedules(dailySchedule);
+        List<Reservation> toDelete = findReservationsToDeleteByDailySchedules(dailySchedule);
         reservationRepository.deleteAll(toDelete);
 
         dailyScheduleRepository.save(dailySchedule);
@@ -117,43 +117,8 @@ public class AdminReservationService {
         }
     }
 
-    private void cleanUpOutOfTWeeklyScheduleReservations(List<WeeklySchedule> weeklySchedules){
-        for(WeeklySchedule schedule : weeklySchedules ) {
-            DayOfWeek day = schedule.getDayOfWeek();
-
-            List<Reservation> reservationsOnDay = reservationRepository.findByDateGreaterThanEqual(LocalDate.now())
-                    .stream()
-                    .filter(r -> r.getDate().getDayOfWeek().equals(day))
-                    .collect(Collectors.toList());
-
-            deleteReservationsOutsideOfSchedule(schedule, reservationsOnDay);
-        }
-    }
-
-    private void deleteReservationsOutsideOfSchedule(DailySchedule schedule, List<Reservation> reservations){
-        if (schedule.isActive()) {
-            List<Reservation> toDelete = reservations.stream()
-                    .filter(r -> r.isOutOfTimeRange(schedule.getStartTime(), schedule.getEndTime()))
-                    .toList();
-            reservationRepository.deleteAll(toDelete);
-        } else {
-            reservationRepository.deleteAll(reservations);
-        }
-    }
-
-    private void deleteReservationsOutsideOfSchedule(WeeklySchedule schedule, List<Reservation> reservations){
-        if (schedule.isActive()) {
-            List<Reservation> toDelete = reservations.stream()
-                    .filter(r -> r.isOutOfTimeRange(schedule.getStartTime(), schedule.getEndTime()))
-                    .toList();
-            reservationRepository.deleteAll(toDelete);
-        } else {
-            reservationRepository.deleteAll(reservations);
-        }
-    }
-
-    private List<Reservation> getReservationsToDeleteByWeeklySchedules(List<WeeklySchedule> weeklySchedules){
-        List<Reservation> toDelete = null;
+    private List<Reservation> findReservationsToDeleteByWeeklySchedules(List<WeeklySchedule> weeklySchedules){
+        List<Reservation> toDelete = new ArrayList<>();
 
         for(WeeklySchedule schedule : weeklySchedules ) {
             DayOfWeek day = schedule.getDayOfWeek();
@@ -176,7 +141,7 @@ public class AdminReservationService {
         return toDelete;
     }
 
-    private List<Reservation> getReservationsToDeleteByDailySchedules(DailySchedule schedule){
+    private List<Reservation> findReservationsToDeleteByDailySchedules(DailySchedule schedule){
 
         List<Reservation> reservations = reservationRepository.findAllByDate(schedule.getDate());
 
