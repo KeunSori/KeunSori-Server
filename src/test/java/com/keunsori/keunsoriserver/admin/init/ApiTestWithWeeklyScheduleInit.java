@@ -1,30 +1,16 @@
 package com.keunsori.keunsoriserver.admin.init;
 
 import com.keunsori.keunsoriserver.common.ApiTest;
-import com.keunsori.keunsoriserver.domain.admin.reservation.domain.WeeklySchedule;
-import com.keunsori.keunsoriserver.domain.admin.reservation.repository.WeeklyScheduleRepository;
+import com.keunsori.keunsoriserver.global.init.WeeklyScheduleInitializer;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.time.DayOfWeek;
-import java.time.LocalTime;
-
 public class ApiTestWithWeeklyScheduleInit extends ApiTest {
     @Autowired
-    private WeeklyScheduleRepository weeklyScheduleRepository;
+    private WeeklyScheduleInitializer weeklyScheduleInitializer;
 
     @BeforeEach
     void setupWeeklySchedule() {
-        if (weeklyScheduleRepository.count() == 0) {
-            for (DayOfWeek day : DayOfWeek.values()) {
-                WeeklySchedule schedule = WeeklySchedule.builder()
-                        .dayOfWeek(day)
-                        .isActive(false)
-                        .startTime(LocalTime.of(10, 0))
-                        .endTime(LocalTime.of(23, 0))
-                        .build();
-                weeklyScheduleRepository.save(schedule);
-            }
-        }
+        weeklyScheduleInitializer.initializeSchedules();
     }
 }
