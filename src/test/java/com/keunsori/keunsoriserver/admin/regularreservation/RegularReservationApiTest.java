@@ -15,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.ANOTHER_REGULAR_RESERVATION_ALREADY_EXISTS;
 import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.INVALID_REGULAR_RESERVATION_TIME;
@@ -79,7 +80,7 @@ public class RegularReservationApiTest extends ApiTestWithWeeklyScheduleInit {
         .when()
                 .post("/admin/regular-reservation")
         .then()
-                .statusCode(HttpStatus.SC_CREATED);
+                .statusCode(HttpStatus.SC_OK);
     }
 
     @Test
@@ -192,7 +193,8 @@ public class RegularReservationApiTest extends ApiTestWithWeeklyScheduleInit {
         // 정기 예약 삭제
         given()
                 .header(AUTHORIZATION, authorizationValue)
-                .queryParam("regularReservationIds", id)
+                .header(CONTENT_TYPE, "application/json")
+                .body(List.of(id))
         .when()
                 .delete("/admin/regular-reservation")
         .then()

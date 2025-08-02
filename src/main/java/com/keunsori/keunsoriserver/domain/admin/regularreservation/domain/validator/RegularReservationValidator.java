@@ -36,20 +36,18 @@ public class RegularReservationValidator {
         validateNoOverlap(request.dayOfWeek(), request.regularReservationStartTime(), request.regularReservationEndTime());
     }
 
-    // 정기 예약 삭제 시 팀장 또는 관리자 여부 검증
-    public void validateDeletable(RegularReservation regularReservation, Member loginMember){
+    // 정기 예약 삭제 시 관리자 여부 검증
+    public void validateDeletable(Member loginMember){
         if (!loginMember.isAdmin()) {
-            regularReservation.validateReservedBy(loginMember);
+            throw new RegularReservationException(REGULAR_RESERVATION_NOT_DELETABLE);
         }
     }
 
     // 정기 예약 엔티티 다중 삭제 시 선택 수와 조회 수가 같은지 검증
-    public List<RegularReservation> validateAndGetAllExists(List<Long> ids) {
-        List<RegularReservation> found = regularReservationRepository.findAllById(ids);
+    public void validateAndGetAllExists(List<Long> ids, List<RegularReservation> found) {
         if (found.size() != ids.size()) {
             throw new RegularReservationException(PARTIAL_REGULAR_RESERVATION_MISSING);
         }
-        return found;
     }
 
     private void validateTimeRange(LocalTime startTime, LocalTime endTime) {

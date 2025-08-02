@@ -6,8 +6,8 @@ import com.keunsori.keunsoriserver.domain.admin.reservation.dto.request.DailySch
 import com.keunsori.keunsoriserver.domain.admin.reservation.dto.request.WeeklyScheduleUpdateRequest;
 import com.keunsori.keunsoriserver.domain.member.repository.MemberRepository;
 import com.keunsori.keunsoriserver.domain.reservation.domain.Reservation;
-import com.keunsori.keunsoriserver.domain.reservation.domain.vo.ReservationType;
-import com.keunsori.keunsoriserver.domain.reservation.domain.vo.Session;
+import com.keunsori.keunsoriserver.domain.common.reservation.ReservationType;
+import com.keunsori.keunsoriserver.domain.common.reservation.Session;
 import com.keunsori.keunsoriserver.domain.reservation.repository.ReservationRepository;
 import org.apache.http.HttpStatus;
 import org.assertj.core.api.Assertions;

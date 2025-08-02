@@ -1,8 +1,9 @@
 package com.keunsori.keunsoriserver.domain.admin.regularreservation.domain;
 
-import com.keunsori.keunsoriserver.domain.admin.regularreservation.domain.vo.RegularReservationSession;
-import com.keunsori.keunsoriserver.domain.admin.regularreservation.domain.vo.RegularReservationType;
+import com.keunsori.keunsoriserver.domain.common.reservation.ReservationType;
+import com.keunsori.keunsoriserver.domain.common.reservation.Session;
 import com.keunsori.keunsoriserver.domain.member.domain.Member;
+import com.keunsori.keunsoriserver.global.exception.MemberException;
 import com.keunsori.keunsoriserver.global.exception.RegularReservationException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -15,6 +16,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.REGULAR_RESERVATION_NOT_DELETABLE;
+import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.STUDENT_ID_INVALID_FORMAT;
 
 @Entity
 @Getter
@@ -36,11 +38,11 @@ public class RegularReservation {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "regular_reservation_type")
-    private RegularReservationType regularReservationType;
+    private ReservationType reservationType;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "regular_reservation_session", nullable = false)
-    private RegularReservationSession regularReservationSession;
+    private Session session;
 
     @Column(name = "regular_reservation_team_name", nullable = false)
     private String regularReservationTeamName;
@@ -56,22 +58,22 @@ public class RegularReservation {
     private Member member;
 
     @Builder
-    private RegularReservation(DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime, RegularReservationType regularReservationType,
-                               RegularReservationSession regularReservationSession, String regularReservationTeamName,
+    private RegularReservation(DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime, ReservationType reservationType,
+                               Session session, String regularReservationTeamName,
                                LocalDate applyStartDate, LocalDate applyEndDate,
                                Member member) {
         this.dayOfWeek = dayOfWeek;
         this.startTime = startTime;
         this.endTime = endTime;
-        this.regularReservationType = regularReservationType;
-        this.regularReservationSession = regularReservationSession;
+        this.reservationType = reservationType;
+        this.session = session;
         this.regularReservationTeamName = regularReservationTeamName;
         this.applyStartDate = applyStartDate;
         this.applyEndDate = applyEndDate;
         this.member = member;
     }
 
-    // 예약한 멤버 일치 여부
+    // 예약한 멤버 일치 여부(관리자 검증)
     public void validateReservedBy(Member loginMember) {
         if (!this.member.equals(loginMember)) {
             throw new RegularReservationException(REGULAR_RESERVATION_NOT_DELETABLE);
@@ -84,8 +86,11 @@ public class RegularReservation {
     }
 
     // 팀장 학번 반환
-    public String getStudentId(){
-        return member != null ? member.getStudentId() : "(알 수 없음)";
+    public String getStudentId() {
+        if (member.getStudentId() == null) {
+            throw new MemberException(STUDENT_ID_INVALID_FORMAT);
+        }
+        return member.getStudentId();
     }
     
     // 특정 시간 범위 밖에 있는지 확인

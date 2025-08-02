@@ -9,8 +9,6 @@ import com.keunsori.keunsoriserver.domain.member.domain.Member;
 import com.keunsori.keunsoriserver.domain.member.repository.MemberRepository;
 import com.keunsori.keunsoriserver.domain.reservation.domain.Reservation;
 import com.keunsori.keunsoriserver.domain.reservation.domain.validator.ReservationValidator;
-import com.keunsori.keunsoriserver.domain.reservation.domain.vo.ReservationType;
-import com.keunsori.keunsoriserver.domain.reservation.domain.vo.Session;
 import com.keunsori.keunsoriserver.domain.reservation.dto.requset.ReservationCreateRequest;
 import com.keunsori.keunsoriserver.domain.reservation.repository.ReservationRepository;
 import com.keunsori.keunsoriserver.global.exception.MemberException;
@@ -20,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.*;
@@ -38,63 +37,70 @@ public class RegularReservationService {
 
     // 정기 예약 생성
     @Transactional
-    public Long createRegularReservation(RegularReservationCreateRequest regularReservationCreateRequest) {
-        // 학번으로 멤버 조회
-        Member member = memberRepository.findByStudentId(regularReservationCreateRequest.studentId())
-                .orElseThrow(() -> new MemberException(MEMBER_NOT_EXISTS_WITH_STUDENT_ID));
+    public List<RegularReservationResponse> createRegularReservations(List<RegularReservationCreateRequest> regularReservationCreateRequests) {
+        List<RegularReservationResponse> responses = new ArrayList<>();
 
-        // 유효성 검증
-        regularReservationValidator.validateCreateRegularReservation(regularReservationCreateRequest);
+        for (RegularReservationCreateRequest regularReservationCreateRequest : regularReservationCreateRequests) {
+            // 학번으로 멤버 조회
+            Member teamLeader = memberRepository.findByStudentId(regularReservationCreateRequest.studentId())
+                    .orElseThrow(() -> new MemberException(MEMBER_NOT_EXISTS_WITH_STUDENT_ID));
 
-        // 예약 저장
-        RegularReservation savedRegularReservation = regularReservationRepository.save(regularReservationCreateRequest.toEntity(member));
+            // 유효성 검증
+            regularReservationValidator.validateCreateRegularReservation(regularReservationCreateRequest);
 
-        generateDailyReservations(regularReservationCreateRequest, member, savedRegularReservation);
+            // 정기 예약 저장
+            RegularReservation savedRegularReservation = regularReservationRepository.save(regularReservationCreateRequest.toEntity(teamLeader));
 
-        return savedRegularReservation.getId();
+            // 일간 예약 저장
+            generateDailyReservations(savedRegularReservation);
+
+            responses.add(RegularReservationResponse.from(savedRegularReservation));
+        }
+        return responses;
     }
 
-    // 정기 예약 삭제(팀장 or 관리자만 가능)
+    // 정기 예약 삭제(관리자만 가능)
     @Transactional
     public void deleteRegularReservation(List<Long> regularReservationIds) {
         Member loginMember = memberUtil.getLoggedInMember();
 
-        List<RegularReservation> regularReservations = regularReservationValidator.validateAndGetAllExists(regularReservationIds);
+        regularReservationValidator.validateDeletable(loginMember);
+
+        List<RegularReservation> regularReservations = regularReservationRepository.findAllById(regularReservationIds);
+
+        regularReservationValidator.validateAndGetAllExists(regularReservationIds, regularReservations);
 
         for (RegularReservation regularReservation : regularReservations) {
-            regularReservationValidator.validateDeletable(regularReservation, loginMember);
-
-            // 연결된 일간 예약도 같이 삭제
+            // 연결된 일간 예약 같이 삭제
             reservationRepository.deleteAllByRegularReservation(regularReservation);
         }
-
         regularReservationRepository.deleteAll(regularReservations);
     }
 
     // 정기예약 기간에 따른 일간 예약 반복 생성
-    private void generateDailyReservations(RegularReservationCreateRequest regularReservationCreateRequest, Member member, RegularReservation savedRegularReservation) {
-        LocalDate current = regularReservationCreateRequest.applyStartDate();
-        while (!current.isAfter(regularReservationCreateRequest.applyEndDate())) {
-            if (current.getDayOfWeek().equals(regularReservationCreateRequest.dayOfWeek())) {
+    private void generateDailyReservations(RegularReservation savedRegularReservation) {
+        LocalDate reservationDate = savedRegularReservation.getApplyStartDate();
+        while (!reservationDate.isAfter(savedRegularReservation.getApplyEndDate())) {
+            if (reservationDate.getDayOfWeek().equals(savedRegularReservation.getDayOfWeek())) {
                 ReservationCreateRequest dto = new ReservationCreateRequest(
-                        regularReservationCreateRequest.regularReservationType(), regularReservationCreateRequest.regularReservationSession(), current,
-                        regularReservationCreateRequest.regularReservationStartTime(), regularReservationCreateRequest.regularReservationEndTime());
+                        savedRegularReservation.getReservationType().name(), savedRegularReservation.getSession().name(), reservationDate,
+                        savedRegularReservation.getStartTime(), savedRegularReservation.getEndTime());
 
                 reservationValidator.validateReservationCreateRequest(dto);
 
                 Reservation reservation = Reservation.builder()
-                        .reservationType(ReservationType.TEAM)
-                        .session(Session.ALL)
-                        .date(current)
-                        .startTime(regularReservationCreateRequest.regularReservationStartTime())
-                        .endTime(regularReservationCreateRequest.regularReservationEndTime())
-                        .member(member)
+                        .reservationType(savedRegularReservation.getReservationType())
+                        .session(savedRegularReservation.getSession())
+                        .date(reservationDate)
+                        .startTime(savedRegularReservation.getStartTime())
+                        .endTime(savedRegularReservation.getEndTime())
+                        .member(savedRegularReservation.getMember())
                         .regularReservation(savedRegularReservation)
                         .build();
 
                 reservationRepository.save(reservation);
             }
-            current = current.plusDays(1);
+            reservationDate = reservationDate.plusDays(7);
         }
     }
 

@@ -1,4 +1,4 @@
-package com.keunsori.keunsoriserver.domain.reservation.domain.vo;
+package com.keunsori.keunsoriserver.domain.common.reservation;
 
 import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.INVALID_RESERVATION_TYPE;
 

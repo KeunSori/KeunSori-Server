@@ -1,7 +1,7 @@
 package com.keunsori.keunsoriserver.domain.reservation.dto.response;
 
 import com.keunsori.keunsoriserver.domain.reservation.domain.Reservation;
-import com.keunsori.keunsoriserver.domain.reservation.domain.vo.ReservationType;
+import com.keunsori.keunsoriserver.domain.common.reservation.ReservationType;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;

@@ -1,8 +1,8 @@
 package com.keunsori.keunsoriserver.domain.admin.regularreservation.dto.request;
 
 import com.keunsori.keunsoriserver.domain.admin.regularreservation.domain.RegularReservation;
-import com.keunsori.keunsoriserver.domain.admin.regularreservation.domain.vo.RegularReservationSession;
-import com.keunsori.keunsoriserver.domain.admin.regularreservation.domain.vo.RegularReservationType;
+import com.keunsori.keunsoriserver.domain.common.reservation.ReservationType;
+import com.keunsori.keunsoriserver.domain.common.reservation.Session;
 import com.keunsori.keunsoriserver.domain.member.domain.Member;
 import com.keunsori.keunsoriserver.global.annotation.ValidEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -13,10 +13,10 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 public record RegularReservationCreateRequest(
-        @ValidEnum(enumClass = RegularReservationType.class, message = "[TEAM, LESSON] 중에 입력해주세요. (대소문자 구분 없음)")
-        String regularReservationType,
-        @ValidEnum(enumClass = RegularReservationSession.class, message = "[VOCAL, DRUM, GUITAR, BASS, KEYBOARD] 중에 입력해주세요. (대소문자 구분 없음)")
-        String regularReservationSession,
+        @ValidEnum(enumClass = ReservationType.class, message = "[TEAM, LESSON] 중에 입력해주세요. (대소문자 구분 없음)")
+        String reservationType,
+        @ValidEnum(enumClass = Session.class, message = "[VOCAL, DRUM, GUITAR, BASS, KEYBOARD] 중에 입력해주세요. (대소문자 구분 없음)")
+        String reservationSession,
         @Schema(example = "MON", type = "string")
         DayOfWeek dayOfWeek,
         @Schema(example = "사무라이 하트", type = "string")
@@ -33,10 +33,10 @@ public record RegularReservationCreateRequest(
         LocalDate applyEndDate
 ) {
     public RegularReservation toEntity(Member member){
-            RegularReservationType regularReservationType = RegularReservationType.from(regularReservationType());
+            ReservationType reservationType = ReservationType.from(reservationType());
             return RegularReservation.builder()
-                    .regularReservationType(regularReservationType)
-                    .regularReservationSession(regularReservationType.equals(RegularReservationType.TEAM) ? RegularReservationSession.ALL : RegularReservationSession.from(regularReservationSession))
+                    .reservationType(reservationType)
+                    .session(reservationType == ReservationType.TEAM ? Session.ALL : Session.from(reservationSession))
                     .dayOfWeek(dayOfWeek)
                     .regularReservationTeamName(regularReservationTeamName)
                     .startTime(regularReservationStartTime)

@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -25,13 +24,13 @@ public class RegularReservationController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> createRegularReservation(@RequestBody @Valid RegularReservationCreateRequest regularReservationCreateRequest) {
-        Long savedId = regularReservationService.createRegularReservation(regularReservationCreateRequest);
-        return ResponseEntity.created(URI.create("/admin/regular-reservation/" + savedId)).build();
+    public ResponseEntity<List<RegularReservationResponse>> createRegularReservation(@RequestBody List<@Valid RegularReservationCreateRequest> regularReservationCreateRequests) {
+        List<RegularReservationResponse> responses = regularReservationService.createRegularReservations(regularReservationCreateRequests);
+        return ResponseEntity.ok().body(responses);
     }
 
     @DeleteMapping
-    public ResponseEntity<Void> deleteRegularReservation(@RequestParam List<Long> regularReservationIds) {
+    public ResponseEntity<Void> deleteRegularReservation(@RequestBody List<Long> regularReservationIds) {
         regularReservationService.deleteRegularReservation(regularReservationIds);
         return ResponseEntity.noContent().build();
     }
