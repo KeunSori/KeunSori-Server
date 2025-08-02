@@ -76,7 +76,7 @@ public class RegularReservationApiTest extends ApiTestWithWeeklyScheduleInit {
         given()
                 .header(AUTHORIZATION, authorizationValue)
                 .header(CONTENT_TYPE, "application/json")
-                .body(mapper.writeValueAsString(regularReservationCreateRequest))
+                .body(mapper.writeValueAsString(List.of(regularReservationCreateRequest)))
         .when()
                 .post("/admin/regular-reservation")
         .then()
@@ -101,12 +101,12 @@ public class RegularReservationApiTest extends ApiTestWithWeeklyScheduleInit {
                 given()
                         .header(AUTHORIZATION, authorizationValue)
                         .header(CONTENT_TYPE, "application/json")
-                        .body(mapper.writeValueAsString(regularReservationCreateRequest))
+                        .body(mapper.writeValueAsString(List.of(regularReservationCreateRequest)))
                 .when()
                         .post("/admin/regular-reservation")
                 .then()
                         .statusCode(HttpStatus.SC_BAD_REQUEST)
-                        .extract().jsonPath().get("message");
+                        .extract().jsonPath().getString("message");
 
         assertThat(errorMessage).isEqualTo(INVALID_REGULAR_RESERVATION_TIME);
     }
@@ -141,23 +141,23 @@ public class RegularReservationApiTest extends ApiTestWithWeeklyScheduleInit {
         given()
                 .header(AUTHORIZATION, authorizationValue)
                 .header(CONTENT_TYPE, "application/json")
-                .body(mapper.writeValueAsString(regularReservationCreateRequest))
+                .body(mapper.writeValueAsString(List.of(regularReservationCreateRequest)))
         .when()
                 .post("/admin/regular-reservation")
         .then()
-                .statusCode(HttpStatus.SC_CREATED);
+                .statusCode(HttpStatus.SC_OK);
 
         // 겹친 정기 예약은 생성 실패
         String errorMessage =
                 given()
                         .header(AUTHORIZATION, authorizationValue)
                         .header(CONTENT_TYPE, "application/json")
-                        .body(mapper.writeValueAsString(regularReservationCreateRequest2))
+                        .body(mapper.writeValueAsString(List.of(regularReservationCreateRequest2)))
                 .when()
                         .post("/admin/regular-reservation")
                 .then()
                         .statusCode(HttpStatus.SC_BAD_REQUEST)
-                        .extract().jsonPath().get("message");
+                        .extract().jsonPath().getString("message");
 
         assertThat(errorMessage).isEqualTo(ANOTHER_REGULAR_RESERVATION_ALREADY_EXISTS);
     }
@@ -177,18 +177,16 @@ public class RegularReservationApiTest extends ApiTestWithWeeklyScheduleInit {
         );
 
         // 정기 예약 생성
-        String location =
+        Long id =
                 given()
                         .header(AUTHORIZATION, authorizationValue)
                         .header(CONTENT_TYPE, "application/json")
-                        .body(mapper.writeValueAsString(regularReservationCreateRequest))
+                        .body(mapper.writeValueAsString(List.of(regularReservationCreateRequest)))
                 .when()
                         .post("/admin/regular-reservation")
                 .then()
-                        .statusCode(HttpStatus.SC_CREATED)
-                        .extract().header("Location");
-
-        Long id = Long.parseLong(location.substring(location.lastIndexOf("/") + 1));
+                        .statusCode(HttpStatus.SC_OK)
+                        .extract().jsonPath().getList("regularReservationId", Long.class).get(0);
 
         // 정기 예약 삭제
         given()
