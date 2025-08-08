@@ -302,13 +302,13 @@ public class AdminReservationApiTest extends ApiTestWithWeeklyScheduleInit {
         RegularReservationCreateRequest regularRequest = new RegularReservationCreateRequest(
                 "TEAM",
                 "ALL",
-                "MON",
+                DayOfWeek.from(LocalDate.of(2999,8,18)).toString(),
                 "테스트팀",
                 LocalTime.of(10,0),
                 LocalTime.of(11,0),
                 "C000001",
-                LocalDate.now().plusDays(1),
-                LocalDate.now().plusDays(15)
+                LocalDate.of(2999,8,15),
+                LocalDate.of(2999,9,30)
         );
 
         WeeklyScheduleManagementRequest request = new WeeklyScheduleManagementRequest(
@@ -333,7 +333,7 @@ public class AdminReservationApiTest extends ApiTestWithWeeklyScheduleInit {
         Reservation reservation = Reservation.builder()
                 .session(Session.ALL)
                 .reservationType(ReservationType.TEAM)
-                .date(LocalDate.now().plusDays(1))
+                .date(LocalDate.of(2999, 8, 15))
                 .startTime(LocalTime.of(10,0))
                 .endTime(LocalTime.of(11,0))
                 .build();
@@ -342,13 +342,13 @@ public class AdminReservationApiTest extends ApiTestWithWeeklyScheduleInit {
         RegularReservationCreateRequest request = new RegularReservationCreateRequest(
                 "TEAM",
                 "ALL",
-                DayOfWeek.from(LocalDate.now().plusDays(1)).toString(),
+                DayOfWeek.from(LocalDate.of(2999, 8, 15)).toString(),
                 "충돌 정기 예약",
                 LocalTime.of(10,0),
                 LocalTime.of(11,0),
                 "C000001",
-                LocalDate.now().plusDays(1),
-                LocalDate.now().plusDays(15)
+                LocalDate.of(2999,8,15),
+                LocalDate.of(2999,9,30)
         );
 
         WeeklyScheduleManagementRequest payload = new WeeklyScheduleManagementRequest(
@@ -362,9 +362,9 @@ public class AdminReservationApiTest extends ApiTestWithWeeklyScheduleInit {
                 .header(AUTHORIZATION, authorizationValue)
                 .header(CONTENT_TYPE, "application/json")
                 .body(mapper.writeValueAsString(payload))
-                .when()
+        .when()
                 .put("/admin/reservation/weekly-schedule/management")
-                .then()
+        .then()
                 .statusCode(HttpStatus.SC_BAD_REQUEST)
                 .extract().jsonPath().getString("message");
 
@@ -376,7 +376,7 @@ public class AdminReservationApiTest extends ApiTestWithWeeklyScheduleInit {
         Reservation reservation = Reservation.builder()
                 .session(Session.ALL)
                 .reservationType(ReservationType.TEAM)
-                .date(LocalDate.now().plusDays(1))
+                .date(LocalDate.of(2999,8,15))
                 .startTime(LocalTime.of(10,0))
                 .endTime(LocalTime.of(11,0))
                 .build();
@@ -385,13 +385,13 @@ public class AdminReservationApiTest extends ApiTestWithWeeklyScheduleInit {
         RegularReservationCreateRequest request = new RegularReservationCreateRequest(
                 "TEAM",
                 "ALL",
-                DayOfWeek.from(LocalDate.now().plusDays(1)).toString(),
+                DayOfWeek.from(LocalDate.of(2999,8,15)).toString(),
                 "덮어쓰기예약",
                 LocalTime.of(10,0),
                 LocalTime.of(11,0),
                 "C000001",
-                LocalDate.now().plusDays(1),
-                LocalDate.now().plusDays(15)
+                LocalDate.of(2999,8,15),
+                LocalDate.of(2999,9,30)
         );
 
         WeeklyScheduleManagementRequest payload = new WeeklyScheduleManagementRequest(
@@ -410,7 +410,7 @@ public class AdminReservationApiTest extends ApiTestWithWeeklyScheduleInit {
                 .then()
                 .statusCode(HttpStatus.SC_OK);
 
-        List<Reservation> reservations = reservationRepository.findAllByDate(LocalDate.now().plusDays(1));
+        List<Reservation> reservations = reservationRepository.findAllByDate(LocalDate.of(2999, 8, 15));
         Assertions.assertThat(reservations).anyMatch(r -> r.getReservationType() == ReservationType.TEAM);
     }
 
@@ -419,7 +419,7 @@ public class AdminReservationApiTest extends ApiTestWithWeeklyScheduleInit {
     void 요일별_정기예약_조회_성공(){
         given()
                 .header(AUTHORIZATION, authorizationValue)
-                .queryParam("dayOfWeek", "MON")
+                .queryParam("dayOfWeek", DayOfWeek.from(LocalDate.of(2999, 8, 15)).toString())
                 .when()
                 .get("/admin/reservation/weekly-schedule/by-day")
                 .then()
