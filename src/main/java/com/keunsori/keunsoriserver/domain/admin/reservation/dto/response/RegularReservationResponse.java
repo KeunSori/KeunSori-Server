@@ -1,8 +1,8 @@
-package com.keunsori.keunsoriserver.domain.admin.regularreservation.dto.response;
+package com.keunsori.keunsoriserver.domain.admin.reservation.dto.response;
 
-import com.keunsori.keunsoriserver.domain.admin.regularreservation.domain.RegularReservation;
-import com.keunsori.keunsoriserver.domain.common.reservation.ReservationType;
-import com.keunsori.keunsoriserver.domain.common.reservation.Session;
+import com.keunsori.keunsoriserver.domain.admin.reservation.domain.RegularReservation;
+import com.keunsori.keunsoriserver.domain.admin.reservation.domain.vo.ReservationType;
+import com.keunsori.keunsoriserver.domain.admin.reservation.domain.vo.Session;
 
 import java.time.DayOfWeek;
 import java.time.format.DateTimeFormatter;

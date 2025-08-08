@@ -1,10 +1,11 @@
-package com.keunsori.keunsoriserver.domain.admin.regularreservation.dto.request;
+package com.keunsori.keunsoriserver.domain.admin.reservation.dto.request;
 
-import com.keunsori.keunsoriserver.domain.admin.regularreservation.domain.RegularReservation;
-import com.keunsori.keunsoriserver.domain.common.reservation.ReservationType;
-import com.keunsori.keunsoriserver.domain.common.reservation.Session;
+import com.keunsori.keunsoriserver.domain.admin.reservation.domain.RegularReservation;
+import com.keunsori.keunsoriserver.domain.admin.reservation.domain.vo.ReservationType;
+import com.keunsori.keunsoriserver.domain.admin.reservation.domain.vo.Session;
 import com.keunsori.keunsoriserver.domain.member.domain.Member;
 import com.keunsori.keunsoriserver.global.annotation.ValidEnum;
+import com.keunsori.keunsoriserver.global.util.DayOfWeekUtil;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 
@@ -17,8 +18,8 @@ public record RegularReservationCreateRequest(
         String reservationType,
         @ValidEnum(enumClass = Session.class, message = "[VOCAL, DRUM, GUITAR, BASS, KEYBOARD] 중에 입력해주세요. (대소문자 구분 없음)")
         String reservationSession,
-        @Schema(example = "MON", type = "string")
-        DayOfWeek dayOfWeek,
+        @ValidEnum(enumClass = DayOfWeek.class, message = "[MON, TUE, WED, THU, FRI, SAT, SUN] 중에 입력주세요. (대소문자 구분 없음)")
+        String dayOfWeek,
         @Schema(example = "사무라이 하트", type = "string")
         String regularReservationTeamName,
         @Schema(example = "15:00", type = "string")
@@ -34,6 +35,7 @@ public record RegularReservationCreateRequest(
 ) {
     public RegularReservation toEntity(Member member){
             ReservationType reservationType = ReservationType.from(reservationType());
+            DayOfWeek dayOfWeek = DayOfWeekUtil.fromString(dayOfWeek());
             return RegularReservation.builder()
                     .reservationType(reservationType)
                     .session(reservationType == ReservationType.TEAM ? Session.ALL : Session.from(reservationSession))

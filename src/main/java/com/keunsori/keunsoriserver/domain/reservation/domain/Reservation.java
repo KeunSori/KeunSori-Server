@@ -1,6 +1,6 @@
 package com.keunsori.keunsoriserver.domain.reservation.domain;
 
-import com.keunsori.keunsoriserver.domain.admin.regularreservation.domain.RegularReservation;
+import com.keunsori.keunsoriserver.domain.admin.reservation.domain.RegularReservation;
 import com.keunsori.keunsoriserver.domain.admin.reservation.domain.DailySchedule;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,8 +14,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 
 import com.keunsori.keunsoriserver.domain.member.domain.Member;
-import com.keunsori.keunsoriserver.domain.common.reservation.ReservationType;
-import com.keunsori.keunsoriserver.domain.common.reservation.Session;
+import com.keunsori.keunsoriserver.domain.admin.reservation.domain.vo.ReservationType;
+import com.keunsori.keunsoriserver.domain.admin.reservation.domain.vo.Session;
 
 import java.time.LocalDate;
 import java.time.LocalTime;

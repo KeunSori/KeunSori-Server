@@ -31,7 +31,7 @@ public record WeeklyScheduleResponse(
         );
     }
 
-    public int getDayOfWeekNum() {
+    public int dayOfWeekNum() {
         return dayOfWeekNum;
     }
 }

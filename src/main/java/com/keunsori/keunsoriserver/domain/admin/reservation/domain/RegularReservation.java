@@ -1,7 +1,7 @@
-package com.keunsori.keunsoriserver.domain.admin.regularreservation.domain;
+package com.keunsori.keunsoriserver.domain.admin.reservation.domain;
 
-import com.keunsori.keunsoriserver.domain.common.reservation.ReservationType;
-import com.keunsori.keunsoriserver.domain.common.reservation.Session;
+import com.keunsori.keunsoriserver.domain.admin.reservation.domain.vo.ReservationType;
+import com.keunsori.keunsoriserver.domain.admin.reservation.domain.vo.Session;
 import com.keunsori.keunsoriserver.domain.member.domain.Member;
 import com.keunsori.keunsoriserver.global.exception.MemberException;
 import com.keunsori.keunsoriserver.global.exception.RegularReservationException;

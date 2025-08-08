@@ -41,6 +41,7 @@ public class ErrorMessage {
     public static final String INVALID_REGULAR_RESERVATION_DATE = "정기 예약 날짜는 과거 날짜면 안됩니다.";
     public static final String ANOTHER_REGULAR_RESERVATION_ALREADY_EXISTS = "해당 시간에 이미 다른 정기 예약이 존재합니다.";
     public static final String PARTIAL_REGULAR_RESERVATION_MISSING = "일부 정기 예약이 존재하지 않습니다.";
+    public static final String REGULAR_RESERVATION_ACCESS_DENIED = "정기 예약 전체 조회는 관리자만 가능합니다.";
 
 
     // Auth

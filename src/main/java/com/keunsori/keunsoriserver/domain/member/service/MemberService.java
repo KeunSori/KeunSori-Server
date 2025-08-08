@@ -1,6 +1,6 @@
 package com.keunsori.keunsoriserver.domain.member.service;
 
-import com.keunsori.keunsoriserver.domain.admin.regularreservation.repository.RegularReservationRepository;
+import com.keunsori.keunsoriserver.domain.admin.reservation.repository.RegularReservationRepository;
 import com.keunsori.keunsoriserver.domain.member.domain.Member;
 import com.keunsori.keunsoriserver.domain.member.dto.request.MemberPasswordUpdateRequest;
 import com.keunsori.keunsoriserver.domain.member.dto.response.MyPageResponse;
@@ -13,10 +13,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import static com.keunsori.keunsoriserver.global.constant.RequestFormatConstant.PASSWORD_REGEX;
 import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.*;
 
 @Service

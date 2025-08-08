@@ -1,8 +1,8 @@
-package com.keunsori.keunsoriserver.domain.admin.regularreservation.domain.validator;
+package com.keunsori.keunsoriserver.domain.admin.reservation.domain.validator;
 
-import com.keunsori.keunsoriserver.domain.admin.regularreservation.domain.RegularReservation;
-import com.keunsori.keunsoriserver.domain.admin.regularreservation.dto.request.RegularReservationCreateRequest;
-import com.keunsori.keunsoriserver.domain.admin.regularreservation.repository.RegularReservationRepository;
+import com.keunsori.keunsoriserver.domain.admin.reservation.domain.RegularReservation;
+import com.keunsori.keunsoriserver.domain.admin.reservation.dto.request.RegularReservationCreateRequest;
+import com.keunsori.keunsoriserver.domain.admin.reservation.repository.RegularReservationRepository;
 import com.keunsori.keunsoriserver.domain.admin.reservation.domain.WeeklySchedule;
 import com.keunsori.keunsoriserver.domain.admin.reservation.repository.WeeklyScheduleRepository;
 import com.keunsori.keunsoriserver.domain.member.domain.Member;
@@ -27,13 +27,13 @@ public class RegularReservationValidator {
         validateTimeRange(request.regularReservationStartTime(), request.regularReservationEndTime());
 
         // 요일별 스케줄 존재 및 활성화 여부 검증
-        WeeklySchedule weeklySchedule = validateDayIsActive(request.dayOfWeek());
+        WeeklySchedule weeklySchedule = validateDayIsActive(DayOfWeek.valueOf(request.dayOfWeek()));
 
         // 스케줄 시간 범위 내에 있는지 검증
         weeklySchedule.validateTimeWithin(request.regularReservationStartTime(), request.regularReservationEndTime());
 
         // 중복 예약 여부 검증
-        validateNoOverlap(request.dayOfWeek(), request.regularReservationStartTime(), request.regularReservationEndTime());
+        validateNoOverlap(DayOfWeek.valueOf(request.dayOfWeek()), request.regularReservationStartTime(), request.regularReservationEndTime());
     }
 
     // 정기 예약 삭제 시 관리자 여부 검증
@@ -65,6 +65,12 @@ public class RegularReservationValidator {
     private void validateNoOverlap(DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime) {
         if(regularReservationRepository.existsOverlapReservation(dayOfWeek, startTime, endTime)){
             throw new RegularReservationException(ANOTHER_REGULAR_RESERVATION_ALREADY_EXISTS);
+        }
+    }
+
+    public void validateAdminOrThrow(Member loginMember) {
+        if(!loginMember.isAdmin()){
+            throw new RegularReservationException(REGULAR_RESERVATION_ACCESS_DENIED);
         }
     }
 }

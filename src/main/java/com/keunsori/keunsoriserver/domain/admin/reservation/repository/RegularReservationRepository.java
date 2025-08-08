@@ -1,6 +1,6 @@
-package com.keunsori.keunsoriserver.domain.admin.regularreservation.repository;
+package com.keunsori.keunsoriserver.domain.admin.reservation.repository;
 
-import com.keunsori.keunsoriserver.domain.admin.regularreservation.domain.RegularReservation;
+import com.keunsori.keunsoriserver.domain.admin.reservation.domain.RegularReservation;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -13,6 +13,8 @@ public interface RegularReservationRepository extends JpaRepository<RegularReser
 
     // 팀장 학번으로 정기예약 조회 (팀장 예약 현황에서 사용)
     List<RegularReservation> findAllByMember_StudentId(String studentId);
+
+    List<RegularReservation> findAllByDayOfWeekOrderByStartTime(DayOfWeek dayOfWeek);
 
 
     @Query("""

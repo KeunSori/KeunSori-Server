@@ -2,8 +2,8 @@ package com.keunsori.keunsoriserver.domain.reservation.dto.requset;
 
 import com.keunsori.keunsoriserver.domain.member.domain.Member;
 import com.keunsori.keunsoriserver.domain.reservation.domain.Reservation;
-import com.keunsori.keunsoriserver.domain.common.reservation.ReservationType;
-import com.keunsori.keunsoriserver.domain.common.reservation.Session;
+import com.keunsori.keunsoriserver.domain.admin.reservation.domain.vo.ReservationType;
+import com.keunsori.keunsoriserver.domain.admin.reservation.domain.vo.Session;
 import com.keunsori.keunsoriserver.global.annotation.ValidEnum;
 
 import io.swagger.v3.oas.annotations.media.Schema;
