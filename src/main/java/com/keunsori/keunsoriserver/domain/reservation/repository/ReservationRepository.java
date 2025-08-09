@@ -52,7 +52,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     @Modifying
     @Query("""
         DELETE FROM Reservation r
-        WHERE  r.date IN: dates
+        WHERE  r.date IN :dates
         AND r.startTime < :endTime
         AND r.endTime > :startTime
 """)
