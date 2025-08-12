@@ -12,6 +12,8 @@ public class ErrorMessage {
     public static final String INVALID_CURRENT_PASSWORD = "현재 비밀번호가 올바르지 않습니다.";
     public static final String STUDENT_ID_DOES_NOT_MATCH_WITH_EMAIL = "가입한 학번과 이메일이 일치하지 않습니다";
     public static final String PASSWORD_SAME_AS_OLD = "새 비밀번호가 기존 비밀번호와 동일합니다.";
+    public static final String MEMBER_CANNOT_BE_DELETED_BECAUSE_OF_REGULAR_RESERVATIONS = "정기 예약 팀장인 상태에서는 회원 탈퇴가 불가능합니다.";
+    public static final String MEMBER_IS_NOT_ADMIN = "관리자 계정이 아닙니다.";
 
     // Admin Member
     public static final String INVALID_STATUS_FOR_APPROVAL = "회원이 승인 대기 상태가 아닙니다.";
@@ -25,10 +27,21 @@ public class ErrorMessage {
     public static final String INVALID_RESERVATION_TYPE = "예약 타입이 잘못되었습니다.";
     public static final String INVALID_RESERVATION_DATE = "예약 날짜는 과거 날짜면 안됩니다.";
     public static final String INVALID_SESSION = "존재하지 않는 세션입니다.";
+    public static final String RESERVATION_NOT_EQUALS_TEAM_LEADER = "정기 예약 삭제는 팀장만 가능합니다.";
 
     // Admin Reservation
     public static final String INVALID_DATE_SCHEDULE = "설정하는 날짜가 이미 지난 날짜입니다.";
     public static final String INVALID_SCHEDULE_TIME = "시작 시간과 끝 시간의 순서가 올바르지 않습니다.";
+    public static final String PARTIAL_RESERVATION_NOT_FOUND = "삭제하려는 일부 예약이 존재하지 않습니다.";
+
+    // Regular Reservation
+    public static final String REGULAR_RESERVATION_NOT_DELETABLE = "정기 예약은 관리자 또는 예약 팀장만 삭제할 수 있습니다.";
+    public static final String INVALID_REGULAR_RESERVATION_TIME = "정기 예약 종료 시간은 예약 시작 시간보다 나중이어야 합니다.";
+    public static final String INVALID_REGULAR_RESERVATION_DATE = "정기 예약 날짜는 과거 날짜면 안됩니다.";
+    public static final String ANOTHER_REGULAR_RESERVATION_ALREADY_EXISTS = "해당 시간에 이미 다른 정기 예약이 존재합니다.";
+    public static final String PARTIAL_REGULAR_RESERVATION_MISSING = "일부 정기 예약이 존재하지 않습니다.";
+    public static final String REGULAR_RESERVATION_ACCESS_DENIED = "정기 예약 전체 조회는 관리자만 가능합니다.";
+
 
     // Auth
     public static final String STUDENT_ID_NOT_EXISTS = "존재하지 않는 학번입니다.";

@@ -64,4 +64,11 @@ public class GlobalExceptionHandler {
         log.error(ex.getMessage(), ex);
         return ResponseEntity.internalServerError().body(response);
     }
+
+    @ExceptionHandler(RegularReservationException.class)
+    public ResponseEntity<ErrorResponse> handleRegularReservationException(RegularReservationException ex) {
+        ErrorResponse response = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
+        log.info(ex.getMessage());
+        return ResponseEntity.badRequest().body(response);
+    }
 }

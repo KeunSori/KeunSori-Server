@@ -51,6 +51,12 @@ public class ReservationController {
         return ResponseEntity.noContent().build();
     }
 
+    @DeleteMapping
+    public ResponseEntity<Void> deleteMyReservations(@RequestParam List<Long> reservationIds) {
+        reservationService.deleteMyReservations(reservationIds);
+        return ResponseEntity.noContent().build();
+    }
+
     @PutMapping("/{reservationId}")
     public ResponseEntity<Void> updateReservation(@PathVariable(name = "reservationId") Long reservationId,
             @RequestBody @Valid ReservationUpdateRequest request) {
