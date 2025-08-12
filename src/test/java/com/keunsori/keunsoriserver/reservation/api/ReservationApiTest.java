@@ -9,8 +9,8 @@ import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.HttpHeaders.LOCATION;
 
 import com.keunsori.keunsoriserver.domain.reservation.domain.Reservation;
-import com.keunsori.keunsoriserver.domain.admin.reservation.domain.vo.ReservationType;
-import com.keunsori.keunsoriserver.domain.admin.reservation.domain.vo.Session;
+import com.keunsori.keunsoriserver.domain.reservation.domain.vo.ReservationType;
+import com.keunsori.keunsoriserver.domain.reservation.domain.vo.Session;
 import com.keunsori.keunsoriserver.domain.reservation.repository.ReservationRepository;
 import org.apache.http.HttpStatus;
 import org.assertj.core.api.Assertions;

@@ -8,7 +8,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import com.keunsori.keunsoriserver.domain.admin.reservation.domain.vo.ReservationType;
+import com.keunsori.keunsoriserver.domain.reservation.domain.vo.ReservationType;
 import com.keunsori.keunsoriserver.global.exception.ReservationException;
 
 import java.util.stream.Stream;

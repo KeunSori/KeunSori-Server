@@ -1,4 +1,4 @@
-package com.keunsori.keunsoriserver.domain.admin.reservation.domain.vo;
+package com.keunsori.keunsoriserver.domain.reservation.domain.vo;
 
 import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.INVALID_SESSION;
 
