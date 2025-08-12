@@ -43,7 +43,7 @@ public class RegularReservationValidator {
     }
 
 
-    // 정기 예약 엔티티 다중 삭제 시 선택 수와 조회 수가 같은지 검증
+    // 삭제하려는 id 가 모두 존재하는 id 인지 검증
     public void validateAllIdExists(List<Long> ids, List<RegularReservation> found) {
         if (found.size() != ids.size()) {
             throw new RegularReservationException(PARTIAL_REGULAR_RESERVATION_MISSING);

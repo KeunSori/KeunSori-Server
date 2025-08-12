@@ -33,8 +33,8 @@ public record RegularReservationResponse(
                 regularReservation.getRegularReservationTeamName(),
                 regularReservation.getApplyStartDate().format(DATE_TIME_FORMATTER),
                 regularReservation.getApplyEndDate().format(DATE_TIME_FORMATTER),
-                regularReservation.getMemberId(),
-                regularReservation.getStudentId()
+                regularReservation.getTeamLeaderId(),
+                regularReservation.getTeamLeaderStudentId()
         );
     }
 }

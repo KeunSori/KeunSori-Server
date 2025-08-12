@@ -3,7 +3,6 @@ package com.keunsori.keunsoriserver.domain.admin.reservation.domain;
 import com.keunsori.keunsoriserver.domain.admin.reservation.domain.vo.ReservationType;
 import com.keunsori.keunsoriserver.domain.admin.reservation.domain.vo.Session;
 import com.keunsori.keunsoriserver.domain.member.domain.Member;
-import com.keunsori.keunsoriserver.global.exception.MemberException;
 import com.keunsori.keunsoriserver.global.exception.RegularReservationException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -16,7 +15,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.REGULAR_RESERVATION_NOT_DELETABLE;
-import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.STUDENT_ID_INVALID_FORMAT;
 
 @Entity
 @Getter
@@ -81,12 +79,14 @@ public class RegularReservation {
     }
 
     // 팀장 member_id 반환
-    public Long getMemberId() {
+    public Long getTeamLeaderId() {
         return member.getId();
     }
 
     // 팀장 학번 반환
-    public String getStudentId() { return member.getStudentId(); }
+    public String getTeamLeaderStudentId() {
+        return member.getStudentId();
+    }
     
     // 특정 시간 범위 밖에 있는지 확인
     public boolean isOutOfScheduleTime(LocalTime scheduleStartTime, LocalTime scheduleEndTime) {

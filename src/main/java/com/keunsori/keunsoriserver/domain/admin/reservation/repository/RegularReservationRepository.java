@@ -23,10 +23,10 @@ public interface RegularReservationRepository extends JpaRepository<RegularReser
 
     @Query("""
             SELECT COUNT(r) > 0
-            from RegularReservation r
+            FROM RegularReservation r
             WHERE r.dayOfWeek = :day
-            and r.startTime < :end
-            and r.endTime > :start
+            AND r.startTime < :end
+            AND r.endTime > :start
             """)
     boolean existsOverlapOnTemplates(@Param("day") DayOfWeek dayOfWeek, @Param("start") LocalTime startTime, @Param("end") LocalTime endTime);
     
