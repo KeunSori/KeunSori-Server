@@ -6,7 +6,6 @@ import com.keunsori.keunsoriserver.domain.admin.reservation.dto.request.DailySch
 import com.keunsori.keunsoriserver.domain.admin.reservation.dto.request.RegularReservationCreateRequest;
 import com.keunsori.keunsoriserver.domain.admin.reservation.dto.request.WeeklyScheduleManagementRequest;
 import com.keunsori.keunsoriserver.domain.admin.reservation.dto.request.WeeklyScheduleUpdateRequest;
-import com.keunsori.keunsoriserver.domain.admin.reservation.dto.response.WeeklyScheduleManagementResponse;
 import com.keunsori.keunsoriserver.domain.member.domain.Member;
 import com.keunsori.keunsoriserver.domain.member.domain.vo.MemberStatus;
 import com.keunsori.keunsoriserver.domain.member.repository.MemberRepository;
@@ -61,13 +60,53 @@ public class AdminReservationApiTest extends ApiTestWithWeeklyScheduleInit {
     }
 
     @Test
-    void 주간_예약_관리_페이지_반환_성공() {
-        given().
-                header(AUTHORIZATION, authorizationValue).
-                when().
-                get("/admin/reservation/weekly-schedule").
-                then().
-                statusCode(HttpStatus.SC_OK);
+    void 주간_예약_관리_페이지_정기_예약_포함_반환_성공() throws JsonProcessingException {
+        DayOfWeek day = DayOfWeek.MONDAY;
+        WeeklyScheduleUpdateRequest schedule = new WeeklyScheduleUpdateRequest(
+                day.getValue() % 7,
+                true,
+                LocalTime.of(9,0),
+                LocalTime.of(23,0)
+        );
+
+        RegularReservationCreateRequest regularReservation = new RegularReservationCreateRequest(
+                "TEAM",
+                "ALL",
+                day.toString(),
+                "테스트팀",
+                LocalTime.of(10,0),
+                LocalTime.of(11,0),
+                "C000001",
+                LocalDate.of(2999, 8, 11),
+                LocalDate.of(2999, 9, 30)
+        );
+
+        WeeklyScheduleManagementRequest payload = new WeeklyScheduleManagementRequest(
+                List.of(schedule),
+                List.of(regularReservation),
+                List.of()
+        );
+
+        given()
+                .header(AUTHORIZATION, authorizationValue)
+                .header(CONTENT_TYPE, "application/json")
+                .body(mapper.writeValueAsString(payload))
+        .when()
+                .put("/admin/reservation/weekly-schedule/management")
+        .then()
+                .statusCode(HttpStatus.SC_OK);
+
+        var json = given()
+                .header(AUTHORIZATION, authorizationValue)
+        .when()
+                .get("/admin/reservation/weekly-schedule")
+        .then()
+                .statusCode(HttpStatus.SC_OK)
+                .extract().jsonPath();
+
+        List<?> mondayRegs = json.getList("[?(@.dayOfWeekNum == 1)].regularReservations[0]");
+        org.assertj.core.api.Assertions.assertThat(mondayRegs).isNotNull();
+        org.assertj.core.api.Assertions.assertThat(mondayRegs).isNotEmpty();
     }
 
     @Test
@@ -76,7 +115,9 @@ public class AdminReservationApiTest extends ApiTestWithWeeklyScheduleInit {
         requests.add(new WeeklyScheduleUpdateRequest(1, true, LocalTime.parse("10:00"), LocalTime.parse("22:00"))); // 월요일 활성화
 
         WeeklyScheduleManagementRequest request = new WeeklyScheduleManagementRequest(
-                requests, List.of(), List.of(), false
+                requests,
+                List.of(),
+                List.of()
         );
 
         given()
@@ -121,7 +162,7 @@ public class AdminReservationApiTest extends ApiTestWithWeeklyScheduleInit {
         );
 
         WeeklyScheduleManagementRequest request = new WeeklyScheduleManagementRequest(
-                schedules, List.of(), List.of(), false
+                schedules, List.of(), List.of()
         );
 
         String errorMessage = given()
@@ -145,7 +186,7 @@ public class AdminReservationApiTest extends ApiTestWithWeeklyScheduleInit {
         );
 
         WeeklyScheduleManagementRequest request = new WeeklyScheduleManagementRequest(
-                schedules, List.of(), List.of(), false
+                schedules, List.of(), List.of()
         );
 
         String errorMessage = given()
@@ -312,8 +353,7 @@ public class AdminReservationApiTest extends ApiTestWithWeeklyScheduleInit {
         WeeklyScheduleManagementRequest request = new WeeklyScheduleManagementRequest(
                 List.of(schedule),
                 List.of(regularRequest),
-                List.of(),
-                false
+                List.of()
         );
 
         given()
@@ -327,57 +367,7 @@ public class AdminReservationApiTest extends ApiTestWithWeeklyScheduleInit {
     }
 
     @Test
-    void 정기예약_force_off_충돌시_실패() throws JsonProcessingException {
-        LocalDate date = LocalDate.of(2999, 8, 15);
-        DayOfWeek day = date.getDayOfWeek();
-
-        reservationRepository.save(Reservation.builder()
-                .session(Session.ALL)
-                .reservationType(ReservationType.TEAM)
-                .date(date)
-                .startTime(LocalTime.of(10, 0))
-                .endTime(LocalTime.of(11, 0))
-                .build());
-
-        WeeklyScheduleUpdateRequest schedule = new WeeklyScheduleUpdateRequest(
-                day.getValue() % 7, true, LocalTime.of(9, 0), LocalTime.of(23, 0)
-        );
-
-        RegularReservationCreateRequest request = new RegularReservationCreateRequest(
-                "TEAM",
-                "ALL",
-                day.toString(),
-                "충돌 정기 예약",
-                LocalTime.of(10, 0),
-                LocalTime.of(11, 0),
-                "C000001",
-                date,
-                LocalDate.of(2999, 9, 30)
-        );
-
-        WeeklyScheduleManagementRequest payload = new WeeklyScheduleManagementRequest(
-                List.of(schedule),
-                List.of(request),
-                List.of(),
-                false
-        );
-
-        String message = given()
-                .header(AUTHORIZATION, authorizationValue)
-                .header(CONTENT_TYPE, "application/json")
-                .body(mapper.writeValueAsString(payload))
-                .when()
-                .put("/admin/reservation/weekly-schedule/management")
-                .then()
-                .statusCode(HttpStatus.SC_BAD_REQUEST)
-                .extract()
-                .jsonPath().getString("message");
-
-        Assertions.assertThat(message).isEqualTo(ANOTHER_RESERVATION_ALREADY_EXISTS);
-    }
-
-    @Test
-    void 정기예약_force_on_충돌_덮어쓰기_성공() throws JsonProcessingException {
+    void 정기예약_충돌_덮어쓰기_성공() throws JsonProcessingException {
         LocalDate date = LocalDate.of(2999, 8, 18);
         DayOfWeek day = date.getDayOfWeek();
         Member teamLeader = memberRepository.findByStudentId("C000001")
@@ -411,8 +401,7 @@ public class AdminReservationApiTest extends ApiTestWithWeeklyScheduleInit {
         WeeklyScheduleManagementRequest payload = new WeeklyScheduleManagementRequest(
                 List.of(schedule),
                 List.of(request),
-                List.of(),
-                true
+                List.of()
         );
 
         given()
@@ -425,21 +414,10 @@ public class AdminReservationApiTest extends ApiTestWithWeeklyScheduleInit {
                 .statusCode(HttpStatus.SC_OK);
 
         List<Reservation> reservations = reservationRepository.findAllByDate(date);
-        Assertions.assertThat(reservations).anyMatch(r -> r.getReservationType() == ReservationType.TEAM
-                && r.getStartTime().equals(LocalTime.of(10, 0))
-                && r.getEndTime().equals(LocalTime.of(11, 0)));
+        Assertions.assertThat( reservations.stream().filter(r ->
+                        r.getStartTime().equals(LocalTime.of(10, 0)) &&
+                                r.getEndTime().equals(LocalTime.of(11, 0))
+                ).count()
+        ).isEqualTo(1L);
     }
-
-
-    @Test
-    void 요일별_정기예약_조회_성공(){
-        given()
-                .header(AUTHORIZATION, authorizationValue)
-                .queryParam("dayOfWeek", DayOfWeek.from(LocalDate.of(2999, 8, 15)).toString())
-                .when()
-                .get("/admin/reservation/weekly-schedule/by-day")
-                .then()
-                .statusCode(HttpStatus.SC_OK);
-    }
-
 }

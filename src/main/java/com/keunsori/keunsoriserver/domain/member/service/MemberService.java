@@ -54,7 +54,7 @@ public class MemberService {
         Member member = memberRepository.findById(id)
                 .orElseThrow(()->new MemberException(MEMBER_NOT_EXISTS_WITH_STUDENT_ID));
 
-        boolean exists = regularReservationRepository.existsByMember_Id(member.getId());
+        boolean exists = regularReservationRepository.existsByMember(member);
         if (exists) {
             throw new MemberException(MEMBER_CANNOT_BE_DELETED_BECAUSE_OF_REGULAR_RESERVATIONS);
         }

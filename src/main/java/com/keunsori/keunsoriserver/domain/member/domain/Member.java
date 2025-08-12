@@ -12,8 +12,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.INVALID_STATUS_FOR_APPROVAL;
-import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.STUDENT_ID_DOES_NOT_MATCH_WITH_EMAIL;
+import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.*;
 
 
 @Entity
@@ -93,5 +92,12 @@ public class Member extends BaseEntity {
     @PrePersist
     public void convertStudentIdToUpperCase() {
         this.studentId = studentId.toUpperCase();
+    }
+
+    // 관리자 검증 로직
+    public void validateAdmin(){
+        if (this.status != MemberStatus.관리자){
+            throw new MemberException(MEMBER_IS_NOT_ADMIN);
+        }
     }
 }

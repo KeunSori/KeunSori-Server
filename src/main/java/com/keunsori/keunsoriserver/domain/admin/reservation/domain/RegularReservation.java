@@ -86,12 +86,7 @@ public class RegularReservation {
     }
 
     // 팀장 학번 반환
-    public String getStudentId() {
-        if (member.getStudentId() == null) {
-            throw new MemberException(STUDENT_ID_INVALID_FORMAT);
-        }
-        return member.getStudentId();
-    }
+    public String getStudentId() { return member.getStudentId(); }
     
     // 특정 시간 범위 밖에 있는지 확인
     public boolean isOutOfScheduleTime(LocalTime scheduleStartTime, LocalTime scheduleEndTime) {

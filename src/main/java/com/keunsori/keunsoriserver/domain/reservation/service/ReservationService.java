@@ -67,23 +67,16 @@ public class ReservationService {
         List<Reservation> reservations = reservationRepository.findAllById(reservationIds);
 
         if (reservations.size() != reservationIds.size()) {
-            throw new ReservationException(RESERVATION_NOT_FOUND);
+            throw new ReservationException(PARTIAL_RESERVATION_NOT_FOUND);
         }
 
         for (Reservation reservation : reservations) {
 
-            // 정기예약 기반인 경우에만 팀장 본인 또는 관리자만 삭제 가능
-            if (reservation.getRegularReservation() != null) {
-                if (!reservation.hasMember(loginMember)) {
+            if (!reservation.hasMember(loginMember)) {
+                if (reservation.getRegularReservation() != null) {
                     throw new ReservationException(RESERVATION_NOT_EQUALS_TEAM_LEADER);
                 }
-            }
-
-            // 일반 개별 예약은 본인만 삭제 가능
-            else {
-                if (!reservation.hasMember(loginMember)) {
-                    throw new ReservationException(RESERVATION_NOT_EQUAL_MEMBER);
-                }
+                throw new ReservationException(RESERVATION_NOT_EQUAL_MEMBER);
             }
         }
 

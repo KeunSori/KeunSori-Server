@@ -13,7 +13,5 @@ public record WeeklyScheduleManagementRequest(
         @Valid
         List<RegularReservationCreateRequest> regularReservationCreateRequestList,
 
-        List<Long> deleteRegularReservationIds,
-
-        boolean force
+        List<Long> deleteRegularReservationIds
 ) {}

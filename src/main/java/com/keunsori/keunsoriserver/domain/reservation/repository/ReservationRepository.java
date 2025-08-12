@@ -49,6 +49,21 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             + "OR   :start_time BETWEEN r.startTime AND r.endTime)")
     boolean existsAnotherReservationAtDateAndTimePeriodWithSession(@Param("date") LocalDate date, @Param("session") Session session, @Param("start_time") LocalTime startTime, @Param("end_time") LocalTime endTime);
 
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("""
+        DELETE FROM Reservation r
+        WHERE r.date = :date
+          AND r.session = :session
+          AND r.startTime < :endTime
+          AND r.endTime > :startTime
+    """)
+     void deleteOverlapping(
+            @Param("date") LocalDate date,
+            @Param("session") Session session,
+            @Param("startTime") LocalTime startTime,
+            @Param("endTime") LocalTime endTime
+    );
+
     @Modifying
     @Query("""
         DELETE FROM Reservation r

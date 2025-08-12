@@ -7,10 +7,12 @@ import com.keunsori.keunsoriserver.domain.admin.reservation.domain.WeeklySchedul
 import com.keunsori.keunsoriserver.domain.admin.reservation.repository.WeeklyScheduleRepository;
 import com.keunsori.keunsoriserver.domain.member.domain.Member;
 import com.keunsori.keunsoriserver.global.exception.RegularReservationException;
+import com.keunsori.keunsoriserver.global.exception.ReservationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -26,25 +28,23 @@ public class RegularReservationValidator {
     public void validateCreateRegularReservation(RegularReservationCreateRequest request) {
         validateTimeRange(request.regularReservationStartTime(), request.regularReservationEndTime());
 
+        validateDateRange(request.applyStartDate(), request.applyEndDate());
+
+        DayOfWeek day = DayOfWeek.valueOf(request.dayOfWeek());
+
         // 요일별 스케줄 존재 및 활성화 여부 검증
-        WeeklySchedule weeklySchedule = validateDayIsActive(DayOfWeek.valueOf(request.dayOfWeek()));
+        WeeklySchedule weeklySchedule = validateDayIsActive(day);
 
         // 스케줄 시간 범위 내에 있는지 검증
         weeklySchedule.validateTimeWithin(request.regularReservationStartTime(), request.regularReservationEndTime());
 
-        // 중복 예약 여부 검증
-        validateNoOverlap(DayOfWeek.valueOf(request.dayOfWeek()), request.regularReservationStartTime(), request.regularReservationEndTime());
+        // 정기 예약 템플릿끼리의 중복 예약 여부 검증
+        validateNoOverlapWithRegularTemplates(day, request.regularReservationStartTime(), request.regularReservationEndTime());
     }
 
-    // 정기 예약 삭제 시 관리자 여부 검증
-    public void validateDeletable(Member loginMember){
-        if (!loginMember.isAdmin()) {
-            throw new RegularReservationException(REGULAR_RESERVATION_NOT_DELETABLE);
-        }
-    }
 
     // 정기 예약 엔티티 다중 삭제 시 선택 수와 조회 수가 같은지 검증
-    public void validateAndGetAllExists(List<Long> ids, List<RegularReservation> found) {
+    public void validateAllIdExists(List<Long> ids, List<RegularReservation> found) {
         if (found.size() != ids.size()) {
             throw new RegularReservationException(PARTIAL_REGULAR_RESERVATION_MISSING);
         }
@@ -61,18 +61,19 @@ public class RegularReservationValidator {
                 .orElseThrow(() -> new RegularReservationException(INVALID_REGULAR_RESERVATION_DATE));
     }
 
-
-    private void validateNoOverlap(DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime) {
-        if(regularReservationRepository.existsOverlapReservation(dayOfWeek, startTime, endTime)){
-            throw new RegularReservationException(ANOTHER_REGULAR_RESERVATION_ALREADY_EXISTS);
+    private void validateDateRange (LocalDate start, LocalDate end) {
+        if(start == null || end == null || end.isBefore(start)) {
+            throw new ReservationException(INVALID_REGULAR_RESERVATION_DATE);
         }
     }
 
-    public void validateAdminOrThrow(Member loginMember) {
-        if(!loginMember.isAdmin()){
-            throw new RegularReservationException(REGULAR_RESERVATION_ACCESS_DENIED);
+    private void validateNoOverlapWithRegularTemplates(DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime) {
+        boolean exists = regularReservationRepository.existsOverlapOnTemplates(dayOfWeek, startTime, endTime);
+        if(exists){
+            throw new ReservationException(ANOTHER_REGULAR_RESERVATION_ALREADY_EXISTS);
         }
     }
+
 }
 
 

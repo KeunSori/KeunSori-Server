@@ -1,8 +1,10 @@
 package com.keunsori.keunsoriserver.domain.admin.reservation.repository;
 
 import com.keunsori.keunsoriserver.domain.admin.reservation.domain.RegularReservation;
+import com.keunsori.keunsoriserver.domain.member.domain.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.time.DayOfWeek;
 import java.time.LocalTime;
@@ -17,20 +19,15 @@ public interface RegularReservationRepository extends JpaRepository<RegularReser
     List<RegularReservation> findAllByDayOfWeekOrderByStartTime(DayOfWeek dayOfWeek);
 
 
+    boolean existsByMember(Member member);
+
     @Query("""
-        SELECT COUNT(r) > 0
-        FROM RegularReservation r
-        WHERE r.dayOfWeek = :dayOfWeek
-        AND r.startTime < :endTime
-        AND r.endTime > :startTime
-        """)
-    boolean existsOverlapReservation(
-            DayOfWeek dayOfWeek,
-            LocalTime startTime,
-            LocalTime endTime
-    );
-
-    boolean existsByMember_Id(Long memberId);
-
+            SELECT COUNT(r) > 0
+            from RegularReservation r
+            WHERE r.dayOfWeek = :day
+            and r.startTime < :end
+            and r.endTime > :start
+            """)
+    boolean existsOverlapOnTemplates(@Param("day") DayOfWeek dayOfWeek, @Param("start") LocalTime startTime, @Param("end") LocalTime endTime);
     
 }

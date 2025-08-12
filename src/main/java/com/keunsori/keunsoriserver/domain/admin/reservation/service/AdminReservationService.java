@@ -1,5 +1,6 @@
 package com.keunsori.keunsoriserver.domain.admin.reservation.service;
 
+import com.keunsori.keunsoriserver.domain.admin.reservation.domain.WeeklySchedule;
 import com.keunsori.keunsoriserver.domain.admin.reservation.dto.response.RegularReservationResponse;
 import com.keunsori.keunsoriserver.domain.admin.reservation.domain.DailySchedule;
 import com.keunsori.keunsoriserver.domain.admin.reservation.domain.RegularReservation;
@@ -9,7 +10,6 @@ import com.keunsori.keunsoriserver.domain.admin.reservation.dto.request.RegularR
 import com.keunsori.keunsoriserver.domain.admin.reservation.dto.request.WeeklyScheduleManagementRequest;
 import com.keunsori.keunsoriserver.domain.admin.reservation.dto.request.WeeklyScheduleUpdateRequest;
 import com.keunsori.keunsoriserver.domain.admin.reservation.dto.response.DailyAvailableResponse;
-import com.keunsori.keunsoriserver.domain.admin.reservation.dto.response.WeeklyScheduleManagementResponse;
 import com.keunsori.keunsoriserver.domain.admin.reservation.dto.response.WeeklyScheduleResponse;
 import com.keunsori.keunsoriserver.domain.admin.reservation.repository.DailyScheduleRepository;
 import com.keunsori.keunsoriserver.domain.admin.reservation.repository.RegularReservationRepository;
@@ -18,7 +18,6 @@ import com.keunsori.keunsoriserver.domain.member.domain.Member;
 import com.keunsori.keunsoriserver.domain.member.repository.MemberRepository;
 import com.keunsori.keunsoriserver.domain.reservation.domain.Reservation;
 import com.keunsori.keunsoriserver.domain.reservation.domain.validator.ReservationValidator;
-import com.keunsori.keunsoriserver.domain.reservation.dto.requset.ReservationCreateRequest;
 import com.keunsori.keunsoriserver.domain.reservation.repository.ReservationRepository;
 import com.keunsori.keunsoriserver.global.exception.MemberException;
 import com.keunsori.keunsoriserver.global.exception.ReservationException;
@@ -27,6 +26,7 @@ import com.keunsori.keunsoriserver.global.util.MemberUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -53,67 +53,60 @@ public class AdminReservationService {
 
     // 주간 스케줄 + 정기 예약 통합 저장/수정/삭제 메서드
     @Transactional
-    public WeeklyScheduleManagementResponse saveWeeklyScheduleAndRegularReservations(WeeklyScheduleManagementRequest request, boolean force) {
-        boolean hasScheduleChanged = request.weeklyScheduleUpdateRequestList() != null
-                && !request.weeklyScheduleUpdateRequestList().isEmpty();
-        boolean hasCreated = request.regularReservationCreateRequestList() != null
-                && !request.regularReservationCreateRequestList().isEmpty();
-        boolean hasDeleted = request.deleteRegularReservationIds() != null
-                && !request.deleteRegularReservationIds().isEmpty();
+    public void saveWeeklyScheduleAndRegularReservations(WeeklyScheduleManagementRequest request) {
+        boolean hasScheduleChanged = !CollectionUtils.isEmpty(request.weeklyScheduleUpdateRequestList());
+        boolean hasCreated = !CollectionUtils.isEmpty(request.regularReservationCreateRequestList());
+        boolean hasDeleted = !CollectionUtils.isEmpty(request.deleteRegularReservationIds());
 
-        List<RegularReservationResponse> createdRegularReservations = Collections.emptyList();
-        List<Long> deletedRegularReservationIds = Collections.emptyList();
-
-        // 주간 스케줄 저장
-        if(hasScheduleChanged){
+        if(hasScheduleChanged) {
             saveWeeklySchedule(request.weeklyScheduleUpdateRequestList());
         }
 
-        // 정기 예약 생성
         if(hasCreated) {
-            createdRegularReservations = createRegularReservations(request.regularReservationCreateRequestList(), force);
+            createRegularReservations(request.regularReservationCreateRequestList());
         }
 
-        // 정기 예약 삭제
         if(hasDeleted) {
             deleteRegularReservations(request.deleteRegularReservationIds());
-            deletedRegularReservationIds = request.deleteRegularReservationIds();
         }
 
-
-        StringBuilder messageBuilder = new StringBuilder();
-
-        if(hasScheduleChanged){
-            messageBuilder.append("주간 스케줄이 변경되었습니다.");
-        }
-
-        if(hasCreated && hasDeleted) {
-            messageBuilder.append("정기 예약이 생성 및 삭제되었습니다.");
-        } else if (hasCreated) {
-            messageBuilder.append("정기 예약이 생성되었습니다.");
-        } else if (hasDeleted) {
-            messageBuilder.append("정기 예약이 삭제되었습니다.");
-        }
-
-        if(messageBuilder.length() == 0){
-            messageBuilder.append("변경된 내용이 없습니다.");
-        }
-
-        return new WeeklyScheduleManagementResponse(
-                messageBuilder.toString(),
-                createdRegularReservations,
-                deletedRegularReservationIds
-        );
     }
 
-    // 주간 스케줄 조회
+    // 주간 스케줄 조회 + 요일별 정기 예약 조회
     public List<WeeklyScheduleResponse> findAllWeeklySchedules() {
+        Member loginMember = memberUtil.getLoggedInMember();
+        loginMember.validateAdmin();
+
+        // 정기예약 전체 조회 후 요일별 그룹핑
+        Map<DayOfWeek, List<RegularReservationResponse>> regsByDay = regularReservationRepository.findAllByOrderByDayOfWeekAscStartTimeAsc()
+                .stream()
+                .map(RegularReservationResponse::from)
+                .collect(Collectors.groupingBy(
+                        RegularReservationResponse::dayOfWeek,
+                        () -> new EnumMap<>(DayOfWeek.class),
+                        Collectors.toList())
+                );
+
+        Map<DayOfWeek, WeeklySchedule> wsByDay = weeklyScheduleRepository.findAll()
+                .stream()
+                .collect(Collectors.toMap(
+                        WeeklySchedule::getDayOfWeek,
+                        ws -> ws,
+                        (a,b) -> a,
+                        () -> new EnumMap<>(DayOfWeek.class)
+                ));
+
         return Arrays.stream(DayOfWeek.values())
-                .map(day -> weeklyScheduleRepository.findByDayOfWeek(day)
-                        .map(WeeklyScheduleResponse::from)
-                        .orElseGet(() -> WeeklyScheduleResponse.createInactiveDay(day)))
+                .map(day ->{
+                    List<RegularReservationResponse> regs = regsByDay.getOrDefault(day, List.of());
+                    WeeklySchedule ws = wsByDay.get(day);
+                    if (ws != null) {
+                        return WeeklyScheduleResponse.from(ws, regs);
+                    }
+                    return WeeklyScheduleResponse.createInactiveDay(day, regs);
+                })
                 .sorted(Comparator.comparing(WeeklyScheduleResponse::dayOfWeekNum))
-                .collect(Collectors.toList());
+                .toList();
     }
 
 
@@ -168,7 +161,7 @@ public class AdminReservationService {
         List<Reservation> reservations = reservationRepository.findAllById(reservationIds);
 
         if (reservations.size() != reservationIds.size()) {
-            throw new ReservationException(RESERVATION_NOT_FOUND);
+            throw new ReservationException(PARTIAL_RESERVATION_NOT_FOUND);
         }
 
         reservationRepository.deleteAll(reservations);
@@ -193,9 +186,7 @@ public class AdminReservationService {
 
     // 정기 예약 생성
     @Transactional
-    public List<RegularReservationResponse> createRegularReservations(List<RegularReservationCreateRequest> requests, boolean force){
-        List<RegularReservationResponse> responses = new ArrayList<>();
-
+    public void createRegularReservations(List<RegularReservationCreateRequest> requests){
         for (RegularReservationCreateRequest regularReservationCreateRequest :requests) {
             // 학번으로 멤버 조회
             Member teamLeader = memberRepository.findByStudentId(regularReservationCreateRequest.studentId())
@@ -207,39 +198,18 @@ public class AdminReservationService {
             // 정기 예약 저장
             RegularReservation savedRegularReservation = regularReservationRepository.save(regularReservationCreateRequest.toEntity(teamLeader));
 
-            // 기존 예약과의 충돌 여부 확인
-            List<LocalDate> conflicts = findConflictingDates(savedRegularReservation);
-
-            //
-            if(!conflicts.isEmpty() && !force){
-                throw new ReservationException(ANOTHER_RESERVATION_ALREADY_EXISTS);
-            }
-
-            // 기존 예약 삭제하고 정기 예약에 따른 일간 예약 강제 생성
-            if(!conflicts.isEmpty() && force){
-                reservationRepository.deleteAllByDateInAndTimeRange(
-                        conflicts,
-                        savedRegularReservation.getStartTime(),
-                        savedRegularReservation.getEndTime()
-                );
-            }
-
-            // 일간 예약 생성
-            generateDailyReservations(savedRegularReservation);
-
-            responses.add(RegularReservationResponse.from(savedRegularReservation));
+            generateDailyReservationsOverwrite(savedRegularReservation);
         }
-        return responses;
     }
 
     // 정기 예약 삭제
     @Transactional
     public void deleteRegularReservations(List<Long> ids){
         Member loginMember = memberUtil.getLoggedInMember();
-        regularReservationValidator.validateDeletable(loginMember);
+        loginMember.validateAdmin();
 
         List<RegularReservation> regularReservations = regularReservationRepository.findAllById(ids);
-        regularReservationValidator.validateAndGetAllExists(ids, regularReservations);
+        regularReservationValidator.validateAllIdExists(ids, regularReservations);
 
         for (RegularReservation regularReservation : regularReservations) {
             // 연결된 일간 예약 같이 삭제
@@ -248,89 +218,39 @@ public class AdminReservationService {
         regularReservationRepository.deleteAll(regularReservations);
     }
 
-    // 정기 예약과 겹치는 기존 일간 예약 목록 반환
-    private List<LocalDate> findConflictingDates(RegularReservation savedRegularReservation) {
-        List<LocalDate> conflicts = new ArrayList<>();
-        LocalDate today = LocalDate.now();
-        LocalDate reservationDate = savedRegularReservation.getApplyStartDate();
-
-        // 시작 날짜 오늘로 조정
-        if(reservationDate.isBefore(today)){
-            reservationDate = today;
-        }
-
-        // 요일 맞추기
-        while (!reservationDate.getDayOfWeek().equals(savedRegularReservation.getDayOfWeek())) {
-            reservationDate = reservationDate.plusDays(1);
-        }
-
-        // 종료일까지 반복
-        while (!reservationDate.isAfter(savedRegularReservation.getApplyEndDate())) {
-            boolean exists = reservationRepository.existsAnotherReservationAtDateAndTimePeriod(
-                    reservationDate,
-                    savedRegularReservation.getStartTime(),
-                    savedRegularReservation.getEndTime()
-            );
-            if (exists) {
-                conflicts.add(reservationDate);
-            }
-            reservationDate = reservationDate.plusDays(7);
-        }
-        return conflicts;
-    }
-
     // 정기 예약으로부터 일간 예약 생성
-    private void generateDailyReservations(RegularReservation savedRegularReservation) {
+    private void generateDailyReservationsOverwrite(RegularReservation savedRegularReservation) {
+        LocalDate start = savedRegularReservation.getApplyStartDate();
+        LocalDate end = savedRegularReservation.getApplyEndDate();
         LocalDate today = LocalDate.now();
-        LocalDate reservationDate = savedRegularReservation.getApplyStartDate();
 
-        // 시작 날짜를 오늘로 조정
-        if(reservationDate.isBefore(today)){
-            reservationDate = today;
+        if (end.isBefore(today)) {return;}
+        if (start.isBefore(today)) {
+            start = today;
         }
 
-        while(!reservationDate.getDayOfWeek().equals(savedRegularReservation.getDayOfWeek())){
-            reservationDate = reservationDate.plusDays(1);
-        }
+        LocalDate d = start;
+        while (d.getDayOfWeek() != savedRegularReservation.getDayOfWeek()) d = d.plusDays(1);
+        if (d.isAfter(end)) return;
 
-        // 이후 7일씩 반복
-        while(!reservationDate.isAfter(savedRegularReservation.getApplyEndDate())){
-            ReservationCreateRequest dto = new ReservationCreateRequest(
-                    savedRegularReservation.getReservationType().name(),
-                    savedRegularReservation.getSession().name(),
-                    reservationDate,
+        List<Reservation> news = new ArrayList<>();
+        for (; !d.isAfter(end); d = d.plusWeeks(1)) {
+            reservationRepository.deleteOverlapping(
+                    d,
+                    savedRegularReservation.getSession(),
                     savedRegularReservation.getStartTime(),
-                    savedRegularReservation.getEndTime()
-            );
-
-            reservationValidator.validateReservationCreateRequest(dto);
-
-            Reservation reservation = Reservation.builder()
+                    savedRegularReservation.getEndTime());
+            news.add(Reservation.builder()
                     .reservationType(savedRegularReservation.getReservationType())
                     .session(savedRegularReservation.getSession())
-                    .date(reservationDate)
+                    .date(d)
                     .startTime(savedRegularReservation.getStartTime())
                     .endTime(savedRegularReservation.getEndTime())
                     .member(savedRegularReservation.getMember())
                     .regularReservation(savedRegularReservation)
-                    .build();
-
-            reservationRepository.save(reservation);
-
-            reservationDate = reservationDate.plusDays(7);
+                    .build());
         }
-    }
-
-    // 요일별 정기 예약 조회
-    public List<RegularReservationResponse> findRegularReservationsByDay(DayOfWeek dayOfWeek) {
-        Member loginMember = memberUtil.getLoggedInMember();
-
-        regularReservationValidator.validateAdminOrThrow(loginMember);
-
-        return regularReservationRepository.findAllByDayOfWeekOrderByStartTime(dayOfWeek)
-                .stream()
-                .map(RegularReservationResponse::from)
-                .toList();
+        reservationRepository.saveAll(news);
     }
 
     // 검증 메서드
