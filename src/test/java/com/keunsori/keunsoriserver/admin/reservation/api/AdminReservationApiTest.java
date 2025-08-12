@@ -104,7 +104,7 @@ public class AdminReservationApiTest extends ApiTestWithWeeklyScheduleInit {
                 .statusCode(HttpStatus.SC_OK)
                 .extract().jsonPath();
 
-        List<?> mondayRegs = json.getList("[?(@.dayOfWeekNum == 1)].regularReservations[0]");
+        List<?> mondayRegs = json.getList("$[?(@.dayOfWeekNum == 1)].regularReservations[0]");
         org.assertj.core.api.Assertions.assertThat(mondayRegs).isNotNull();
         org.assertj.core.api.Assertions.assertThat(mondayRegs).isNotEmpty();
     }
