@@ -6,6 +6,7 @@ import com.keunsori.keunsoriserver.domain.admin.reservation.repository.RegularRe
 import com.keunsori.keunsoriserver.domain.admin.reservation.domain.WeeklySchedule;
 import com.keunsori.keunsoriserver.domain.admin.reservation.repository.WeeklyScheduleRepository;
 import com.keunsori.keunsoriserver.domain.member.domain.Member;
+import com.keunsori.keunsoriserver.domain.reservation.domain.vo.Session;
 import com.keunsori.keunsoriserver.global.exception.RegularReservationException;
 import com.keunsori.keunsoriserver.global.exception.ReservationException;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +40,13 @@ public class RegularReservationValidator {
         weeklySchedule.validateTimeWithin(request.regularReservationStartTime(), request.regularReservationEndTime());
 
         // 정기 예약 템플릿끼리의 중복 예약 여부 검증
-        validateNoOverlapWithRegularTemplates(day, request.regularReservationStartTime(), request.regularReservationEndTime());
+        validateNoOverlapWithRegularTemplates(
+                day,
+                Session.from(request.reservationSession()),
+                request.regularReservationStartTime(),
+                request.regularReservationEndTime(),
+                request.applyStartDate(),
+                request.applyEndDate());
     }
 
 
@@ -67,8 +74,20 @@ public class RegularReservationValidator {
         }
     }
 
-    private void validateNoOverlapWithRegularTemplates(DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime) {
-        boolean exists = regularReservationRepository.existsOverlapOnTemplates(dayOfWeek, startTime, endTime);
+    private void validateNoOverlapWithRegularTemplates(
+            DayOfWeek dayOfWeek,
+            Session session,
+            LocalTime startTime,
+            LocalTime endTime,
+            LocalDate applyStartDate,
+            LocalDate applyEndDate) {
+        boolean exists = regularReservationRepository.existsOverlapOnTemplates(
+                dayOfWeek,
+                session,
+                startTime,
+                endTime,
+                applyStartDate,
+                applyEndDate);
         if(exists){
             throw new ReservationException(ANOTHER_REGULAR_RESERVATION_ALREADY_EXISTS);
         }
