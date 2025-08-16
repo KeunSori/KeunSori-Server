@@ -58,6 +58,10 @@ public class AdminReservationService {
         boolean hasCreated = !CollectionUtils.isEmpty(request.regularReservationCreateRequestList());
         boolean hasDeleted = !CollectionUtils.isEmpty(request.deleteRegularReservationIds());
 
+        if(!hasScheduleChanged && !hasCreated && !hasDeleted) {
+            throw new ReservationException(EMPTY_MANAGEMENT_REQUEST);
+        }
+
         if(hasScheduleChanged) {
             saveWeeklySchedule(request.weeklyScheduleUpdateRequestList());
         }
@@ -252,6 +256,7 @@ public class AdminReservationService {
         }
         reservationRepository.saveAll(news);
     }
+
 
     // 검증 메서드
     private void validateNotPastDateSchedule(DailySchedule schedule){
