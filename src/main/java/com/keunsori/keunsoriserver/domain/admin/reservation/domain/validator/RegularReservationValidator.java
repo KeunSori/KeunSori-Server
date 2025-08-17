@@ -58,19 +58,23 @@ public class RegularReservationValidator {
     }
 
     private void validateTimeRange(LocalTime startTime, LocalTime endTime) {
-        if(startTime == null || endTime == null || !startTime.isBefore(endTime)) {
+        if (startTime == null || endTime == null || !startTime.isBefore(endTime)) {
             throw new RegularReservationException(INVALID_REGULAR_RESERVATION_TIME);
         }
     }
 
-    private WeeklySchedule validateDayIsActive(DayOfWeek dayOfWeek){
+    private WeeklySchedule validateDayIsActive(DayOfWeek dayOfWeek) {
         return weeklyScheduleRepository.findById(dayOfWeek)
                 .orElseThrow(() -> new RegularReservationException(INVALID_REGULAR_RESERVATION_DATE));
     }
 
-    private void validateDateRange (LocalDate start, LocalDate end) {
-        if(start == null || end == null || end.isBefore(start)) {
+    private void validateDateRange(LocalDate start, LocalDate end) {
+        if (start == null || end == null || end.isBefore(start)) {
             throw new ReservationException(INVALID_REGULAR_RESERVATION_DATE);
+        }
+
+        if (start.isEqual(end)) {
+            throw new ReservationException(APPLY_DATE_SAME_WITH_END_DATE);
         }
     }
 
@@ -88,11 +92,55 @@ public class RegularReservationValidator {
                 endTime,
                 applyStartDate,
                 applyEndDate);
-        if(exists){
+        if (exists) {
             throw new ReservationException(ANOTHER_REGULAR_RESERVATION_ALREADY_EXISTS);
         }
     }
 
+    // 신규 정기 예약 리스트 내 겹침 검증
+    public void validateNoOverlapAmongCreates(List<RegularReservationCreateRequest> requests){
+        if (requests == null || requests.size() <= 1)
+            return;
+
+        var grouped = requests.stream().collect(
+                java.util.stream.Collectors.groupingBy(
+                        c -> java.util.Map.entry(
+                                DayOfWeek.valueOf(c.dayOfWeek()),
+                                Session.from(c.reservationSession())
+                        )
+                )
+        );
+
+        for (var entry : grouped.entrySet()) {
+            var list = entry.getValue();
+            for (int i = 0; i< list.size(); i++) {
+                var a = list.get(i);
+                for (int j = i+1; j< list.size(); j++) {
+                    var b = list.get(j);
+
+                    // 적용 기간 겹칠 시 시간대 비교
+                    if (!hasDateOverlap(a.applyStartDate(),a.applyEndDate(), b.applyStartDate(), b.applyEndDate())){
+                        continue;
+                    }
+                    if (isTimeOverlap(
+                            a.regularReservationStartTime(),
+                            a.regularReservationEndTime(),
+                            b.regularReservationStartTime(),
+                            b.regularReservationEndTime())){
+                        throw new ReservationException(ANOTHER_REGULAR_RESERVATION_ALREADY_EXISTS);
+                    }
+                }
+            }
+        }
+    }
+
+    private boolean hasDateOverlap(LocalDate startDate1, LocalDate endDate1, LocalDate startDate2, LocalDate endDate2) {
+        return !endDate1.isBefore(startDate2) && !endDate2.isBefore(startDate1);
+    }
+
+    private boolean isTimeOverlap(LocalTime startTime1, LocalTime endTime1, LocalTime startTime2, LocalTime endTime2) {
+        return startTime1.isBefore(endTime2) && startTime2.isBefore(endTime1);
+    }
 }
 
 

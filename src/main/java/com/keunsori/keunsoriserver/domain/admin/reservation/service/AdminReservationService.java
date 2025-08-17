@@ -23,6 +23,7 @@ import com.keunsori.keunsoriserver.global.exception.MemberException;
 import com.keunsori.keunsoriserver.global.exception.ReservationException;
 import com.keunsori.keunsoriserver.global.util.DateUtil;
 import com.keunsori.keunsoriserver.global.util.MemberUtil;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,6 +51,7 @@ public class AdminReservationService {
     private final MemberRepository memberRepository;
     private final RegularReservationRepository regularReservationRepository;
     private final MemberUtil memberUtil;
+    private final EntityManager entityManager;
 
     // 주간 스케줄 + 정기 예약 통합 저장/수정/삭제 메서드
     @Transactional
@@ -66,14 +68,18 @@ public class AdminReservationService {
             saveWeeklySchedule(request.weeklyScheduleUpdateRequestList());
         }
 
-        if(hasCreated) {
-            createRegularReservations(request.regularReservationCreateRequestList());
-        }
-
         if(hasDeleted) {
             deleteRegularReservations(request.deleteRegularReservationIds());
+
+            // 삭제 먼저 DB 즉시 반영
+            entityManager.flush();
+            entityManager.clear();
         }
 
+        if(hasCreated) {
+            regularReservationValidator.validateNoOverlapAmongCreates(request.regularReservationCreateRequestList());
+            createRegularReservations(request.regularReservationCreateRequestList());
+        }
     }
 
     // 주간 스케줄 조회 + 요일별 정기 예약 조회

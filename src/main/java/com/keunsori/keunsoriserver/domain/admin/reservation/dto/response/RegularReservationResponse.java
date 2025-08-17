@@ -17,7 +17,7 @@ public record RegularReservationResponse(
         String regularReservationTeamName,
         String regularReservationApplyStartDate,
         String regularReservationApplyEndDate,
-        String TeamLeaderStudentId
+        String teamLeaderStudentId
 ) {
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
