@@ -420,4 +420,106 @@ public class AdminReservationApiTest extends ApiTestWithWeeklyScheduleInit {
                 ).count()
         ).isEqualTo(1L);
     }
+
+    @Test
+    void 하루짜리_정기_예약_생성_실패() throws JsonProcessingException {
+        DayOfWeek day = DayOfWeek.MONDAY;
+        WeeklyScheduleUpdateRequest schedule = new WeeklyScheduleUpdateRequest(
+                day.getValue() % 7, true, LocalTime.of(9,0), LocalTime.of(23,0)
+        );
+
+        LocalDate date = LocalDate.of(2999, 8, 11);
+        RegularReservationCreateRequest request = new RegularReservationCreateRequest(
+                "TEAM",
+                "ALL", day.toString(),
+                "하루금지",
+                LocalTime.of(10,0),
+                LocalTime.of(11,0),
+                "C000001",
+                date,
+                date
+        );
+
+        WeeklyScheduleManagementRequest payload = new WeeklyScheduleManagementRequest(
+                List.of(schedule),
+                List.of(request),
+                List.of()
+        );
+
+        String msg = given()
+                .header(AUTHORIZATION, authorizationValue)
+                .header(CONTENT_TYPE, "application/json")
+                .body(mapper.writeValueAsString(payload))
+        .when()
+                .put("/admin/reservation/weekly-schedule/management")
+        .then()
+                .statusCode(HttpStatus.SC_BAD_REQUEST)
+                .extract().jsonPath().getString("message");
+
+        Assertions.assertThat(msg).isEqualTo(APPLY_DATE_SAME_WITH_END_DATE);
+    }
+
+    @Test
+    void 정기_예약_삭제_및_저장_동시_성공() throws JsonProcessingException {
+        DayOfWeek day = DayOfWeek.TUESDAY;
+        WeeklyScheduleManagementRequest first = new WeeklyScheduleManagementRequest(
+                List.of(new WeeklyScheduleUpdateRequest(day.getValue()%7, true, LocalTime.of(9,0), LocalTime.of(23,0))),
+                List.of(new RegularReservationCreateRequest(
+                        "TEAM",
+                        "ALL",day.toString(),
+                        "기존",
+                        LocalTime.of(12,0),
+                        LocalTime.of(13,0),
+                        "C000001",
+                        LocalDate.of(2999,8,1),
+                        LocalDate.of(2999,9,30)
+                )),
+                List.of()
+        );
+        given()
+                .header(AUTHORIZATION, authorizationValue)
+                .header(CONTENT_TYPE,"application/json")
+                .body(mapper.writeValueAsString(first))
+        .when()
+                .put("/admin/reservation/weekly-schedule/management")
+        .then()
+                .statusCode(HttpStatus.SC_OK);
+
+        var json = given()
+                .header(AUTHORIZATION, authorizationValue)
+        .when()
+                .get("/admin/reservation/weekly-schedule")
+        .then()
+                .statusCode(HttpStatus.SC_OK)
+                .extract()
+                .jsonPath();
+
+        List<Integer> tuesdayIds = json.getList("find { it.dayOfWeekNum == 2 }.regularReservations.regularReservationId");
+        Long deleteId = tuesdayIds.getFirst().longValue();
+
+        // 3) 같은 요일/세션/적용기간, 시간이 겹치는 신규를 같은 요청에서 추가 + 기존 삭제
+        WeeklyScheduleManagementRequest combined = new WeeklyScheduleManagementRequest(
+                List.of(), // 스케줄 변경 없음
+                List.of(new RegularReservationCreateRequest(
+                        "TEAM",
+                        "ALL",day.toString(),
+                        "신규",
+                        LocalTime.of(12,0),
+                        LocalTime.of(12,30), // 기존(12-13)과 겹침
+                        "C000001",
+                        LocalDate.of(2999,8,1),
+                        LocalDate.of(2999,9,30)
+                )),
+                List.of(deleteId)
+        );
+
+        given()
+                .header(AUTHORIZATION, authorizationValue)
+                .header(CONTENT_TYPE,"application/json")
+                .body(mapper.writeValueAsString(combined))
+        .when()
+                .put("/admin/reservation/weekly-schedule/management")
+        .then()
+                .statusCode(HttpStatus.SC_OK);
+    }
 }
