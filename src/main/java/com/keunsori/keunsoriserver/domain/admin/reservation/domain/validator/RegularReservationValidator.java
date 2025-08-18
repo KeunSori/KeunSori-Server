@@ -9,13 +9,17 @@ import com.keunsori.keunsoriserver.domain.member.domain.Member;
 import com.keunsori.keunsoriserver.domain.reservation.domain.vo.Session;
 import com.keunsori.keunsoriserver.global.exception.RegularReservationException;
 import com.keunsori.keunsoriserver.global.exception.ReservationException;
+import com.keunsori.keunsoriserver.global.util.DayOfWeekUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.*;
 
@@ -97,38 +101,45 @@ public class RegularReservationValidator {
         }
     }
 
+    private record DaySessionKey(DayOfWeek dayOfWeek, Session session) {}
+
     // 신규 정기 예약 리스트 내 겹침 검증
     public void validateNoOverlapAmongCreates(List<RegularReservationCreateRequest> requests){
         if (requests == null || requests.size() <= 1)
             return;
 
-        var grouped = requests.stream().collect(
-                java.util.stream.Collectors.groupingBy(
-                        c -> java.util.Map.entry(
-                                DayOfWeek.valueOf(c.dayOfWeek()),
-                                Session.from(c.reservationSession())
-                        )
-                )
-        );
+        Map<DaySessionKey, List<RegularReservationCreateRequest>> byDayAndSession =
+                requests.stream().collect(Collectors.groupingBy(req -> new DaySessionKey(
+                        DayOfWeekUtil.fromString(req.dayOfWeek()),
+                        Session.from(req.reservationSession())
+                )));
 
-        for (var entry : grouped.entrySet()) {
-            var list = entry.getValue();
-            for (int i = 0; i< list.size(); i++) {
-                var a = list.get(i);
-                for (int j = i+1; j< list.size(); j++) {
-                    var b = list.get(j);
+        for (Map.Entry<DaySessionKey, List<RegularReservationCreateRequest>> entry : byDayAndSession.entrySet()) {
+            List<RegularReservationCreateRequest> group = entry.getValue();
 
-                    // 적용 기간 겹칠 시 시간대 비교
-                    if (!hasDateOverlap(a.applyStartDate(),a.applyEndDate(), b.applyStartDate(), b.applyEndDate())){
-                        continue;
-                    }
-                    if (isTimeOverlap(
-                            a.regularReservationStartTime(),
-                            a.regularReservationEndTime(),
-                            b.regularReservationStartTime(),
-                            b.regularReservationEndTime())){
-                        throw new ReservationException(ANOTHER_REGULAR_RESERVATION_ALREADY_EXISTS);
-                    }
+            group.sort(Comparator
+                    .comparing(RegularReservationCreateRequest::regularReservationStartTime)
+                    .thenComparing(RegularReservationCreateRequest::regularReservationEndTime));
+
+            for (int i = 0; i < group.size() - 1; i++) {
+                RegularReservationCreateRequest a = group.get(i);
+                RegularReservationCreateRequest b = group.get(i + 1);
+
+                // 적용 기간이 겹칠 때만 시간대 비교
+                boolean dateOverlap = hasDateOverlap(
+                        a.applyStartDate(), a.applyEndDate(),
+                        b.applyStartDate(), b.applyEndDate()
+                );
+
+                if (!dateOverlap) continue;
+
+                boolean timeOverlap = isTimeOverlap(
+                        a.regularReservationStartTime(), a.regularReservationEndTime(),
+                        b.regularReservationStartTime(), b.regularReservationEndTime()
+                );
+
+                if (timeOverlap) {
+                    throw new ReservationException(ANOTHER_REGULAR_RESERVATION_ALREADY_EXISTS);
                 }
             }
         }
