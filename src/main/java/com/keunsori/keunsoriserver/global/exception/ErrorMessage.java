@@ -43,6 +43,7 @@ public class ErrorMessage {
     public static final String PARTIAL_REGULAR_RESERVATION_MISSING = "일부 정기 예약이 존재하지 않습니다.";
     public static final String APPLY_DATE_SAME_WITH_END_DATE = "정기예약의 시작일과 종료일을 같은 날짜로 설정할 수 없습니다.";
     public static final String REGULAR_RESERVATION_ACCESS_DENIED = "정기 예약 전체 조회는 관리자만 가능합니다.";
+    public static final String DAY_NOT_IN_APPLY_PERIOD = "시간표 적용 기간에 해당 요일이 포함되지 않아 정기예약을 생성하지 못합니다.";
 
 
     // Auth
