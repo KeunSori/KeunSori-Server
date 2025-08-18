@@ -5,7 +5,6 @@ import com.keunsori.keunsoriserver.domain.admin.reservation.dto.request.RegularR
 import com.keunsori.keunsoriserver.domain.admin.reservation.repository.RegularReservationRepository;
 import com.keunsori.keunsoriserver.domain.admin.reservation.domain.WeeklySchedule;
 import com.keunsori.keunsoriserver.domain.admin.reservation.repository.WeeklyScheduleRepository;
-import com.keunsori.keunsoriserver.domain.member.domain.Member;
 import com.keunsori.keunsoriserver.domain.reservation.domain.vo.Session;
 import com.keunsori.keunsoriserver.global.exception.RegularReservationException;
 import com.keunsori.keunsoriserver.global.exception.ReservationException;
@@ -33,7 +32,7 @@ public class RegularReservationValidator {
     public void validateCreateRegularReservation(RegularReservationCreateRequest request) {
         validateTimeRange(request.regularReservationStartTime(), request.regularReservationEndTime());
 
-        validateDateRange(request.applyStartDate(), request.applyEndDate());
+        validateDateRange(request.applyStartDate(), request.applyEndDate(), DayOfWeekUtil.fromString(request.dayOfWeek()));
 
         DayOfWeek day = DayOfWeek.valueOf(request.dayOfWeek());
 
@@ -72,13 +71,20 @@ public class RegularReservationValidator {
                 .orElseThrow(() -> new RegularReservationException(INVALID_REGULAR_RESERVATION_DATE));
     }
 
-    private void validateDateRange(LocalDate start, LocalDate end) {
+    private void validateDateRange(LocalDate start, LocalDate end, DayOfWeek dayOfWeek) {
         if (start == null || end == null || end.isBefore(start)) {
             throw new ReservationException(INVALID_REGULAR_RESERVATION_DATE);
         }
 
         if (start.isEqual(end)) {
             throw new ReservationException(APPLY_DATE_SAME_WITH_END_DATE);
+        }
+
+        int daysUntilTarget = (dayOfWeek.getValue() - start.getDayOfWeek().getValue() +7) % 7;
+        LocalDate firstOccurrence = start.plusDays(daysUntilTarget);
+
+        if (firstOccurrence.isAfter(end)) {
+            throw new RegularReservationException(DAY_NOT_IN_APPLY_PERIOD);
         }
     }
 
