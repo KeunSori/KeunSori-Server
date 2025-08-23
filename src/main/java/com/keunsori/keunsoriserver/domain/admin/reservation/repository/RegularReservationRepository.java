@@ -20,7 +20,7 @@ public interface RegularReservationRepository extends JpaRepository<RegularReser
              WHERE r.applyEndDate >= CURRENT_DATE
              ORDER BY r.dayOfWeek, r.applyStartDate, r.startTime
             """)
-    List<RegularReservation> findAllAfterToday();
+    List<RegularReservation> findAllAppliedFromToday();
 
     boolean existsByMember(Member member);
 

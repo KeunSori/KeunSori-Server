@@ -88,7 +88,7 @@ public class AdminReservationService {
         loginMember.validateAdmin();
 
         // 정기예약 전체 조회 후 요일별 그룹핑
-        Map<DayOfWeek, List<RegularReservationResponse>> regsByDay = regularReservationRepository.findAllAfterToday()
+        Map<DayOfWeek, List<RegularReservationResponse>> regsByDay = regularReservationRepository.findAllAppliedFromToday()
                 .stream()
                 .map(RegularReservationResponse::from)
                 .collect(Collectors.groupingBy(
