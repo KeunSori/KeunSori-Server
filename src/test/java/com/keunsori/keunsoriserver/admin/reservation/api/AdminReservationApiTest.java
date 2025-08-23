@@ -2,12 +2,14 @@ package com.keunsori.keunsoriserver.admin.reservation.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.keunsori.keunsoriserver.admin.init.ApiTestWithWeeklyScheduleInit;
+import com.keunsori.keunsoriserver.admin.member.fixture.MemberFixture;
+import com.keunsori.keunsoriserver.admin.reservation.fixture.RegularReservationFixture;
 import com.keunsori.keunsoriserver.domain.admin.reservation.dto.request.DailyScheduleUpdateOrCreateRequest;
 import com.keunsori.keunsoriserver.domain.admin.reservation.dto.request.RegularReservationCreateRequest;
 import com.keunsori.keunsoriserver.domain.admin.reservation.dto.request.WeeklyScheduleManagementRequest;
 import com.keunsori.keunsoriserver.domain.admin.reservation.dto.request.WeeklyScheduleUpdateRequest;
+import com.keunsori.keunsoriserver.domain.admin.reservation.repository.RegularReservationRepository;
 import com.keunsori.keunsoriserver.domain.member.domain.Member;
-import com.keunsori.keunsoriserver.domain.member.domain.vo.MemberStatus;
 import com.keunsori.keunsoriserver.domain.member.repository.MemberRepository;
 import com.keunsori.keunsoriserver.domain.reservation.domain.Reservation;
 import com.keunsori.keunsoriserver.domain.reservation.domain.vo.ReservationType;
@@ -33,7 +35,8 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 
 public class AdminReservationApiTest extends ApiTestWithWeeklyScheduleInit {
-    private String authorizationValue;
+
+    private String adminAuth;
 
     @Autowired
     MemberRepository memberRepository;
@@ -42,20 +45,19 @@ public class AdminReservationApiTest extends ApiTestWithWeeklyScheduleInit {
     ReservationRepository reservationRepository;
 
     @Autowired
+    RegularReservationRepository regularReservationRepository;
+
+    @Autowired
     PasswordEncoder passwordEncoder;
 
     @BeforeEach
     void setUp() throws JsonProcessingException {
         login_with_admin_member();
-        authorizationValue = "Bearer " + adminToken;
+        adminAuth = "Bearer " + adminToken;
 
-        if (!memberRepository.existsByStudentId("C000001")) {
-            memberRepository.save(Member.builder()
-                    .studentId("C000001")
-                    .email("test@example.com")
-                    .password(passwordEncoder.encode("test123!"))
-                    .status(MemberStatus.일반)
-                    .build());
+        Member general = MemberFixture.GENERAL1();
+        if (!memberRepository.existsByStudentId(general.getStudentId())) {
+            memberRepository.save(general);
         }
     }
 
@@ -88,7 +90,7 @@ public class AdminReservationApiTest extends ApiTestWithWeeklyScheduleInit {
         );
 
         given()
-                .header(AUTHORIZATION, authorizationValue)
+                .header(AUTHORIZATION, adminAuth)
                 .header(CONTENT_TYPE, "application/json")
                 .body(mapper.writeValueAsString(payload))
         .when()
@@ -97,7 +99,7 @@ public class AdminReservationApiTest extends ApiTestWithWeeklyScheduleInit {
                 .statusCode(HttpStatus.SC_OK);
 
         var json = given()
-                .header(AUTHORIZATION, authorizationValue)
+                .header(AUTHORIZATION, adminAuth)
         .when()
                 .get("/admin/reservation/weekly-schedule")
         .then()
@@ -121,7 +123,7 @@ public class AdminReservationApiTest extends ApiTestWithWeeklyScheduleInit {
         );
 
         given()
-                .header(AUTHORIZATION, authorizationValue)
+                .header(AUTHORIZATION, adminAuth)
                 .header(CONTENT_TYPE, "application/json")
                 .body(mapper.writeValueAsString(request))
                 .when()
@@ -133,7 +135,7 @@ public class AdminReservationApiTest extends ApiTestWithWeeklyScheduleInit {
     @Test
     void 일자별_예약_관리_페이지_반환_성공() {
         given().
-                header(AUTHORIZATION, authorizationValue).
+                header(AUTHORIZATION, adminAuth).
                 param("month","202510").
                 when().
                 get("/admin/reservation/daily-schedule").
@@ -146,7 +148,7 @@ public class AdminReservationApiTest extends ApiTestWithWeeklyScheduleInit {
         DailyScheduleUpdateOrCreateRequest request = new DailyScheduleUpdateOrCreateRequest(LocalDate.now().plusDays(1),true, LocalTime.parse("10:00"), LocalTime.parse("20:00"));
 
         given().
-                header(AUTHORIZATION, authorizationValue).
+                header(AUTHORIZATION, adminAuth).
                 header(CONTENT_TYPE, "application/json").
                 body(mapper.writeValueAsString(request)).
                 when().
@@ -166,7 +168,7 @@ public class AdminReservationApiTest extends ApiTestWithWeeklyScheduleInit {
         );
 
         String errorMessage = given()
-                .header(AUTHORIZATION, authorizationValue)
+                .header(AUTHORIZATION, adminAuth)
                 .header(CONTENT_TYPE, "application/json")
                 .body(mapper.writeValueAsString(request))
                 .when()
@@ -190,7 +192,7 @@ public class AdminReservationApiTest extends ApiTestWithWeeklyScheduleInit {
         );
 
         String errorMessage = given()
-                .header(AUTHORIZATION, authorizationValue)
+                .header(AUTHORIZATION, adminAuth)
                 .header(CONTENT_TYPE, "application/json")
                 .body(mapper.writeValueAsString(request))
                 .when()
@@ -209,7 +211,7 @@ public class AdminReservationApiTest extends ApiTestWithWeeklyScheduleInit {
 
         String errorMessage =
                 given().
-                        header(AUTHORIZATION, authorizationValue).
+                        header(AUTHORIZATION, adminAuth).
                         header(CONTENT_TYPE, "application/json").
                         body(mapper.writeValueAsString(request)).
                         when().
@@ -226,7 +228,7 @@ public class AdminReservationApiTest extends ApiTestWithWeeklyScheduleInit {
 
         String errorMessage =
                 given().
-                        header(AUTHORIZATION, authorizationValue).
+                        header(AUTHORIZATION, adminAuth).
                         header(CONTENT_TYPE, "application/json").
                         body(mapper.writeValueAsString(request)).
                         when().
@@ -271,7 +273,7 @@ public class AdminReservationApiTest extends ApiTestWithWeeklyScheduleInit {
         DailyScheduleUpdateOrCreateRequest request = new DailyScheduleUpdateOrCreateRequest(LocalDate.now().plusDays(1),true, LocalTime.parse("12:00"), LocalTime.parse("20:00"));
 
         given().
-                header(AUTHORIZATION, authorizationValue).
+                header(AUTHORIZATION, adminAuth).
                 header(CONTENT_TYPE, "application/json").
                 body(mapper.writeValueAsString(request)).
                 when().
@@ -299,7 +301,7 @@ public class AdminReservationApiTest extends ApiTestWithWeeklyScheduleInit {
         reservationRepository.save(reservation);
 
         given().
-                header(AUTHORIZATION, authorizationValue).
+                header(AUTHORIZATION, adminAuth).
                 when().
                 delete("/admin/reservation/" + reservation.getId()).
                 then().
@@ -319,7 +321,7 @@ public class AdminReservationApiTest extends ApiTestWithWeeklyScheduleInit {
 
         String errorMessage =
                 given().
-                        header(AUTHORIZATION, authorizationValue).
+                        header(AUTHORIZATION, adminAuth).
                         when().
                         delete("/admin/reservation/" + reservation.getId()).
                         then().
@@ -357,7 +359,7 @@ public class AdminReservationApiTest extends ApiTestWithWeeklyScheduleInit {
         );
 
         given()
-                .header(AUTHORIZATION, authorizationValue)
+                .header(AUTHORIZATION, adminAuth)
                 .header(CONTENT_TYPE, "application/json")
                 .body(mapper.writeValueAsString(request))
         .when()
@@ -405,7 +407,7 @@ public class AdminReservationApiTest extends ApiTestWithWeeklyScheduleInit {
         );
 
         given()
-                .header(AUTHORIZATION, authorizationValue)
+                .header(AUTHORIZATION, adminAuth)
                 .header(CONTENT_TYPE, "application/json")
                 .body(mapper.writeValueAsString(payload))
         .when()
@@ -447,7 +449,7 @@ public class AdminReservationApiTest extends ApiTestWithWeeklyScheduleInit {
         );
 
         String msg = given()
-                .header(AUTHORIZATION, authorizationValue)
+                .header(AUTHORIZATION, adminAuth)
                 .header(CONTENT_TYPE, "application/json")
                 .body(mapper.writeValueAsString(payload))
         .when()
@@ -477,7 +479,7 @@ public class AdminReservationApiTest extends ApiTestWithWeeklyScheduleInit {
                 List.of()
         );
         given()
-                .header(AUTHORIZATION, authorizationValue)
+                .header(AUTHORIZATION, adminAuth)
                 .header(CONTENT_TYPE,"application/json")
                 .body(mapper.writeValueAsString(first))
         .when()
@@ -486,7 +488,7 @@ public class AdminReservationApiTest extends ApiTestWithWeeklyScheduleInit {
                 .statusCode(HttpStatus.SC_OK);
 
         var json = given()
-                .header(AUTHORIZATION, authorizationValue)
+                .header(AUTHORIZATION, adminAuth)
         .when()
                 .get("/admin/reservation/weekly-schedule")
         .then()
@@ -514,12 +516,36 @@ public class AdminReservationApiTest extends ApiTestWithWeeklyScheduleInit {
         );
 
         given()
-                .header(AUTHORIZATION, authorizationValue)
+                .header(AUTHORIZATION, adminAuth)
                 .header(CONTENT_TYPE,"application/json")
                 .body(mapper.writeValueAsString(combined))
         .when()
                 .put("/admin/reservation/weekly-schedule/management")
         .then()
                 .statusCode(HttpStatus.SC_OK);
+    }
+
+    @Test
+    void 정기_예약_조회시_과거의_정기_예약은_조회하지_않는다() throws JsonProcessingException {
+        // given
+        Member member = memberRepository.findByStudentId(MemberFixture.GENERAL1().getStudentId())
+                .orElseGet(() -> memberRepository.save(MemberFixture.GENERAL1()));
+        regularReservationRepository.save(RegularReservationFixture.PAST_REGULAR_RESERVATION_FOR_MONDAY(member));
+        Long id1 = regularReservationRepository.save(RegularReservationFixture.TODAY_START_REGULAR_RESERVATION_FOR_MONDAY(member)).getId();
+        Long id2 = regularReservationRepository.save(RegularReservationFixture.TODAY_END_REGULAR_RESERVATION_FOR_MONDAY(member)).getId();
+        Long id3 = regularReservationRepository.save(RegularReservationFixture.FUTURE_REGULAR_RESERVATION_FOR_MONDAY(member)).getId();
+
+        var responseJson =  given()
+                                    .header(AUTHORIZATION, adminAuth)
+                            .when()
+                                    .get("/admin/reservation/weekly-schedule")
+                            .then()
+                                    .statusCode(HttpStatus.SC_OK)
+                                    .extract()
+                                    .jsonPath();
+
+        List<Long> mondayIds = responseJson.getList("find { it.dayOfWeekNum == 1 }.regularReservations.regularReservationId", Long.class);
+
+        Assertions.assertThat(mondayIds).containsOnly(id1, id2, id3);
     }
 }
