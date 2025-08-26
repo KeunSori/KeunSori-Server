@@ -13,13 +13,14 @@ import java.time.LocalTime;
 import java.util.List;
 
 public interface RegularReservationRepository extends JpaRepository<RegularReservation, Long> {
-    List<RegularReservation> findAllByOrderByDayOfWeekAscStartTimeAsc();
 
-    // 팀장 학번으로 정기예약 조회 (팀장 예약 현황에서 사용)
-    List<RegularReservation> findAllByMember_StudentId(String studentId);
-
-    List<RegularReservation> findAllByDayOfWeekOrderByStartTime(DayOfWeek dayOfWeek);
-
+    @Query("""
+            SELECT r
+              FROM RegularReservation r
+             WHERE r.applyEndDate >= CURRENT_DATE
+             ORDER BY r.dayOfWeek, r.applyStartDate, r.startTime
+            """)
+    List<RegularReservation> findAllAppliedFromToday();
 
     boolean existsByMember(Member member);
 
@@ -39,5 +40,4 @@ public interface RegularReservationRepository extends JpaRepository<RegularReser
                                      @Param("end") LocalTime endTime,
                                      @Param ("applyStartDate") LocalDate applyStartDate,
                                      @Param ("applyEndDate") LocalDate applyEndDate);
-    
 }

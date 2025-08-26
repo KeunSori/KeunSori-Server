@@ -4,6 +4,7 @@ import static io.restassured.RestAssured.given;
 import static jakarta.servlet.http.HttpServletResponse.SC_OK;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 
+import com.keunsori.keunsoriserver.admin.member.fixture.MemberFixture;
 import com.keunsori.keunsoriserver.domain.auth.login.dto.LoginRequest;
 import com.keunsori.keunsoriserver.domain.member.domain.Member;
 import com.keunsori.keunsoriserver.domain.member.domain.vo.MemberStatus;
@@ -47,12 +48,7 @@ public class ApiTest {
     @Test
     public void login_with_general_member() throws JsonProcessingException {
         memberRepository.deleteAll();
-        Member member = Member.builder()
-                .studentId("C000001")
-                .email("testMember@example.com")
-                .password(passwordEncoder.encode("test123!"))
-                .status(MemberStatus.일반)
-                .build();
+        Member member = MemberFixture.GENERAL1();
         memberRepository.save(member);
 
         LoginRequest request = new LoginRequest("C000001", "test123!");
@@ -73,12 +69,7 @@ public class ApiTest {
     @Test
     public void login_with_admin_member() throws JsonProcessingException {
         memberRepository.deleteAll();
-        Member member = Member.builder()
-                .studentId("A000001")
-                .email("testAdmin@g.hongik.ac.kr")
-                .password(passwordEncoder.encode("testadmin123!"))
-                .status(MemberStatus.관리자)
-                .build();
+        Member member = MemberFixture.ADMIN();
         memberRepository.save(member);
 
         LoginRequest request = new LoginRequest("A000001", "testadmin123!");
@@ -92,6 +83,5 @@ public class ApiTest {
                 statusCode(SC_OK).
                 extract().
                 cookie("Access-Token");
-
-            }
+    }
 }
