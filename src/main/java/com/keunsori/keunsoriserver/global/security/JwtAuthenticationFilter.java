@@ -4,6 +4,7 @@ import com.keunsori.keunsoriserver.domain.auth.repository.RefreshTokenRepository
 import com.keunsori.keunsoriserver.domain.member.domain.Member;
 import com.keunsori.keunsoriserver.domain.member.repository.MemberRepository;
 import com.keunsori.keunsoriserver.global.exception.AuthException;
+import com.keunsori.keunsoriserver.global.properties.JwtProperties;
 import com.keunsori.keunsoriserver.global.util.TokenUtil;
 import com.keunsori.keunsoriserver.global.util.CookieUtil;
 import jakarta.servlet.FilterChain;
@@ -32,8 +33,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
+        // 프리플라이트는 통과
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            return true;
+        }
         String path = request.getServletPath();
-        return path.startsWith("/auth/login");
+        return path.equals("/auth/login") || path.startsWith("/signup") || path.startsWith("/email/")
+                || path.startsWith("/swagger-ui/") || path.startsWith("/v3/api-docs/");
     }
 
     @Override
@@ -42,27 +48,64 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String accessToken = CookieUtil.getCookieValue(request, "Access-Token");
         String refreshToken = CookieUtil.getCookieValue(request, "Refresh-Token");
 
-        if (accessToken == null) {
-            String authHeader = request.getHeader("Authorization");
-            if (authHeader != null && authHeader.startsWith("Bearer ")) {
-                accessToken = authHeader.substring(7); // "Bearer " 뒷부분만 추출
+        // Swagger 전용
+        String bearerAccessToken = null;
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            bearerAccessToken = authHeader.substring(7);
+        }
+
+        boolean authenticated = false;
+
+        // Access Token 검사
+        if (accessToken != null){
+            try {
+                tokenUtil.validateToken(accessToken);
+
+                String studentId = tokenUtil.getStudentIdFromToken(accessToken);
+                String status = tokenUtil.getStatusFromToken(accessToken);
+
+                SecurityContextHolder.getContext().setAuthentication(
+                        new UsernamePasswordAuthenticationToken(
+                                studentId,
+                                null,
+                                List.of(new SimpleGrantedAuthority(status))
+                        )
+                );
+                authenticated = true;
+
+                // Refresh-Token 만료 시 재발급
+                boolean neednewRefreshToken = (refreshToken == null);
+
+                if (!neednewRefreshToken) {
+                    try {
+                        tokenUtil.validateToken(refreshToken);
+                    } catch (AuthException e) {
+                        neednewRefreshToken = true;
+                    }
+                }
+
+                if (neednewRefreshToken) {
+                    Member member = memberRepository.findByStudentIdIgnoreCase(studentId)
+                            .orElseThrow(() -> new AuthException(STUDENT_ID_NOT_EXISTS));
+                    String newRefreshToken = tokenUtil.generateRefreshToken(member.getStudentId(), member.getName(), member.getStatus());
+                    refreshTokenRepository.saveRefreshToken(member.getStudentId(), newRefreshToken, JwtProperties.REFRESH_TOKEN_VALIDITY_TIME);
+                    CookieUtil.addRefreshTokenCookie(response,newRefreshToken);
+                }
+            } catch (AuthException ignored) {
+                // Access-Token 존재 X -> Refresh-Token 검사로 넘어감
             }
         }
 
+        // Refresh Token 검사
+        if (!authenticated && refreshToken != null) {
+            tokenUtil.validateToken(refreshToken);
 
-        if (accessToken != null) {
-            tokenUtil.validateToken(accessToken);
-
-            String studentId = tokenUtil.getStudentIdFromToken(accessToken);
-            String status = tokenUtil.getStatusFromToken(accessToken);
-
-            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(studentId, null, List.of(() -> status));
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-        } else if (refreshToken != null) {
             String studentId = tokenUtil.getStudentIdFromToken(refreshToken);
             String storedRefreshToken = refreshTokenRepository.getRefreshToken(studentId);
-
             if (storedRefreshToken == null || !storedRefreshToken.equals(refreshToken)) {
+                CookieUtil.deleteCookie(response, "Access-Token");
+                CookieUtil.deleteCookie(response, "Refresh-Token");
                 throw new AuthException(INVALID_REFRESH_TOKEN);
             }
 
@@ -70,10 +113,33 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     .orElseThrow(() -> new AuthException(STUDENT_ID_NOT_EXISTS));
 
             String newAccessToken = tokenUtil.generateAccessToken(member.getStudentId(), member.getName(), member.getStatus());
+
             CookieUtil.addAccessTokenCookie(response, newAccessToken);
 
-            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(studentId, null, List.of(new SimpleGrantedAuthority(member.getStatus().name())));
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(
+                    studentId,
+                    null,
+                    List.of(new SimpleGrantedAuthority(member.getStatus().name()))
+                    )
+            );
+            authenticated = true;
+        }
+
+        // Swagger 전용 다시 시도
+        if (!authenticated && bearerAccessToken != null) {
+            tokenUtil.validateToken(bearerAccessToken);
+
+            String studentId = tokenUtil.getStudentIdFromToken(bearerAccessToken);
+            String status = tokenUtil.getStatusFromToken(bearerAccessToken);
+
+            SecurityContextHolder.getContext().setAuthentication(
+                    new UsernamePasswordAuthenticationToken(
+                            studentId,
+                            null,
+                            List.of(new SimpleGrantedAuthority(status))
+                    )
+            );
+            authenticated = true;
         }
 
         chain.doFilter(request, response);
