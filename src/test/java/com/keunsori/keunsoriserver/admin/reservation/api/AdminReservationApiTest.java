@@ -270,7 +270,7 @@ public class AdminReservationApiTest extends ApiTestWithWeeklyScheduleInit {
         List<Reservation> beforeUpdateReservation = reservationRepository.findByDateGreaterThanEqual(LocalDate.now());
         Assertions.assertThat(beforeUpdateReservation).hasSize(14);
 
-        List<WeeklyScheduleUpdateRequest> requests = List.of(
+        List<WeeklyScheduleUpdateRequest> weeklyScheduleRequests = List.of(
                 new WeeklyScheduleUpdateRequest(0, false, LocalTime.of(10, 0), LocalTime.of(23, 0)),
                 new WeeklyScheduleUpdateRequest(1, true,  LocalTime.of(10, 0), LocalTime.of(20, 0)),
                 new WeeklyScheduleUpdateRequest(2, false, LocalTime.of(10, 0), LocalTime.of(23, 0)),
@@ -280,13 +280,14 @@ public class AdminReservationApiTest extends ApiTestWithWeeklyScheduleInit {
                 new WeeklyScheduleUpdateRequest(6, true, LocalTime.of(12, 0), LocalTime.of(20, 0))
         );
 
+        WeeklyScheduleManagementRequest request = new WeeklyScheduleManagementRequest(weeklyScheduleRequests, null, null);
 
         given().
-                header(AUTHORIZATION, authorizationValue).
+                header(AUTHORIZATION, adminAuth).
                 header(CONTENT_TYPE, "application/json").
-                body(mapper.writeValueAsString(requests)).
+                body(mapper.writeValueAsString(request)).
                 when().
-                put("/admin/reservation/weekly-schedule").
+                put("/admin/reservation/weekly-schedule/management").
                 then().
                 statusCode(HttpStatus.SC_OK);
 
