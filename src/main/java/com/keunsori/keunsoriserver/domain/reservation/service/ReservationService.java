@@ -1,7 +1,5 @@
 package com.keunsori.keunsoriserver.domain.reservation.service;
 
-import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.RESERVATION_NOT_EXISTS_WITH_ID;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +20,8 @@ import java.time.LocalDate;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
+
+import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.*;
 
 @Service
 @Transactional(readOnly = true)
@@ -58,6 +58,29 @@ public class ReservationService {
 
         reservationValidator.validateReservationDeletable(reservation, member);
         reservationRepository.delete(reservation);
+    }
+
+    @Transactional
+    public void deleteMyReservations(List<Long> reservationIds) {
+        Member loginMember = memberUtil.getLoggedInMember();
+
+        List<Reservation> reservations = reservationRepository.findAllById(reservationIds);
+
+        if (reservations.size() != reservationIds.size()) {
+            throw new ReservationException(PARTIAL_RESERVATION_NOT_FOUND);
+        }
+
+        for (Reservation reservation : reservations) {
+
+            if (!reservation.hasMember(loginMember)) {
+                if (reservation.getRegularReservation() != null) {
+                    throw new ReservationException(RESERVATION_NOT_EQUALS_TEAM_LEADER);
+                }
+                throw new ReservationException(RESERVATION_NOT_EQUAL_MEMBER);
+            }
+        }
+
+        reservationRepository.deleteAll(reservations);
     }
 
     @Transactional

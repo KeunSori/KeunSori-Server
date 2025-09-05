@@ -1,5 +1,6 @@
 package com.keunsori.keunsoriserver.domain.reservation.domain;
 
+import com.keunsori.keunsoriserver.domain.admin.reservation.domain.RegularReservation;
 import com.keunsori.keunsoriserver.domain.admin.reservation.domain.DailySchedule;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -54,16 +55,21 @@ public class Reservation {
     @JoinColumn(name = "member_id")
     private Member member;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "regular_reservation_id")
+    private RegularReservation regularReservation;
+
     @Builder
     private Reservation(LocalDate date, LocalTime startTime, LocalTime endTime, ReservationType reservationType,
             Session session,
-            Member member) {
+            Member member, RegularReservation regularReservation) {
         this.date = date;
         this.startTime = startTime;
         this.endTime = endTime;
         this.reservationType = reservationType;
         this.session = session;
         this.member = member;
+        this.regularReservation = regularReservation;
     }
 
     /**

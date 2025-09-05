@@ -10,12 +10,18 @@ import org.apache.http.HttpStatus;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.keunsori.keunsoriserver.common.ApiTest;
 import com.keunsori.keunsoriserver.domain.member.dto.request.SignUpRequest;
+import com.keunsori.keunsoriserver.domain.member.repository.MemberRepository;
 
 public class MemberApiTest extends ApiTest {
+
+    @Autowired
+    private MemberRepository memberRepository;
+
     private String authorizationValue;
 
     @BeforeEach
@@ -26,6 +32,7 @@ public class MemberApiTest extends ApiTest {
 
     @Test
     void 회원가입시_학번이_중복되면_실패한다() throws JsonProcessingException {
+        memberRepository.deleteAll();
         SignUpRequest request = new SignUpRequest(
                 "회원",
                 "C011001",
@@ -57,6 +64,7 @@ public class MemberApiTest extends ApiTest {
 
     @Test
     void 회원가입시_대소문자가_다른_학번이_중복되면_실패한다() throws JsonProcessingException {
+        memberRepository.deleteAll();
         SignUpRequest request = new SignUpRequest(
                 "회원",
                 "C011001",

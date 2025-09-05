@@ -1,20 +1,29 @@
 package com.keunsori.keunsoriserver.admin.reservation.api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.keunsori.keunsoriserver.common.ApiTest;
+import com.keunsori.keunsoriserver.admin.init.ApiTestWithWeeklyScheduleInit;
+import com.keunsori.keunsoriserver.admin.member.fixture.MemberFixture;
+import com.keunsori.keunsoriserver.admin.reservation.fixture.RegularReservationFixture;
 import com.keunsori.keunsoriserver.domain.admin.reservation.dto.request.DailyScheduleUpdateOrCreateRequest;
+import com.keunsori.keunsoriserver.domain.admin.reservation.dto.request.RegularReservationCreateRequest;
+import com.keunsori.keunsoriserver.domain.admin.reservation.dto.request.WeeklyScheduleManagementRequest;
 import com.keunsori.keunsoriserver.domain.admin.reservation.dto.request.WeeklyScheduleUpdateRequest;
+import com.keunsori.keunsoriserver.domain.admin.reservation.repository.RegularReservationRepository;
+import com.keunsori.keunsoriserver.domain.member.domain.Member;
 import com.keunsori.keunsoriserver.domain.member.repository.MemberRepository;
 import com.keunsori.keunsoriserver.domain.reservation.domain.Reservation;
 import com.keunsori.keunsoriserver.domain.reservation.domain.vo.ReservationType;
 import com.keunsori.keunsoriserver.domain.reservation.domain.vo.Session;
 import com.keunsori.keunsoriserver.domain.reservation.repository.ReservationRepository;
+import com.keunsori.keunsoriserver.global.exception.MemberException;
 import org.apache.http.HttpStatus;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.temporal.TemporalAdjuster;
@@ -28,8 +37,9 @@ import static io.restassured.RestAssured.given;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 
-public class AdminReservationApiTest extends ApiTest {
-    private String authorizationValue;
+public class AdminReservationApiTest extends ApiTestWithWeeklyScheduleInit {
+
+    private String adminAuth;
 
     @Autowired
     MemberRepository memberRepository;
@@ -37,48 +47,98 @@ public class AdminReservationApiTest extends ApiTest {
     @Autowired
     ReservationRepository reservationRepository;
 
+    @Autowired
+    RegularReservationRepository regularReservationRepository;
+
+    @Autowired
+    PasswordEncoder passwordEncoder;
+
     @BeforeEach
-    void login() throws JsonProcessingException {
+    void setUp() throws JsonProcessingException {
         login_with_admin_member();
-        authorizationValue = "Bearer " + adminToken;
+        adminAuth = "Bearer " + adminToken;
+
+        Member general = MemberFixture.GENERAL1();
+        if (!memberRepository.existsByStudentId(general.getStudentId())) {
+            memberRepository.save(general);
+        }
     }
 
     @Test
-    void 주간_예약_관리_페이지_반환_성공() {
-        given().
-                header(AUTHORIZATION, authorizationValue).
-                when().
-                get("/admin/reservation/weekly-schedule").
-                then().
-                statusCode(HttpStatus.SC_OK);
+    void 주간_예약_관리_페이지_정기_예약_포함_반환_성공() throws JsonProcessingException {
+        DayOfWeek day = DayOfWeek.MONDAY;
+        WeeklyScheduleUpdateRequest schedule = new WeeklyScheduleUpdateRequest(
+                day.getValue() % 7,
+                true,
+                LocalTime.of(9,0),
+                LocalTime.of(23,0)
+        );
+
+        RegularReservationCreateRequest regularReservation = new RegularReservationCreateRequest(
+                "TEAM",
+                "ALL",
+                day.toString(),
+                "테스트팀",
+                LocalTime.of(10,0),
+                LocalTime.of(11,0),
+                "C000001",
+                LocalDate.of(2999, 8, 11),
+                LocalDate.of(2999, 9, 30)
+        );
+
+        WeeklyScheduleManagementRequest payload = new WeeklyScheduleManagementRequest(
+                List.of(schedule),
+                List.of(regularReservation),
+                List.of()
+        );
+
+        given()
+                .header(AUTHORIZATION, adminAuth)
+                .header(CONTENT_TYPE, "application/json")
+                .body(mapper.writeValueAsString(payload))
+        .when()
+                .put("/admin/reservation/weekly-schedule/management")
+        .then()
+                .statusCode(HttpStatus.SC_OK);
+
+        var json = given()
+                .header(AUTHORIZATION, adminAuth)
+        .when()
+                .get("/admin/reservation/weekly-schedule")
+        .then()
+                .statusCode(HttpStatus.SC_OK)
+                .extract().jsonPath();
+
+        List<?> mondayRegs = json.getList("find { it.dayOfWeekNum == 1 }.regularReservations");
+
+        org.assertj.core.api.Assertions.assertThat(mondayRegs).isNotNull().isNotEmpty();
     }
 
     @Test
     void 주간_설정_성공() throws JsonProcessingException {
         List<WeeklyScheduleUpdateRequest> requests = new ArrayList<>();
+        requests.add(new WeeklyScheduleUpdateRequest(1, true, LocalTime.parse("10:00"), LocalTime.parse("22:00"))); // 월요일 활성화
 
-        requests.add(new WeeklyScheduleUpdateRequest(0, false, LocalTime.parse("10:00"), LocalTime.parse("11:00")));
-        requests.add(new WeeklyScheduleUpdateRequest(1, true, LocalTime.parse("10:00"), LocalTime.parse("22:00")));
-        requests.add(new WeeklyScheduleUpdateRequest(2, false, LocalTime.parse("10:00"), LocalTime.parse("11:00")));
-        requests.add(new WeeklyScheduleUpdateRequest(3, false, LocalTime.parse("10:00"), LocalTime.parse("11:00")));
-        requests.add(new WeeklyScheduleUpdateRequest(4, false, LocalTime.parse("10:00"), LocalTime.parse("11:00")));
-        requests.add(new WeeklyScheduleUpdateRequest(5, true, LocalTime.parse("10:00"), LocalTime.parse("22:00")));
-        requests.add(new WeeklyScheduleUpdateRequest(6, false, LocalTime.parse("10:00"), LocalTime.parse("11:00")));
+        WeeklyScheduleManagementRequest request = new WeeklyScheduleManagementRequest(
+                requests,
+                List.of(),
+                List.of()
+        );
 
-        given().
-                header(AUTHORIZATION, authorizationValue).
-                header(CONTENT_TYPE, "application/json").
-                body(mapper.writeValueAsString(requests)).
-                when().
-                put("/admin/reservation/weekly-schedule").
-                then().
-                statusCode(HttpStatus.SC_OK);
+        given()
+                .header(AUTHORIZATION, adminAuth)
+                .header(CONTENT_TYPE, "application/json")
+                .body(mapper.writeValueAsString(request))
+                .when()
+                .put("/admin/reservation/weekly-schedule/management")
+                .then()
+                .statusCode(HttpStatus.SC_OK);
     }
 
     @Test
     void 일자별_예약_관리_페이지_반환_성공() {
         given().
-                header(AUTHORIZATION, authorizationValue).
+                header(AUTHORIZATION, adminAuth).
                 param("month","202510").
                 when().
                 get("/admin/reservation/daily-schedule").
@@ -91,7 +151,7 @@ public class AdminReservationApiTest extends ApiTest {
         DailyScheduleUpdateOrCreateRequest request = new DailyScheduleUpdateOrCreateRequest(LocalDate.now().plusDays(1),true, LocalTime.parse("10:00"), LocalTime.parse("20:00"));
 
         given().
-                header(AUTHORIZATION, authorizationValue).
+                header(AUTHORIZATION, adminAuth).
                 header(CONTENT_TYPE, "application/json").
                 body(mapper.writeValueAsString(request)).
                 when().
@@ -102,54 +162,48 @@ public class AdminReservationApiTest extends ApiTest {
 
     @Test
     void 종료시간이_시작시간보다_앞서는_경우_주간_설정_실패() throws JsonProcessingException {
-        List<WeeklyScheduleUpdateRequest> requests = new ArrayList<>();
+        List<WeeklyScheduleUpdateRequest> schedules = List.of(
+                new WeeklyScheduleUpdateRequest(1, true, LocalTime.of(20, 0), LocalTime.of(12, 0))
+        );
 
-        requests.add(new WeeklyScheduleUpdateRequest(0, false, LocalTime.parse("10:00"), LocalTime.parse("11:00")));
-        requests.add(new WeeklyScheduleUpdateRequest(1, true, LocalTime.parse("20:00"), LocalTime.parse("12:00")));
-        requests.add(new WeeklyScheduleUpdateRequest(2, false, LocalTime.parse("10:00"), LocalTime.parse("11:00")));
-        requests.add(new WeeklyScheduleUpdateRequest(3, false, LocalTime.parse("10:00"), LocalTime.parse("11:00")));
-        requests.add(new WeeklyScheduleUpdateRequest(4, false, LocalTime.parse("10:00"), LocalTime.parse("11:00")));
-        requests.add(new WeeklyScheduleUpdateRequest(5, true, LocalTime.parse("10:00"), LocalTime.parse("22:00")));
-        requests.add(new WeeklyScheduleUpdateRequest(6, false, LocalTime.parse("10:00"), LocalTime.parse("11:00")));
+        WeeklyScheduleManagementRequest request = new WeeklyScheduleManagementRequest(
+                schedules, List.of(), List.of()
+        );
 
-        String errorMessage =
-                given().
-                        header(AUTHORIZATION, authorizationValue).
-                        header(CONTENT_TYPE, "application/json").
-                        body(mapper.writeValueAsString(requests)).
-                        when().
-                        put("/admin/reservation/weekly-schedule").
-                        then().
-                        statusCode(HttpStatus.SC_BAD_REQUEST).
-                        extract().
-                        jsonPath().get("message");
+        String errorMessage = given()
+                .header(AUTHORIZATION, adminAuth)
+                .header(CONTENT_TYPE, "application/json")
+                .body(mapper.writeValueAsString(request))
+                .when()
+                .put("/admin/reservation/weekly-schedule/management")
+                .then()
+                .statusCode(HttpStatus.SC_BAD_REQUEST)
+                .extract()
+                .jsonPath().getString("message");
 
         Assertions.assertThat(errorMessage).isEqualTo(INVALID_SCHEDULE_TIME);
     }
 
     @Test
     void 종료시간이_시작시간과_같은_경우_주간_설정_실패() throws JsonProcessingException {
-        List<WeeklyScheduleUpdateRequest> requests = new ArrayList<>();
+        List<WeeklyScheduleUpdateRequest> schedules = List.of(
+                new WeeklyScheduleUpdateRequest(1, true, LocalTime.of(12, 0), LocalTime.of(12, 0))
+        );
 
-        requests.add(new WeeklyScheduleUpdateRequest(0, false, LocalTime.parse("10:00"), LocalTime.parse("11:00")));
-        requests.add(new WeeklyScheduleUpdateRequest(1, true, LocalTime.parse("12:00"), LocalTime.parse("12:00")));
-        requests.add(new WeeklyScheduleUpdateRequest(2, false, LocalTime.parse("10:00"), LocalTime.parse("11:00")));
-        requests.add(new WeeklyScheduleUpdateRequest(3, false, LocalTime.parse("10:00"), LocalTime.parse("11:00")));
-        requests.add(new WeeklyScheduleUpdateRequest(4, false, LocalTime.parse("10:00"), LocalTime.parse("11:00")));
-        requests.add(new WeeklyScheduleUpdateRequest(5, true, LocalTime.parse("10:00"), LocalTime.parse("22:00")));
-        requests.add(new WeeklyScheduleUpdateRequest(6, false, LocalTime.parse("10:00"), LocalTime.parse("11:00")));
+        WeeklyScheduleManagementRequest request = new WeeklyScheduleManagementRequest(
+                schedules, List.of(), List.of()
+        );
 
-        String errorMessage =
-                given().
-                        header(AUTHORIZATION, authorizationValue).
-                        header(CONTENT_TYPE, "application/json").
-                        body(mapper.writeValueAsString(requests)).
-                        when().
-                        put("/admin/reservation/weekly-schedule").
-                        then().
-                        statusCode(HttpStatus.SC_BAD_REQUEST).
-                        extract().
-                        jsonPath().get("message");
+        String errorMessage = given()
+                .header(AUTHORIZATION, adminAuth)
+                .header(CONTENT_TYPE, "application/json")
+                .body(mapper.writeValueAsString(request))
+                .when()
+                .put("/admin/reservation/weekly-schedule/management")
+                .then()
+                .statusCode(HttpStatus.SC_BAD_REQUEST)
+                .extract()
+                .jsonPath().getString("message");
 
         Assertions.assertThat(errorMessage).isEqualTo(INVALID_SCHEDULE_TIME);
     }
@@ -160,7 +214,7 @@ public class AdminReservationApiTest extends ApiTest {
 
         String errorMessage =
                 given().
-                        header(AUTHORIZATION, authorizationValue).
+                        header(AUTHORIZATION, adminAuth).
                         header(CONTENT_TYPE, "application/json").
                         body(mapper.writeValueAsString(request)).
                         when().
@@ -177,7 +231,7 @@ public class AdminReservationApiTest extends ApiTest {
 
         String errorMessage =
                 given().
-                        header(AUTHORIZATION, authorizationValue).
+                        header(AUTHORIZATION, adminAuth).
                         header(CONTENT_TYPE, "application/json").
                         body(mapper.writeValueAsString(request)).
                         when().
@@ -272,7 +326,7 @@ public class AdminReservationApiTest extends ApiTest {
         DailyScheduleUpdateOrCreateRequest request = new DailyScheduleUpdateOrCreateRequest(LocalDate.now().plusDays(1),true, LocalTime.parse("12:00"), LocalTime.parse("20:00"));
 
         given().
-                header(AUTHORIZATION, authorizationValue).
+                header(AUTHORIZATION, adminAuth).
                 header(CONTENT_TYPE, "application/json").
                 body(mapper.writeValueAsString(request)).
                 when().
@@ -300,9 +354,9 @@ public class AdminReservationApiTest extends ApiTest {
         reservationRepository.save(reservation);
 
         given().
-                header(AUTHORIZATION, authorizationValue).
+                header(AUTHORIZATION, adminAuth).
                 when().
-                delete("admin/reservation/" + reservation.getId()).
+                delete("/admin/reservation/" + reservation.getId()).
                 then().
                 statusCode(HttpStatus.SC_NO_CONTENT);
     }
@@ -320,14 +374,231 @@ public class AdminReservationApiTest extends ApiTest {
 
         String errorMessage =
                 given().
-                        header(AUTHORIZATION, authorizationValue).
+                        header(AUTHORIZATION, adminAuth).
                         when().
-                        delete("admin/reservation/" + reservation.getId()).
+                        delete("/admin/reservation/" + reservation.getId()).
                         then().
                         statusCode(HttpStatus.SC_BAD_REQUEST)
                         .extract()
                         .jsonPath().get("message");
 
         Assertions.assertThat(errorMessage).isEqualTo(RESERVATION_ALREADY_COMPLETED);
+    }
+
+    @Test
+    void 정기예약_생성_성공() throws JsonProcessingException {
+        DayOfWeek day = DayOfWeek.MONDAY;
+
+        WeeklyScheduleUpdateRequest schedule = new WeeklyScheduleUpdateRequest(
+                day.getValue() % 7, true, LocalTime.of(9, 0), LocalTime.of(23, 0)
+        );
+
+        RegularReservationCreateRequest regularRequest = new RegularReservationCreateRequest(
+                "TEAM",
+                "ALL",
+                day.toString(),
+                "테스트팀",
+                LocalTime.of(10, 0),
+                LocalTime.of(11, 0),
+                "C000001",
+                LocalDate.of(2999, 8, 12),
+                LocalDate.of(2999, 9, 30)
+        );
+
+        WeeklyScheduleManagementRequest request = new WeeklyScheduleManagementRequest(
+                List.of(schedule),
+                List.of(regularRequest),
+                List.of()
+        );
+
+        given()
+                .header(AUTHORIZATION, adminAuth)
+                .header(CONTENT_TYPE, "application/json")
+                .body(mapper.writeValueAsString(request))
+        .when()
+                .put("/admin/reservation/weekly-schedule/management")
+        .then()
+                .statusCode(HttpStatus.SC_OK);
+    }
+
+    @Test
+    void 정기예약_충돌_덮어쓰기_성공() throws JsonProcessingException {
+        LocalDate date = LocalDate.of(2999, 8, 18);
+        DayOfWeek day = date.getDayOfWeek();
+        Member teamLeader = memberRepository.findByStudentId("C000001")
+                .orElseThrow(() -> new MemberException(MEMBER_NOT_EXISTS_WITH_STUDENT_ID));
+
+        reservationRepository.saveAndFlush(Reservation.builder()
+                .session(Session.ALL)
+                .reservationType(ReservationType.TEAM)
+                .date(date)
+                .startTime(LocalTime.of(10, 0))
+                .endTime(LocalTime.of(11, 0))
+                .member(teamLeader)
+                .build());
+
+        WeeklyScheduleUpdateRequest schedule = new WeeklyScheduleUpdateRequest(
+                day.getValue() % 7, true, LocalTime.of(9, 0), LocalTime.of(23, 0)
+        );
+
+        RegularReservationCreateRequest request = new RegularReservationCreateRequest(
+                "TEAM",
+                "ALL",
+                day.toString(),
+                "덮어쓰기예약",
+                LocalTime.of(10, 0),
+                LocalTime.of(11, 0),
+                "C000001",
+                date,
+                LocalDate.of(2999, 9, 30)
+        );
+
+        WeeklyScheduleManagementRequest payload = new WeeklyScheduleManagementRequest(
+                List.of(schedule),
+                List.of(request),
+                List.of()
+        );
+
+        given()
+                .header(AUTHORIZATION, adminAuth)
+                .header(CONTENT_TYPE, "application/json")
+                .body(mapper.writeValueAsString(payload))
+        .when()
+                .put("/admin/reservation/weekly-schedule/management")
+        .then()
+                .statusCode(HttpStatus.SC_OK);
+
+        List<Reservation> reservations = reservationRepository.findAllByDate(date);
+        Assertions.assertThat( reservations.stream().filter(r ->
+                        r.getStartTime().equals(LocalTime.of(10, 0)) &&
+                                r.getEndTime().equals(LocalTime.of(11, 0))
+                ).count()
+        ).isEqualTo(1L);
+    }
+
+    @Test
+    void 하루짜리_정기_예약_생성_실패() throws JsonProcessingException {
+        DayOfWeek day = DayOfWeek.MONDAY;
+        WeeklyScheduleUpdateRequest schedule = new WeeklyScheduleUpdateRequest(
+                day.getValue() % 7, true, LocalTime.of(9,0), LocalTime.of(23,0)
+        );
+
+        LocalDate date = LocalDate.of(2999, 8, 11);
+        RegularReservationCreateRequest request = new RegularReservationCreateRequest(
+                "TEAM",
+                "ALL", day.toString(),
+                "하루금지",
+                LocalTime.of(10,0),
+                LocalTime.of(11,0),
+                "C000001",
+                date,
+                date
+        );
+
+        WeeklyScheduleManagementRequest payload = new WeeklyScheduleManagementRequest(
+                List.of(schedule),
+                List.of(request),
+                List.of()
+        );
+
+        String msg = given()
+                .header(AUTHORIZATION, adminAuth)
+                .header(CONTENT_TYPE, "application/json")
+                .body(mapper.writeValueAsString(payload))
+        .when()
+                .put("/admin/reservation/weekly-schedule/management")
+        .then()
+                .statusCode(HttpStatus.SC_BAD_REQUEST)
+                .extract().jsonPath().getString("message");
+
+        Assertions.assertThat(msg).isEqualTo(APPLY_DATE_SAME_WITH_END_DATE);
+    }
+
+    @Test
+    void 정기_예약_삭제_및_저장_동시_성공() throws JsonProcessingException {
+        DayOfWeek day = DayOfWeek.TUESDAY;
+        WeeklyScheduleManagementRequest first = new WeeklyScheduleManagementRequest(
+                List.of(new WeeklyScheduleUpdateRequest(day.getValue()%7, true, LocalTime.of(9,0), LocalTime.of(23,0))),
+                List.of(new RegularReservationCreateRequest(
+                        "TEAM",
+                        "ALL",day.toString(),
+                        "기존",
+                        LocalTime.of(12,0),
+                        LocalTime.of(13,0),
+                        "C000001",
+                        LocalDate.of(2999,8,1),
+                        LocalDate.of(2999,9,30)
+                )),
+                List.of()
+        );
+        given()
+                .header(AUTHORIZATION, adminAuth)
+                .header(CONTENT_TYPE,"application/json")
+                .body(mapper.writeValueAsString(first))
+        .when()
+                .put("/admin/reservation/weekly-schedule/management")
+        .then()
+                .statusCode(HttpStatus.SC_OK);
+
+        var json = given()
+                .header(AUTHORIZATION, adminAuth)
+        .when()
+                .get("/admin/reservation/weekly-schedule")
+        .then()
+                .statusCode(HttpStatus.SC_OK)
+                .extract()
+                .jsonPath();
+
+        List<Integer> tuesdayIds = json.getList("find { it.dayOfWeekNum == 2 }.regularReservations.regularReservationId");
+        Long deleteId = tuesdayIds.getFirst().longValue();
+
+        // 3) 같은 요일/세션/적용기간, 시간이 겹치는 신규를 같은 요청에서 추가 + 기존 삭제
+        WeeklyScheduleManagementRequest combined = new WeeklyScheduleManagementRequest(
+                List.of(), // 스케줄 변경 없음
+                List.of(new RegularReservationCreateRequest(
+                        "TEAM",
+                        "ALL",day.toString(),
+                        "신규",
+                        LocalTime.of(12,0),
+                        LocalTime.of(12,30), // 기존(12-13)과 겹침
+                        "C000001",
+                        LocalDate.of(2999,8,1),
+                        LocalDate.of(2999,9,30)
+                )),
+                List.of(deleteId)
+        );
+
+        given()
+                .header(AUTHORIZATION, adminAuth)
+                .header(CONTENT_TYPE,"application/json")
+                .body(mapper.writeValueAsString(combined))
+        .when()
+                .put("/admin/reservation/weekly-schedule/management")
+        .then()
+                .statusCode(HttpStatus.SC_OK);
+    }
+
+    @Test
+    void 정기_예약_조회시_과거의_정기_예약은_조회하지_않는다() throws JsonProcessingException {
+        // given
+        Member member = memberRepository.findByStudentId(MemberFixture.GENERAL1().getStudentId())
+                .orElseGet(() -> memberRepository.save(MemberFixture.GENERAL1()));
+        regularReservationRepository.save(RegularReservationFixture.PAST_REGULAR_RESERVATION_FOR_MONDAY(member));
+        Long id1 = regularReservationRepository.save(RegularReservationFixture.TODAY_START_REGULAR_RESERVATION_FOR_MONDAY(member)).getId();
+        Long id2 = regularReservationRepository.save(RegularReservationFixture.TODAY_END_REGULAR_RESERVATION_FOR_MONDAY(member)).getId();
+        Long id3 = regularReservationRepository.save(RegularReservationFixture.FUTURE_REGULAR_RESERVATION_FOR_MONDAY(member)).getId();
+
+        var responseJson =  given()
+                                    .header(AUTHORIZATION, adminAuth)
+                            .when()
+                                    .get("/admin/reservation/weekly-schedule")
+                            .then()
+                                    .statusCode(HttpStatus.SC_OK)
+                                    .extract()
+                                    .jsonPath();
+
+        List<Long> mondayIds = responseJson.getList("find { it.dayOfWeekNum == 1 }.regularReservations.regularReservationId", Long.class);
+
+        Assertions.assertThat(mondayIds).containsOnly(id1, id2, id3);
     }
 }
