@@ -14,7 +14,9 @@ public record ReservationResponse(
         String reservationEndTime,
         ReservationType reservationType,
         Long reservationMemberId,
-        String reservationMemberName
+        String reservationMemberName,
+        Long regularReservationId,
+        String regularReservationTeamName
 ) {
 
     public static ReservationResponse from(Reservation reservation) {
@@ -26,7 +28,9 @@ public record ReservationResponse(
                 reservation.getEndTime().format(DateTimeFormatter.ofPattern("HH:mm")),
                 reservation.getReservationType(),
                 reservation.getMemberId(),
-                reservation.getMemberName()
+                reservation.getMemberName(),
+                reservation.getRegularReservationId(),
+                reservation.getRegularReservationTeamName()
         );
     }
 }
