@@ -22,3 +22,6 @@ spring:
 
 jwt:
   secret: 235872q3ywhtf87q243yt98qop42y3whtg8oiq92ayh4gq2g
+
+url:
+  domain: http://localhost:8080/
