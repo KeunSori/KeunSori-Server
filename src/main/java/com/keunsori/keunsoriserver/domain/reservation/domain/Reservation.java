@@ -109,20 +109,6 @@ public class Reservation {
         return member.getName();
     }
 
-    public Long getRegularReservationId() {
-        if (regularReservation == null) {
-            return null;
-        }
-        return regularReservation.getId();
-    }
-
-    public String getRegularReservationTeamName() {
-        if (regularReservation == null) {
-            return null;
-        }
-        return regularReservation.getRegularReservationTeamName();
-    }
-
     public boolean isOutOfTimeRange(LocalTime startTime, LocalTime endTime){
         return this.getStartTime().isBefore(startTime) ||
                 this.getEndTime().isAfter(endTime);
