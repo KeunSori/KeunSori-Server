@@ -5,6 +5,7 @@ import com.keunsori.keunsoriserver.domain.auth.service.AuthService;
 import com.keunsori.keunsoriserver.domain.member.domain.Member;
 import com.keunsori.keunsoriserver.domain.member.repository.MemberRepository;
 import com.keunsori.keunsoriserver.global.exception.MemberException;
+import com.keunsori.keunsoriserver.global.properties.UrlProperties;
 import com.keunsori.keunsoriserver.global.util.EmailUtil;
 import com.keunsori.keunsoriserver.global.util.TokenUtil;
 import org.assertj.core.api.Assertions;
@@ -39,6 +40,9 @@ public class AuthServiceTest {
     @Mock
     private TokenUtil tokenUtil;
 
+    @Mock
+    private UrlProperties urlProperties;
+
     @InjectMocks
     private AuthService authService;
 
@@ -58,6 +62,7 @@ public class AuthServiceTest {
 
         given(memberRepository.findByStudentIdIgnoreCase("C011013")).willReturn(Optional.of(member));
         given(tokenUtil.generatePasswordUpdateToken("C011013")).willReturn("PW_CHANGE_TOKEN");
+        given(urlProperties.getPasswordChangePath()).willReturn("password/change");
 
         // when
         authService.sendPasswordUpdateLink(request);

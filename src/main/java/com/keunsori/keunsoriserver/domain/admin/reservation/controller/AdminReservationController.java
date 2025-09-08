@@ -1,10 +1,8 @@
 package com.keunsori.keunsoriserver.domain.admin.reservation.controller;
 
-import com.keunsori.keunsoriserver.domain.admin.reservation.dto.response.RegularReservationResponse;
 import com.keunsori.keunsoriserver.domain.admin.reservation.dto.request.DailyScheduleUpdateOrCreateRequest;
 import com.keunsori.keunsoriserver.domain.admin.reservation.dto.request.WeeklyScheduleManagementRequest;
 import com.keunsori.keunsoriserver.domain.admin.reservation.dto.response.DailyAvailableResponse;
-import com.keunsori.keunsoriserver.domain.admin.reservation.dto.response.WeeklyScheduleManagementResponse;
 import com.keunsori.keunsoriserver.domain.admin.reservation.dto.response.WeeklyScheduleResponse;
 import com.keunsori.keunsoriserver.domain.admin.reservation.service.AdminReservationService;
 import jakarta.validation.Valid;
@@ -12,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.DayOfWeek;
 import java.util.List;
 
 @RestController

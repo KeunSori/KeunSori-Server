@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class ApiTestWithWeeklyScheduleInit extends ApiTest {
+
     @Autowired
     private WeeklyScheduleInitializer weeklyScheduleInitializer;
 
