@@ -8,3 +8,5 @@ spring:
         format_sql: true
         dialect: org.hibernate.dialect.MySQLDialect
 
+url:
+  domain: https://dev.keunsori.com

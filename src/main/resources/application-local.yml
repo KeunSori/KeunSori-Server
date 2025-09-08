@@ -7,3 +7,5 @@ spring:
       hibernate:
         format_sql: true
 
+url:
+  domain: https://dev.keunsori.com

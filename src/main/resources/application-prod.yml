@@ -5,3 +5,6 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
+
+url:
+  domain: https://keunsori.com
