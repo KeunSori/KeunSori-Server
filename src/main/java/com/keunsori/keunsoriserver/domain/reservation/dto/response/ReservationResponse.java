@@ -1,5 +1,6 @@
 package com.keunsori.keunsoriserver.domain.reservation.dto.response;
 
+import com.keunsori.keunsoriserver.domain.admin.reservation.domain.RegularReservation;
 import com.keunsori.keunsoriserver.domain.reservation.domain.Reservation;
 import com.keunsori.keunsoriserver.domain.reservation.domain.vo.ReservationType;
 
@@ -14,10 +15,16 @@ public record ReservationResponse(
         String reservationEndTime,
         ReservationType reservationType,
         Long reservationMemberId,
-        String reservationMemberName
+        String reservationMemberName,
+        Long regularReservationId,
+        String regularReservationTeamName
 ) {
 
     public static ReservationResponse from(Reservation reservation) {
+        RegularReservation regularReservation = reservation.getRegularReservation();
+        Long regularReservationId = regularReservation == null ? null : regularReservation.getId();
+        String regularReservationTeamName = regularReservation == null ? null : regularReservation.getRegularReservationTeamName();
+
         return new ReservationResponse(
                 reservation.getId(),
                 reservation.getSession().name().toLowerCase(),
@@ -26,7 +33,9 @@ public record ReservationResponse(
                 reservation.getEndTime().format(DateTimeFormatter.ofPattern("HH:mm")),
                 reservation.getReservationType(),
                 reservation.getMemberId(),
-                reservation.getMemberName()
+                reservation.getMemberName(),
+                regularReservationId,
+                regularReservationTeamName
         );
     }
 }
