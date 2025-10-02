@@ -1,11 +1,9 @@
 package com.keunsori.keunsoriserver.domain.reservation.domain.validator;
 
-import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.ANOTHER_RESERVATION_ALREADY_EXISTS;
-import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.INVALID_RESERVATION_DATE;
-import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.INVALID_RESERVATION_TIME;
-import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.RESERVATION_ALREADY_COMPLETED;
-import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.RESERVATION_NOT_EQUAL_MEMBER;
-
+import com.keunsori.keunsoriserver.domain.admin.reservation.domain.DailySchedule;
+import com.keunsori.keunsoriserver.domain.admin.reservation.domain.WeeklySchedule;
+import com.keunsori.keunsoriserver.domain.admin.reservation.repository.DailyScheduleRepository;
+import com.keunsori.keunsoriserver.domain.admin.reservation.repository.WeeklyScheduleRepository;
 import org.springframework.stereotype.Component;
 
 import com.keunsori.keunsoriserver.domain.member.domain.Member;
@@ -17,19 +15,27 @@ import com.keunsori.keunsoriserver.domain.reservation.dto.requset.ReservationUpd
 import com.keunsori.keunsoriserver.domain.reservation.repository.ReservationRepository;
 import com.keunsori.keunsoriserver.global.exception.ReservationException;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Optional;
+
 import lombok.RequiredArgsConstructor;
+
+import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.*;
 
 @Component
 @RequiredArgsConstructor
 public class ReservationValidator {
 
     private final ReservationRepository reservationRepository;
+    private final WeeklyScheduleRepository weeklyScheduleRepository;
+    private final DailyScheduleRepository dailyScheduleRepository;
 
     public void validateReservationCreateRequest(ReservationCreateRequest request) {
         validateReservationDateIsNotPast(request.reservationDate());
         validateReservationTime(request.reservationStartTime(), request.reservationEndTime());
+        validateReservationWithSchedule(request.reservationDate(),request.reservationStartTime(),request.reservationEndTime());
         validateOtherReservationsNotExist(
                 ReservationType.from(request.reservationType()),
                 Session.from(request.reservationSession()),
@@ -117,6 +123,37 @@ public class ReservationValidator {
     private void validateReservationDateIsNotPast(LocalDate reservationDate) {
         if (reservationDate.isBefore(LocalDate.now())) {
             throw new ReservationException(INVALID_RESERVATION_DATE);
+        }
+    }
+
+    // 예약 요청이 스케줄에 맞는 시간인지 검사
+    private void validateReservationWithSchedule(LocalDate date, LocalTime startTime, LocalTime endTime) {
+        Optional<DailySchedule> dailyScheduleOpt = dailyScheduleRepository.findByDate(date);
+
+        if (dailyScheduleOpt.isPresent()) {
+            DailySchedule ds = dailyScheduleOpt.get();
+            if (!ds.isActive()) {
+                throw new ReservationException(RESERVATION_OUT_OF_SCHEDULE);
+            }
+            checkWithinSchedule(ds.getStartTime(), ds.getEndTime(), startTime, endTime);
+            return;
+        }
+
+        WeeklySchedule ws = weeklyScheduleRepository.findByDayOfWeek(date.getDayOfWeek())
+                .orElseThrow(() -> new ReservationException(RESERVATION_OUT_OF_SCHEDULE));
+
+        if (!ws.isActive()) {
+            throw new ReservationException(RESERVATION_OUT_OF_SCHEDULE);
+        }
+
+        checkWithinSchedule(ws.getStartTime(), ws.getEndTime(), startTime, endTime);
+    }
+
+
+    private void checkWithinSchedule(LocalTime availableStart, LocalTime availableEnd,
+                                     LocalTime requestStart, LocalTime requestEnd) {
+        if (requestStart.isBefore(availableStart) || requestEnd.isAfter(availableEnd)) {
+            throw new ReservationException(RESERVATION_OUT_OF_SCHEDULE);
         }
     }
 }
