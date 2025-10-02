@@ -4,10 +4,12 @@ import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.ANOTHER_
 import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.INVALID_RESERVATION_TIME;
 import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.RESERVATION_ALREADY_COMPLETED;
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.*;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.HttpHeaders.LOCATION;
 
+import com.keunsori.keunsoriserver.admin.init.ApiTestWithWeeklyScheduleInit;
 import com.keunsori.keunsoriserver.domain.reservation.domain.Reservation;
 import com.keunsori.keunsoriserver.domain.reservation.domain.vo.ReservationType;
 import com.keunsori.keunsoriserver.domain.reservation.domain.vo.Session;
@@ -27,9 +29,10 @@ import com.keunsori.keunsoriserver.domain.reservation.dto.requset.ReservationCre
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.stream.Stream;
 
-public class ReservationApiTest extends ApiTest {
+public class ReservationApiTest extends ApiTestWithWeeklyScheduleInit {
 
     private String authorizationValue;
 
@@ -472,5 +475,23 @@ public class ReservationApiTest extends ApiTest {
                         jsonPath().get("message");
 
         Assertions.assertThat(errorMessage).isEqualTo(RESERVATION_ALREADY_COMPLETED);
+    }
+
+    @Test
+    void 예약_가능한_시간_테이블_반환에_성공한다(){
+        String yearMonth = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMM"));
+
+        given().
+                header(AUTHORIZATION, authorizationValue).
+                header(CONTENT_TYPE, "application/json").
+                queryParam("month", yearMonth).
+                when().
+                get("/reservation").
+                then().
+                statusCode(200)
+                .body("$", not(empty()))
+                .body("[0].date", notNullValue())
+                .body("[0].availableSlots.size()", equalTo(48))
+                .body("[0].availableSlots[0]", anyOf(equalTo(true), equalTo(false)));
     }
 }

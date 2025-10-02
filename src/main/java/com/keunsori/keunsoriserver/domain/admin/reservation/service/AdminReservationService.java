@@ -175,6 +175,7 @@ public class AdminReservationService {
         reservationRepository.deleteAll(reservations);
     }
 
+    // 예약 가능한 시간 테이블 반환
     public List<DailyAvailableResponse> findDailyAvailableByMonth(String yearMonth) {
 
         LocalDate start = DateUtil.parseMonthToFirstDate(yearMonth);
@@ -185,11 +186,47 @@ public class AdminReservationService {
     }
 
     private DailyAvailableResponse convertDateToDailyAvailableResponse(LocalDate date) {
-        return dailyScheduleRepository.findByDate(date)
-                .map(DailyAvailableResponse::from)
-                .orElseGet(() -> weeklyScheduleRepository.findByDayOfWeek(date.getDayOfWeek())
-                        .map(schedule -> DailyAvailableResponse.of(date, schedule))
-                        .orElseGet(() -> DailyAvailableResponse.createInactiveDate(date)));
+        List<Reservation> reservations = reservationRepository.findAllByDate(date);
+
+        Optional<DailySchedule> optionalDailySchedule = dailyScheduleRepository.findByDate(date);
+
+        // 일간 스케줄이 있을 경우 계산, 없을 경우 주간 스케줄로 계산
+        if(optionalDailySchedule.isPresent()){
+            DailySchedule dailySchedule = optionalDailySchedule.get();
+            boolean[] slots = generateDailySlots(dailySchedule.getStartTime(), dailySchedule.getEndTime());
+            applyReservationsToSlots(slots,reservations);
+            return new DailyAvailableResponse(date, dailySchedule.isActive(), slots);
+        } else {
+            WeeklySchedule weeklySchedule = weeklyScheduleRepository.findByDayOfWeek(date.getDayOfWeek())
+                    .orElseThrow(() -> new ReservationException(WEEKLY_SCHEDULE_NOT_FOUND));
+            boolean[] slots = generateDailySlots(weeklySchedule.getStartTime(), weeklySchedule.getEndTime());
+            applyReservationsToSlots(slots,reservations);
+            return new DailyAvailableResponse(date, weeklySchedule.isActive(), slots);
+        }
+    }
+
+    private boolean[] generateDailySlots(LocalTime start, LocalTime end) {
+        boolean[] slots = new boolean[48];
+        int startIndex = start.getHour() * 2 + (start.getMinute() >= 30 ? 1 : 0);
+        int endIndex = end.getHour() * 2 + (end.getMinute() > 0 ? (end.getMinute() > 30 ? 2 : 1) : 0);
+
+        for (int i = startIndex; i < endIndex; i++) {
+            slots[i] = true;
+        }
+        return slots;
+    }
+
+    private void applyReservationsToSlots(boolean[] slots, List<Reservation> reservations) {
+        for (Reservation r : reservations) {
+            int startIndex = r.getStartTime().getHour() * 2 + (r.getStartTime().getMinute() >= 30 ? 1 : 0);
+            int endIndex = r.getEndTime().getHour() * 2 + (r.getEndTime().getMinute() > 0 ? (r.getEndTime().getMinute() > 30 ? 2 : 1) : 0);
+
+            for (int i = startIndex; i < endIndex; i++) {
+                if (i >= 0 && i < 48) {
+                    slots[i] = false;
+                }
+            }
+        }
     }
 
     // 정기 예약 생성
