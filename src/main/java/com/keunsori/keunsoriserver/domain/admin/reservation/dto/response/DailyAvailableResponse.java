@@ -12,7 +12,8 @@ import java.util.List;
 public record DailyAvailableResponse(
         LocalDate date,
         boolean isActive,
-        List<Integer> unavailableSlots // 예약 가능한 시간을 30분 단위 48개의 슬롯으로 표현
+        // 예약 불가능한 시간의 슬롯(24시간을 30분단위로 나눈 48개의 슬롯) 인덱스 리스트 반환
+        List<Integer> unavailableSlots
 ) {
     public static DailyAvailableResponse of(LocalDate date, boolean isActive, boolean[] slots){
         List<Integer> unavailableSlots = new ArrayList<>();
