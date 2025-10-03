@@ -15,7 +15,6 @@ import com.keunsori.keunsoriserver.domain.reservation.dto.requset.ReservationUpd
 import com.keunsori.keunsoriserver.domain.reservation.repository.ReservationRepository;
 import com.keunsori.keunsoriserver.global.exception.ReservationException;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Optional;

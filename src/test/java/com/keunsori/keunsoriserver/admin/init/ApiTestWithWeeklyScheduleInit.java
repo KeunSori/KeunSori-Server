@@ -3,7 +3,6 @@ package com.keunsori.keunsoriserver.admin.init;
 import com.keunsori.keunsoriserver.common.ApiTest;
 import com.keunsori.keunsoriserver.domain.admin.reservation.domain.WeeklySchedule;
 import com.keunsori.keunsoriserver.domain.admin.reservation.repository.WeeklyScheduleRepository;
-import com.keunsori.keunsoriserver.global.init.WeeklyScheduleInitializer;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 
