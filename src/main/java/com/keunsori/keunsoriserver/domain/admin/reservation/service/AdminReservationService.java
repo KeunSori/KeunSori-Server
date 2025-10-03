@@ -195,13 +195,13 @@ public class AdminReservationService {
             DailySchedule dailySchedule = optionalDailySchedule.get();
             boolean[] slots = generateDailySlots(dailySchedule.getStartTime(), dailySchedule.getEndTime());
             applyReservationsToSlots(slots,reservations);
-            return new DailyAvailableResponse(date, dailySchedule.isActive(), slots);
+            return DailyAvailableResponse.of(date, dailySchedule.isActive(), slots);
         } else {
             WeeklySchedule weeklySchedule = weeklyScheduleRepository.findByDayOfWeek(date.getDayOfWeek())
                     .orElseThrow(() -> new ReservationException(WEEKLY_SCHEDULE_NOT_FOUND));
             boolean[] slots = generateDailySlots(weeklySchedule.getStartTime(), weeklySchedule.getEndTime());
             applyReservationsToSlots(slots,reservations);
-            return new DailyAvailableResponse(date, weeklySchedule.isActive(), slots);
+            return DailyAvailableResponse.of(date, weeklySchedule.isActive(), slots);
         }
     }
 
