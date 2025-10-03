@@ -12,17 +12,17 @@ import java.util.List;
 public record DailyAvailableResponse(
         LocalDate date,
         boolean isActive,
-        List<Integer> availableSlots // 예약 가능한 시간을 30분 단위 48개의 슬롯으로 표현
+        List<Integer> unavailableSlots // 예약 가능한 시간을 30분 단위 48개의 슬롯으로 표현
 ) {
     public static DailyAvailableResponse of(LocalDate date, boolean isActive, boolean[] slots){
-        List<Integer> availableSlots = new ArrayList<>();
+        List<Integer> unavailableSlots = new ArrayList<>();
         for(int i=0; i<slots.length; ++i){
-            if(slots[i]) availableSlots.add(i);
+            if(!slots[i]) unavailableSlots.add(i);
         }
         return new DailyAvailableResponse(
                 date,
                 isActive,
-                List.copyOf(availableSlots)
+                List.copyOf(unavailableSlots)
         );
     }
 }
