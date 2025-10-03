@@ -1,13 +1,8 @@
 package com.keunsori.keunsoriserver.domain.admin.reservation.dto.response;
 
-import com.keunsori.keunsoriserver.domain.admin.reservation.domain.DailySchedule;
-import com.keunsori.keunsoriserver.domain.admin.reservation.domain.WeeklySchedule;
-
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-
 
 public record DailyAvailableResponse(
         LocalDate date,
