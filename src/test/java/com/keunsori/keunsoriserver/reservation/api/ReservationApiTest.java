@@ -488,6 +488,9 @@ public class ReservationApiTest extends ApiTestWithWeeklyScheduleInit {
                 when().
                 get("/reservation").
                 then().
-                statusCode(200);
+                statusCode(200)
+                .body("[0].date", notNullValue())
+                .body("[0].unavailableSlots.size()", equalTo(22)) // ApiTestWithWeeklyScheduleInit 수정 시 반영 필요
+                .body("[0].unavailableSlots", everyItem(allOf(greaterThanOrEqualTo(0), lessThan(48))));
     }
 }
