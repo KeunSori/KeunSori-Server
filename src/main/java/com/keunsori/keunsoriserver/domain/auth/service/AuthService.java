@@ -1,21 +1,25 @@
 package com.keunsori.keunsoriserver.domain.auth.service;
 
 import com.keunsori.keunsoriserver.domain.auth.dto.request.PasswordUpdateRequest;
+import com.keunsori.keunsoriserver.domain.auth.dto.response.AuthStatusResponse;
 import com.keunsori.keunsoriserver.domain.auth.login.dto.LoginRequest;
 import com.keunsori.keunsoriserver.domain.auth.login.dto.LoginResponse;
 import com.keunsori.keunsoriserver.domain.auth.repository.RefreshTokenRepository;
 import com.keunsori.keunsoriserver.domain.auth.dto.request.PasswordUpdateLinkSendRequest;
 import com.keunsori.keunsoriserver.domain.member.domain.Member;
 import com.keunsori.keunsoriserver.domain.member.repository.MemberRepository;
+import com.keunsori.keunsoriserver.global.exception.AuthException;
 import com.keunsori.keunsoriserver.global.exception.MemberException;
 import com.keunsori.keunsoriserver.global.properties.JwtProperties;
 import com.keunsori.keunsoriserver.global.properties.UrlProperties;
 import com.keunsori.keunsoriserver.global.util.CookieUtil;
 import com.keunsori.keunsoriserver.global.util.TokenUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import com.keunsori.keunsoriserver.global.util.EmailUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -90,5 +94,26 @@ public class AuthService {
         member.updatePassword(encodedPassword);
 
         log.info("[AuthService] 링크를 통한 비밀번호 변경: studentId: {}", studentId);
+    }
+
+    public AuthStatusResponse getCurrentUserStatus(HttpServletRequest request){
+        String accessToken = CookieUtil.getCookieValue(request, "Access-Token");
+        String refreshToken = CookieUtil.getCookieValue(request, "Refresh-Token");
+
+        boolean isAuthenticated = false;
+
+        if (accessToken != null) {
+            try {
+                // accessToken 유효성 검사
+                tokenUtil.validateToken(accessToken);
+                isAuthenticated = true;
+            } catch (AuthException e) {
+                // accessToken이 만료됐으면 isAuthenticated = false
+                // 단, 필터에서 refreshToken 기반 재발급 처리
+                isAuthenticated = false;
+            }
+        }
+
+        return new AuthStatusResponse(isAuthenticated);
     }
 }
