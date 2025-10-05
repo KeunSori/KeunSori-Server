@@ -98,18 +98,15 @@ public class AuthService {
 
     public AuthStatusResponse getCurrentUserStatus(HttpServletRequest request){
         String accessToken = CookieUtil.getCookieValue(request, "Access-Token");
-        String refreshToken = CookieUtil.getCookieValue(request, "Refresh-Token");
 
         boolean isAuthenticated = false;
 
         if (accessToken != null) {
             try {
-                // accessToken 유효성 검사
                 tokenUtil.validateToken(accessToken);
                 isAuthenticated = true;
             } catch (AuthException e) {
                 // accessToken이 만료됐으면 isAuthenticated = false
-                // 단, 필터에서 refreshToken 기반 재발급 처리
                 isAuthenticated = false;
             }
         }
