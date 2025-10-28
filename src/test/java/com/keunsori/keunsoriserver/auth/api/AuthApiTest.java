@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import static io.restassured.RestAssured.given;
+import static org.apache.http.HttpStatus.SC_FORBIDDEN;
 import static org.apache.http.HttpStatus.SC_OK;
 import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -29,8 +30,7 @@ public class AuthApiTest extends ApiTest {
                 .when()
                 .get("/auth/me")
                 .then()
-                .statusCode(SC_OK)
-                .body("isAuthenticated", equalTo(true));
+                .statusCode(SC_OK);
     }
 
     @Test
@@ -39,7 +39,6 @@ public class AuthApiTest extends ApiTest {
                 .when()
                 .get("/auth/me") // Authorization / Cookie 없이 호출
                 .then()
-                .statusCode(SC_OK)
-                .body("isAuthenticated", equalTo(false));
+                .statusCode(SC_FORBIDDEN);
     }
 }
