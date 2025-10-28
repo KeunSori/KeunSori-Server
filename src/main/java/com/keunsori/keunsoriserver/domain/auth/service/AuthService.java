@@ -102,11 +102,9 @@ public class AuthService {
 
         boolean isAuthenticated = false;
 
-        // 인증 객체가 없거나 익명 사용자인 경우
-        if (authentication == null || !authentication.isAuthenticated()
-                || authentication.getPrincipal().equals("anonymousUser")) {
-            isAuthenticated = false;
-        } else {
+        if (authentication != null
+                && authentication.isAuthenticated()
+                && !"anonymousUser".equals(authentication.getPrincipal())) {
             isAuthenticated = true;
         }
 
