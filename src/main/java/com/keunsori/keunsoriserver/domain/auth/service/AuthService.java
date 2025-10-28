@@ -19,6 +19,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import com.keunsori.keunsoriserver.global.util.EmailUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -96,19 +97,17 @@ public class AuthService {
         log.info("[AuthService] 링크를 통한 비밀번호 변경: studentId: {}", studentId);
     }
 
-    public AuthStatusResponse getCurrentUserStatus(HttpServletRequest request){
-        String accessToken = CookieUtil.getCookieValue(request, "Access-Token");
+    public AuthStatusResponse getCurrentUserStatus(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         boolean isAuthenticated = false;
 
-        if (accessToken != null) {
-            try {
-                tokenUtil.validateToken(accessToken);
-                isAuthenticated = true;
-            } catch (AuthException e) {
-                // accessToken이 만료됐으면 isAuthenticated = false
-                isAuthenticated = false;
-            }
+        // 인증 객체가 없거나 익명 사용자인 경우
+        if (authentication == null || !authentication.isAuthenticated()
+                || authentication.getPrincipal().equals("anonymousUser")) {
+            isAuthenticated = false;
+        } else {
+            isAuthenticated = true;
         }
 
         return new AuthStatusResponse(isAuthenticated);

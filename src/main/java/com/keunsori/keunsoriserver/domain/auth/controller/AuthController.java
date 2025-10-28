@@ -49,8 +49,8 @@ public class AuthController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<AuthStatusResponse> checkAuth(HttpServletRequest request){
-        AuthStatusResponse response = authService.getCurrentUserStatus(request);
+    public ResponseEntity<AuthStatusResponse> checkAuth(){
+        AuthStatusResponse response = authService.getCurrentUserStatus();
         return ResponseEntity.ok().body(response);
     }
 }
