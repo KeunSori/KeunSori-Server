@@ -2,17 +2,14 @@ package com.keunsori.keunsoriserver.domain.auth.controller;
 
 import com.keunsori.keunsoriserver.domain.auth.dto.request.PasswordUpdateLinkSendRequest;
 import com.keunsori.keunsoriserver.domain.auth.dto.request.PasswordUpdateRequest;
-import com.keunsori.keunsoriserver.domain.auth.dto.response.AuthStatusResponse;
 import com.keunsori.keunsoriserver.domain.auth.login.dto.LoginRequest;
 import com.keunsori.keunsoriserver.domain.auth.login.dto.LoginResponse;
 import com.keunsori.keunsoriserver.domain.auth.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -49,8 +46,8 @@ public class AuthController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<AuthStatusResponse> checkAuth(){
-        AuthStatusResponse response = authService.getCurrentUserStatus();
-        return ResponseEntity.ok().body(response);
+    @Operation(summary = "클라이언트가 로그인 상태인지 검증합니다.")
+    public ResponseEntity<Void> checkAuth(){
+        return ResponseEntity.ok().build();
     }
 }
