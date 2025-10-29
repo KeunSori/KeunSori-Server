@@ -5,7 +5,6 @@ import com.keunsori.keunsoriserver.domain.auth.dto.request.PasswordUpdateRequest
 import com.keunsori.keunsoriserver.domain.auth.login.dto.LoginRequest;
 import com.keunsori.keunsoriserver.domain.auth.login.dto.LoginResponse;
 import com.keunsori.keunsoriserver.domain.auth.service.AuthService;
-import com.keunsori.keunsoriserver.domain.member.domain.Member;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -43,6 +42,12 @@ public class AuthController {
     @Operation(summary = "사용자가 클릭한 비밀번호 변경 링크 기준으로 비밀번호를 변경합니다.")
     public ResponseEntity<Void> updatePassword(@Valid @RequestBody PasswordUpdateRequest request) {
         authService.updatePassword(request);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/me")
+    @Operation(summary = "클라이언트가 로그인 상태인지 검증합니다.")
+    public ResponseEntity<Void> checkAuth(){
         return ResponseEntity.ok().build();
     }
 }

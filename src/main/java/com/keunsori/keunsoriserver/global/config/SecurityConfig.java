@@ -42,6 +42,9 @@ public class SecurityConfig  {
                .sessionManagement(session -> session
                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))  // 세션 사용 안함
                .authorizeHttpRequests(auth -> auth
+                       // 로그인 여부 반환은 인증 필요
+                       .requestMatchers("/auth/me").authenticated()
+
                        // 인증 없이 로그인,회원가입은 가능.
                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                        .requestMatchers("/auth/**", "/email/**").permitAll()
