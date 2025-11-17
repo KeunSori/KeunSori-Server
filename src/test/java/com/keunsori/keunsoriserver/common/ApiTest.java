@@ -37,6 +37,7 @@ public class ApiTest {
     private PasswordEncoder passwordEncoder;
 
     protected String generalToken;
+    protected String generalRefreshToken;
 
     protected String adminToken;
 
@@ -62,8 +63,8 @@ public class ApiTest {
                         statusCode(SC_OK).
                         extract().
                         response();
-
         generalToken = response.getCookie("Access-Token");
+        generalRefreshToken = response.getCookie("Refresh-Token");
     }
 
     @Test
