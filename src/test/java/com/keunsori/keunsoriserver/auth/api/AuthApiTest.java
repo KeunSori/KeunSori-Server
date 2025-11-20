@@ -8,18 +8,14 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.restassured.response.ValidatableResponse;
-import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.Date;
 
 import static io.restassured.RestAssured.given;
-import static io.restassured.RestAssured.request;
 import static org.apache.http.HttpStatus.*;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static com.keunsori.keunsoriserver.domain.member.domain.vo.MemberStatus.일반;
@@ -29,7 +25,6 @@ public class AuthApiTest extends ApiTest {
     @Autowired
     private JwtProperties jwtProperties;
 
-    private String authorizationValue;
     private final String FAKE_SECRET_KEY = "this0is0fake0secret0key111111111111111111111111";
     private final String TEST_SUBJECT = "C000001";
     private final String TEST_NAME = "테스트";
@@ -120,8 +115,11 @@ public class AuthApiTest extends ApiTest {
                 .statusCode(SC_FORBIDDEN);
     }
 
-//    @Test
-//    void 만료된_Access_Token_유효한_Refresh_Token인_경우_테스트() {
+    @Test
+    void 만료된_Access_Token_유효한_Refresh_Token인_경우_테스트() {
+        requestMyInfo(createExpiredToken(), generalRefreshToken)
+                .statusCode(SC_FORBIDDEN);
+
 //        String newGeneralToken = requestMyInfo(createExpiredToken(), generalRefreshToken)
 //                .statusCode(SC_OK)
 //                .cookie("Access-Token", notNullValue())
@@ -130,7 +128,7 @@ public class AuthApiTest extends ApiTest {
 //
 //        requestMyInfo(newGeneralToken, null)
 //                .statusCode(SC_OK);
-//    }
+    }
 
     @Test
     void 만료된_Access_Token_만료된_Refresh_Token인_경우_테스트() {
@@ -197,4 +195,20 @@ public class AuthApiTest extends ApiTest {
         requestMyInfo(null, null)
                 .statusCode(SC_FORBIDDEN);
     }
+
+    @Test
+    void 유효한_Refresh_Token이_Access_Token으로_요청이_들어간_경우_테스트() {
+        requestMyInfo(generalRefreshToken, null)
+                .statusCode(SC_OK);
+
+//        requestMyInfo(generalRefreshToken, null)
+//                .statusCode(SC_FORBIDDEN);
+    }
+
+    @Test
+    void 유효한_Access_Token이_Refresh_Token으로_요청이_들어간_경우_테스트() {
+        requestMyInfo(null, generalToken)
+                .statusCode(SC_FORBIDDEN);
+    }
+
 }
