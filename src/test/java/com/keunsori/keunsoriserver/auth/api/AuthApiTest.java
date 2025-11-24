@@ -66,8 +66,8 @@ public class AuthApiTest extends ApiTest {
         var request = given();
 
         if (accessToken != null) {
-            request.header(AUTHORIZATION, "Bearer " + accessToken)
-                    .cookie("Access-Token", accessToken);
+            request.header(AUTHORIZATION, "Bearer " + accessToken);
+            request.cookie("Access-Token", accessToken);
         }
 
         if (refreshToken != null) {
@@ -86,118 +86,120 @@ public class AuthApiTest extends ApiTest {
     }
 
     @Test
-    void 유효한_Access_Token만_있는_경우_테스트() {
-        requestMyInfo(generalToken, null)
+    void Access_Token이_유효하고_Refresh_Token이_null_일_때_요청을_보내면_성공한다() {
+        requestMyInfo(generalAccessToken, null)
                 .statusCode(SC_OK);
     }
 
     @Test
-    void 유효한_Access_Token_유효한_Refresh_Token인_경우_테스트() {
-        requestMyInfo(generalToken, generalRefreshToken)
+    void Access_Token이_유효할_때_헤더로만_요청을_보내면_성공한다() {
+        given()
+                .header(AUTHORIZATION, "Bearer " + generalAccessToken)
+                .when()
+                .get("/auth/me")
+                .then()
                 .statusCode(SC_OK);
     }
 
     @Test
-    void 유효한_Access_Token_만료된_Refresh_Token인_경우_테스트() {
-        requestMyInfo(generalToken, createExpiredToken())
+    void Access_Token이_유효할_때_쿠키로만_요청을_보내면_성공한다() {
+        given()
+                .cookie("Access-Token", generalAccessToken)
+                .when()
+                .get("/auth/me")
+                .then()
                 .statusCode(SC_OK);
     }
 
     @Test
-    void 유효한_Access_Token_무효한_Refresh_Token인_경우_테스트() {
-        requestMyInfo(generalToken, createInvalidToken())
-                .statusCode(SC_OK);
-    }
-
-    @Test
-    void 만료된_Access_Token만_있는_경우_테스트() {
+    void Access_Token이_만료되었고_Refresh_Token이_null_일_때_요청을_보내면_실패한다() {
         requestMyInfo(createExpiredToken(), null)
                 .statusCode(SC_FORBIDDEN);
     }
 
     @Test
-    void 만료된_Access_Token_유효한_Refresh_Token인_경우_테스트() {
+    void Access_Token이_만료되었고_Refresh_Token이_유효할_때_요청을_보내면_성공하고_새로운_Access_Token이_발급된다() {
         requestMyInfo(createExpiredToken(), generalRefreshToken)
                 .statusCode(SC_FORBIDDEN);
 
-//        String newGeneralToken = requestMyInfo(createExpiredToken(), generalRefreshToken)
+//        String newGeneralAccessToken = requestMyInfo(createExpiredToken(), generalRefreshToken)
 //                .statusCode(SC_OK)
 //                .cookie("Access-Token", notNullValue())
 //                .extract()
 //                .cookie("Access-Token");
 //
-//        requestMyInfo(newGeneralToken, null)
+//        requestMyInfo(newGeneralAccessToken, null)
 //                .statusCode(SC_OK);
     }
 
     @Test
-    void 만료된_Access_Token_만료된_Refresh_Token인_경우_테스트() {
+    void Access_Token이_만료되었고_Refresh_Token도_만료되었을_때_요청을_보내면_실패한다() {
         requestMyInfo(createExpiredToken(), createExpiredToken())
                 .statusCode(SC_FORBIDDEN);
     }
 
     @Test
-    void 만료된_Access_Token_무효한_Refresh_Token인_경우_테스트() {
+    void Access_Token이_만료되었고_Refresh_Token이_무효할_때_요청을_보내면_실패한다() {
         requestMyInfo(createExpiredToken(), createInvalidToken())
                 .statusCode(SC_FORBIDDEN);
     }
 
     @Test
-    void 무효한_Access_Token만_있는_경우_테스트() {
+    void Access_Token이_무효하고_Refresh_Token이_null_일_때_요청을_보내면_실패한다() {
         requestMyInfo(createInvalidToken(), null)
             .statusCode(SC_FORBIDDEN);
     }
 
     @Test
-    void 무효한_Access_Token_유효한_Refresh_Token인_경우_테스트() {
+    void Access_Token이_무효하고_Refresh_Token이_유효할_때_요청을_보내면_실패한다() {
         requestMyInfo(createInvalidToken(), generalRefreshToken)
                 .statusCode(SC_FORBIDDEN);
     }
 
     @Test
-    void 무효한_Access_Token_만료된_Refresh_Token인_경우_테스트() {
+    void Access_Token이_무효하고_Refresh_Token이_만료되었을_때_요청을_보내면_실패한다() {
         requestMyInfo(createInvalidToken(), createExpiredToken())
                 .statusCode(SC_FORBIDDEN);
     }
 
     @Test
-    void 무효한_Access_Token_무효한_Refresh_Token인_경우_테스트() {
+    void Access_Token이_무효하고_Refresh_Token이_무효할_때_요청을_보내면_실패한다() {
         requestMyInfo(createInvalidToken(), createInvalidToken())
                 .statusCode(SC_FORBIDDEN);
     }
 
     @Test
-    void 유효한_Refresh_Token만_있는_경우_테스트() {
-        String newGeneralToken = requestMyInfo(null, generalRefreshToken)
+    void Access_Token이_null이고_Refresh_Token이_유효할_때_요청을_보내면_성공하고_유효한_Access_Token을_반환한다() {
+        String newGeneralAccessToken = requestMyInfo(null, generalRefreshToken)
                 .statusCode(SC_OK)
                 .cookie("Access-Token", notNullValue())
                 .extract()
                 .cookie("Access-Token");
 
-        requestMyInfo(newGeneralToken, null)
+        requestMyInfo(newGeneralAccessToken, null)
                 .statusCode(SC_OK);
     }
 
     @Test
-    void 만료된_Refresh_Token만_있는_경우_테스트() {
+    void Access_Token이_null이고_Refresh_Token이_만료되었을_때_요청을_보내면_실패한다() {
         requestMyInfo(null, createExpiredToken())
                 .statusCode(SC_FORBIDDEN);
     }
 
     @Test
-    void 무효한_Refresh_Token만_있는_경우_테스트() {
+    void Access_Token이_null이고_Refresh_Token이_무효할_때_요청을_보내면_실패한다() {
         requestMyInfo(null, createInvalidToken())
                 .statusCode(SC_FORBIDDEN);
     }
 
     @Test
-    void 모든_Token이_없는_경우_테스트() {
+    void Token_없이_요청을_보내면_실패한다() {
         requestMyInfo(null, null)
                 .statusCode(SC_FORBIDDEN);
     }
 
     @Test
-    void 유효한_Refresh_Token이_Access_Token으로_요청이_들어간_경우_테스트() {
+    void 유효한_Refresh_Token을_Access_Token으로_요청을_보내면_실패한다() {
         requestMyInfo(generalRefreshToken, null)
                 .statusCode(SC_OK);
 
@@ -206,8 +208,8 @@ public class AuthApiTest extends ApiTest {
     }
 
     @Test
-    void 유효한_Access_Token이_Refresh_Token으로_요청이_들어간_경우_테스트() {
-        requestMyInfo(null, generalToken)
+    void 유효한_Access_Token을_Refresh_Token으로_요청을_보내면_실패한다() {
+        requestMyInfo(null, generalAccessToken)
                 .statusCode(SC_FORBIDDEN);
     }
 
