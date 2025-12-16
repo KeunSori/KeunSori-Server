@@ -40,6 +40,11 @@ public class TokenUtil {
         return createToken(studentId, "", 일반, PASSWORD_UPDATE_TOKEN_VALIDITY_TIME);
     }
 
+    //test.java.com.keunsori.keunsoriserver.auth.api.AuthApiTest.java에서 사용하기 위해 추가하였습니다.
+    public String generateTokenForTest(String studentId, String name, MemberStatus status, long validity) {
+        return createToken(studentId, name, status, validity);
+    }
+
     // JWT 토큰 생성 로직
     private String createToken(String studentId, String name, MemberStatus status, long validity) {
         Claims claims = Jwts.claims().setSubject(studentId);
