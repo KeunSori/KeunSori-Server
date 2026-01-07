@@ -193,40 +193,57 @@ public class AdminReservationService {
         // 일간 스케줄이 있을 경우 계산, 없을 경우 주간 스케줄로 계산
         if(optionalDailySchedule.isPresent()){
             DailySchedule dailySchedule = optionalDailySchedule.get();
-            boolean[] slots = generateDailySlots(dailySchedule.getStartTime(), dailySchedule.getEndTime());
-            applyReservationsToSlots(slots,reservations);
-            return DailyAvailableResponse.of(date, dailySchedule.isActive(), slots);
+            List<Integer> unavailableSlots = generateUnavailableSlots(
+                    dailySchedule.getStartTime(),
+                    dailySchedule.getEndTime(),
+                    reservations
+            );
+            return DailyAvailableResponse.of(date, dailySchedule.isActive(), unavailableSlots);
         } else {
             WeeklySchedule weeklySchedule = weeklyScheduleRepository.findByDayOfWeek(date.getDayOfWeek())
                     .orElseThrow(() -> new ReservationException(WEEKLY_SCHEDULE_NOT_FOUND));
-            boolean[] slots = generateDailySlots(weeklySchedule.getStartTime(), weeklySchedule.getEndTime());
-            applyReservationsToSlots(slots,reservations);
-            return DailyAvailableResponse.of(date, weeklySchedule.isActive(), slots);
+            List<Integer> unavailableSlots = generateUnavailableSlots(
+                    weeklySchedule.getStartTime(),
+                    weeklySchedule.getEndTime(),
+                    reservations
+            );
+            return DailyAvailableResponse.of(date, weeklySchedule.isActive(), unavailableSlots);
         }
     }
 
-    private boolean[] generateDailySlots(LocalTime start, LocalTime end) {
-        boolean[] slots = new boolean[48];
-        int startIndex = start.getHour() * 2 + (start.getMinute() >= 30 ? 1 : 0);
-        int endIndex = end.getHour() * 2 + (end.getMinute() > 0 ? (end.getMinute() > 30 ? 2 : 1) : 0);
+    private List<Integer> generateUnavailableSlots(LocalTime start, LocalTime end, List<Reservation> reservations) {
+        Set<Integer> unavailable = new HashSet<>();
+        int scheduleStartIndex = toStartIndex(start);
+        int scheduleEndIndex = toEndIndex(end);
 
-        for (int i = startIndex; i < endIndex; i++) {
-            slots[i] = true;
+        for (int i = 0; i < scheduleStartIndex; i++) {
+            unavailable.add(i);
         }
-        return slots;
-    }
+        for (int i = scheduleEndIndex; i < 48; i++) {
+            unavailable.add(i);
+        }
 
-    private void applyReservationsToSlots(boolean[] slots, List<Reservation> reservations) {
-        for (Reservation r : reservations) {
-            int startIndex = r.getStartTime().getHour() * 2 + (r.getStartTime().getMinute() >= 30 ? 1 : 0);
-            int endIndex = r.getEndTime().getHour() * 2 + (r.getEndTime().getMinute() > 0 ? (r.getEndTime().getMinute() > 30 ? 2 : 1) : 0);
-
+        for (Reservation reservation : reservations) {
+            int startIndex = toStartIndex(reservation.getStartTime());
+            int endIndex = toEndIndex(reservation.getEndTime());
             for (int i = startIndex; i < endIndex; i++) {
                 if (i >= 0 && i < 48) {
-                    slots[i] = false;
+                    unavailable.add(i);
                 }
             }
         }
+
+        List<Integer> result = new ArrayList<>(unavailable);
+        Collections.sort(result);
+        return result;
+    }
+
+    private int toStartIndex(LocalTime time) {
+        return time.getHour() * 2 + (time.getMinute() >= 30 ? 1 : 0);
+    }
+
+    private int toEndIndex(LocalTime time) {
+        return time.getHour() * 2 + (time.getMinute() > 0 ? (time.getMinute() > 30 ? 2 : 1) : 0);
     }
 
     // 정기 예약 생성
