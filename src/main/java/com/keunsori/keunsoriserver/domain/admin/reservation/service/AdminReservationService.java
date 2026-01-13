@@ -119,7 +119,6 @@ public class AdminReservationService {
                 .toList();
     }
 
-
     // 주간 스케줄 저장
     @Transactional
     public void saveWeeklySchedule(List<WeeklyScheduleUpdateRequest> requests) {
@@ -183,67 +182,6 @@ public class AdminReservationService {
 
         return Stream.iterate(start, date -> date.isBefore(end), date -> date.plusDays(1))
                 .map(this::convertDateToDailyAvailableResponse).toList();
-    }
-
-    private DailyAvailableResponse convertDateToDailyAvailableResponse(LocalDate date) {
-        List<Reservation> reservations = reservationRepository.findAllByDate(date);
-
-        Optional<DailySchedule> optionalDailySchedule = dailyScheduleRepository.findByDate(date);
-
-        // 일간 스케줄이 있을 경우 계산, 없을 경우 주간 스케줄로 계산
-        if(optionalDailySchedule.isPresent()){
-            DailySchedule dailySchedule = optionalDailySchedule.get();
-            List<Integer> unavailableSlots = generateUnavailableSlots(
-                    dailySchedule.getStartTime(),
-                    dailySchedule.getEndTime(),
-                    reservations
-            );
-            return DailyAvailableResponse.of(date, dailySchedule.isActive(), unavailableSlots);
-        } else {
-            WeeklySchedule weeklySchedule = weeklyScheduleRepository.findByDayOfWeek(date.getDayOfWeek())
-                    .orElseThrow(() -> new ReservationException(WEEKLY_SCHEDULE_NOT_FOUND));
-            List<Integer> unavailableSlots = generateUnavailableSlots(
-                    weeklySchedule.getStartTime(),
-                    weeklySchedule.getEndTime(),
-                    reservations
-            );
-            return DailyAvailableResponse.of(date, weeklySchedule.isActive(), unavailableSlots);
-        }
-    }
-
-    private List<Integer> generateUnavailableSlots(LocalTime start, LocalTime end, List<Reservation> reservations) {
-        Set<Integer> unavailable = new HashSet<>();
-        int scheduleStartIndex = toStartIndex(start);
-        int scheduleEndIndex = toEndIndex(end);
-
-        for (int i = 0; i < scheduleStartIndex; i++) {
-            unavailable.add(i);
-        }
-        for (int i = scheduleEndIndex; i < 48; i++) {
-            unavailable.add(i);
-        }
-
-        for (Reservation reservation : reservations) {
-            int startIndex = toStartIndex(reservation.getStartTime());
-            int endIndex = toEndIndex(reservation.getEndTime());
-            for (int i = startIndex; i < endIndex; i++) {
-                if (i >= 0 && i < 48) {
-                    unavailable.add(i);
-                }
-            }
-        }
-
-        List<Integer> result = new ArrayList<>(unavailable);
-        Collections.sort(result);
-        return result;
-    }
-
-    private int toStartIndex(LocalTime time) {
-        return time.getHour() * 2 + (time.getMinute() >= 30 ? 1 : 0);
-    }
-
-    private int toEndIndex(LocalTime time) {
-        return time.getHour() * 2 + (time.getMinute() > 0 ? (time.getMinute() > 30 ? 2 : 1) : 0);
     }
 
     // 정기 예약 생성
@@ -315,6 +253,66 @@ public class AdminReservationService {
         reservationRepository.saveAll(news);
     }
 
+    // 일자별 비어있는 시간 계산
+    private DailyAvailableResponse convertDateToDailyAvailableResponse(LocalDate date) {
+        List<Reservation> reservations = reservationRepository.findAllByDate(date);
+
+        // 일간 스케줄이 있을 경우 계산, 없을 경우 주간 스케줄로 계산
+        return dailyScheduleRepository.findByDate(date)
+                .map(dailySchedule -> {
+                    List<Integer> unavailableSlots = generateUnavailableSlots(
+                            dailySchedule.getStartTime(),
+                            dailySchedule.getEndTime(),
+                            reservations
+                    );
+                    return DailyAvailableResponse.of(date, dailySchedule.isActive(), unavailableSlots);
+                })
+                .orElseGet(() -> {
+                    WeeklySchedule weeklySchedule = weeklyScheduleRepository.findByDayOfWeek(date.getDayOfWeek())
+                            .orElseThrow(() -> new ReservationException(WEEKLY_SCHEDULE_NOT_FOUND));
+                    List<Integer> unavailableSlots = generateUnavailableSlots(
+                            weeklySchedule.getStartTime(),
+                            weeklySchedule.getEndTime(),
+                            reservations
+                    );
+                    return DailyAvailableResponse.of(date, weeklySchedule.isActive(), unavailableSlots);
+                });
+    }
+
+    private List<Integer> generateUnavailableSlots(LocalTime start, LocalTime end, List<Reservation> reservations) {
+        Set<Integer> unavailable = new HashSet<>();
+        int scheduleStartIndex = toStartIndex(start);
+        int scheduleEndIndex = toEndIndex(end);
+
+        for (int i = 0; i < scheduleStartIndex; i++) {
+            unavailable.add(i);
+        }
+        for (int i = scheduleEndIndex; i < 48; i++) {
+            unavailable.add(i);
+        }
+
+        for (Reservation reservation : reservations) {
+            int startIndex = toStartIndex(reservation.getStartTime());
+            int endIndex = toEndIndex(reservation.getEndTime());
+            for (int i = startIndex; i < endIndex; i++) {
+                if (i >= 0 && i < 48) {
+                    unavailable.add(i);
+                }
+            }
+        }
+
+        List<Integer> result = new ArrayList<>(unavailable);
+        Collections.sort(result);
+        return result;
+    }
+
+    private int toStartIndex(LocalTime time) {
+        return time.getHour() * 2 + (time.getMinute() >= 30 ? 1 : 0);
+    }
+
+    private int toEndIndex(LocalTime time) {
+        return time.getHour() * 2 + (time.getMinute() > 0 ? (time.getMinute() > 30 ? 2 : 1) : 0);
+    }
 
     // 검증 메서드
     private void validateNotPastDateSchedule(DailySchedule schedule){
