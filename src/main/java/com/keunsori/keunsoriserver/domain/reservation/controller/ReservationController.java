@@ -74,7 +74,7 @@ public class ReservationController {
     // 예약 신청 페이지 가능한 날짜 반환
     @GetMapping
     public ResponseEntity<List<DailyUnavailableSlotsResponse>> findMonthlySchedule(@RequestParam("month") String month){
-        List<DailyUnavailableSlotsResponse> responses = adminReservationService.findDailyUnavailableSlots(month);
+        List<DailyUnavailableSlotsResponse> responses = adminReservationService.findDailyUnavailableSlotsForTwoMonths(month);
         return ResponseEntity.ok().body(responses);
     }
 }

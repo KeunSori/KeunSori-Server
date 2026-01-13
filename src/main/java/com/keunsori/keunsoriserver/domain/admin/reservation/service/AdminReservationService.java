@@ -175,7 +175,7 @@ public class AdminReservationService {
         reservationRepository.deleteAll(reservations);
     }
 
-    public List<DailyAvailableResponse> findDailyAvailableByMonth(String yearMonth) {
+    public List<DailyAvailableResponse> findDailyAvailableForTwoMonths(String yearMonth) {
         LocalDate start = DateUtil.parseMonthToFirstDate(yearMonth);
         LocalDate end = start.plusMonths(2);
 
@@ -184,7 +184,7 @@ public class AdminReservationService {
     }
 
     // 예약 가능한 시간 테이블 반환
-    public List<DailyUnavailableSlotsResponse> findDailyUnavailableSlots(String yearMonth) {
+    public List<DailyUnavailableSlotsResponse> findDailyUnavailableSlotsForTwoMonths(String yearMonth) {
 
         LocalDate start = DateUtil.parseMonthToFirstDate(yearMonth);
         LocalDate end = start.plusMonths(2);
