@@ -1,6 +1,7 @@
 package com.keunsori.keunsoriserver.domain.reservation.controller;
 
 import com.keunsori.keunsoriserver.domain.admin.reservation.dto.response.DailyAvailableResponse;
+import com.keunsori.keunsoriserver.domain.admin.reservation.dto.response.DailyUnavailableSlotsResponse;
 import com.keunsori.keunsoriserver.domain.admin.reservation.service.AdminReservationService;
 import jakarta.validation.Valid;
 
@@ -73,8 +74,8 @@ public class ReservationController {
 
     // 예약 신청 페이지 가능한 날짜 반환
     @GetMapping
-    public ResponseEntity<List<DailyAvailableResponse>> findMonthlySchedule(@RequestParam("month") String month){
-        List<DailyAvailableResponse> responses = adminReservationService.findDailyAvailableByMonth(month);
+    public ResponseEntity<List<DailyUnavailableSlotsResponse>> findMonthlySchedule(@RequestParam("month") String month){
+        List<DailyUnavailableSlotsResponse> responses = adminReservationService.findDailyUnavailableSlots(month);
         return ResponseEntity.ok().body(responses);
     }
 }

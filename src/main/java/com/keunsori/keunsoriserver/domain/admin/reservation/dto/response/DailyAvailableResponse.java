@@ -1,19 +1,42 @@
 package com.keunsori.keunsoriserver.domain.admin.reservation.dto.response;
 
+import com.keunsori.keunsoriserver.domain.admin.reservation.domain.DailySchedule;
+import com.keunsori.keunsoriserver.domain.admin.reservation.domain.WeeklySchedule;
+
 import java.time.LocalDate;
-import java.util.List;
+import java.time.format.DateTimeFormatter;
+
 
 public record DailyAvailableResponse(
         LocalDate date,
         boolean isActive,
-        // 예약 불가능한 시간의 슬롯(24시간을 30분단위로 나눈 48개의 슬롯) 인덱스 리스트 반환
-        List<Integer> unavailableSlots
+        String startTime,
+        String endTime
 ) {
-    public static DailyAvailableResponse of(LocalDate date, boolean isActive, List<Integer> unavailableSlots){
+    public static DailyAvailableResponse from(DailySchedule dailySchedule){
+        return new DailyAvailableResponse(
+                dailySchedule.getDate(),
+                dailySchedule.isActive(),
+                dailySchedule.getStartTime().format(DateTimeFormatter.ofPattern("HH:mm")),
+                dailySchedule.getEndTime().format(DateTimeFormatter.ofPattern("HH:mm"))
+        );
+    }
+
+    public static DailyAvailableResponse of(LocalDate date, WeeklySchedule weeklySchedule){
         return new DailyAvailableResponse(
                 date,
-                isActive,
-                List.copyOf(unavailableSlots)
+                weeklySchedule.isActive(),
+                weeklySchedule.getStartTime().format(DateTimeFormatter.ofPattern("HH:mm")),
+                weeklySchedule.getEndTime().format(DateTimeFormatter.ofPattern("HH:mm"))
+        );
+    }
+
+    public static DailyAvailableResponse createInactiveDate(LocalDate date){
+        return new DailyAvailableResponse(
+                date,
+                false,
+                "10:00",
+                "23:00"
         );
     }
 }

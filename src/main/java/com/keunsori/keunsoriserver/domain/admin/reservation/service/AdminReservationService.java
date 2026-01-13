@@ -1,6 +1,7 @@
 package com.keunsori.keunsoriserver.domain.admin.reservation.service;
 
 import com.keunsori.keunsoriserver.domain.admin.reservation.domain.WeeklySchedule;
+import com.keunsori.keunsoriserver.domain.admin.reservation.dto.response.DailyUnavailableSlotsResponse;
 import com.keunsori.keunsoriserver.domain.admin.reservation.dto.response.RegularReservationResponse;
 import com.keunsori.keunsoriserver.domain.admin.reservation.domain.DailySchedule;
 import com.keunsori.keunsoriserver.domain.admin.reservation.domain.RegularReservation;
@@ -174,14 +175,30 @@ public class AdminReservationService {
         reservationRepository.deleteAll(reservations);
     }
 
-    // 예약 가능한 시간 테이블 반환
     public List<DailyAvailableResponse> findDailyAvailableByMonth(String yearMonth) {
-
         LocalDate start = DateUtil.parseMonthToFirstDate(yearMonth);
         LocalDate end = start.plusMonths(2);
 
         return Stream.iterate(start, date -> date.isBefore(end), date -> date.plusDays(1))
                 .map(this::convertDateToDailyAvailableResponse).toList();
+    }
+
+    private DailyAvailableResponse convertDateToDailyAvailableResponse(LocalDate date) {
+        return dailyScheduleRepository.findByDate(date)
+                .map(DailyAvailableResponse::from)
+                .orElseGet(() -> weeklyScheduleRepository.findByDayOfWeek(date.getDayOfWeek())
+                        .map(schedule -> DailyAvailableResponse.of(date, schedule))
+                        .orElseGet(() -> DailyAvailableResponse.createInactiveDate(date)));
+    }
+
+    // 예약 가능한 시간 테이블 반환
+    public List<DailyUnavailableSlotsResponse> findDailyUnavailableSlots(String yearMonth) {
+
+        LocalDate start = DateUtil.parseMonthToFirstDate(yearMonth);
+        LocalDate end = start.plusMonths(2);
+
+        return Stream.iterate(start, date -> date.isBefore(end), date -> date.plusDays(1))
+                .map(this::convertDateToDailyUnavailableSlotsResponse).toList();
     }
 
     // 정기 예약 생성
@@ -253,8 +270,8 @@ public class AdminReservationService {
         reservationRepository.saveAll(news);
     }
 
-    // 일자별 비어있는 시간 계산
-    private DailyAvailableResponse convertDateToDailyAvailableResponse(LocalDate date) {
+    // 하루의 예약 불가능 시간 슬롯 Dto 반환
+    private DailyUnavailableSlotsResponse convertDateToDailyUnavailableSlotsResponse(LocalDate date) {
         List<Reservation> reservations = reservationRepository.findAllByDate(date);
 
         // 일간 스케줄이 있을 경우 계산, 없을 경우 주간 스케줄로 계산
@@ -265,7 +282,7 @@ public class AdminReservationService {
                             dailySchedule.getEndTime(),
                             reservations
                     );
-                    return DailyAvailableResponse.of(date, dailySchedule.isActive(), unavailableSlots);
+                    return DailyUnavailableSlotsResponse.of(date, dailySchedule.isActive(), unavailableSlots);
                 })
                 .orElseGet(() -> {
                     WeeklySchedule weeklySchedule = weeklyScheduleRepository.findByDayOfWeek(date.getDayOfWeek())
@@ -275,7 +292,7 @@ public class AdminReservationService {
                             weeklySchedule.getEndTime(),
                             reservations
                     );
-                    return DailyAvailableResponse.of(date, weeklySchedule.isActive(), unavailableSlots);
+                    return DailyUnavailableSlotsResponse.of(date, weeklySchedule.isActive(), unavailableSlots);
                 });
     }
 
