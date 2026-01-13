@@ -1,6 +1,5 @@
 package com.keunsori.keunsoriserver.domain.reservation.controller;
 
-import com.keunsori.keunsoriserver.domain.admin.reservation.dto.response.DailyAvailableResponse;
 import com.keunsori.keunsoriserver.domain.admin.reservation.dto.response.DailyUnavailableSlotsResponse;
 import com.keunsori.keunsoriserver.domain.admin.reservation.service.AdminReservationService;
 import jakarta.validation.Valid;

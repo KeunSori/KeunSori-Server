@@ -183,14 +183,6 @@ public class AdminReservationService {
                 .map(this::convertDateToDailyAvailableResponse).toList();
     }
 
-    private DailyAvailableResponse convertDateToDailyAvailableResponse(LocalDate date) {
-        return dailyScheduleRepository.findByDate(date)
-                .map(DailyAvailableResponse::from)
-                .orElseGet(() -> weeklyScheduleRepository.findByDayOfWeek(date.getDayOfWeek())
-                        .map(schedule -> DailyAvailableResponse.of(date, schedule))
-                        .orElseGet(() -> DailyAvailableResponse.createInactiveDate(date)));
-    }
-
     // 예약 가능한 시간 테이블 반환
     public List<DailyUnavailableSlotsResponse> findDailyUnavailableSlots(String yearMonth) {
 
@@ -268,6 +260,15 @@ public class AdminReservationService {
                     .build());
         }
         reservationRepository.saveAll(news);
+    }
+
+    // 하루의 연습실 이용 가능 시간 반환
+    private DailyAvailableResponse convertDateToDailyAvailableResponse(LocalDate date) {
+        return dailyScheduleRepository.findByDate(date)
+                .map(DailyAvailableResponse::from)
+                .orElseGet(() -> weeklyScheduleRepository.findByDayOfWeek(date.getDayOfWeek())
+                        .map(schedule -> DailyAvailableResponse.of(date, schedule))
+                        .orElseGet(() -> DailyAvailableResponse.createInactiveDate(date)));
     }
 
     // 하루의 예약 불가능 시간 슬롯 Dto 반환
