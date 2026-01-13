@@ -1,7 +1,6 @@
 package com.keunsori.keunsoriserver.domain.reservation.controller;
 
-import com.keunsori.keunsoriserver.domain.admin.reservation.dto.response.DailyUnavailableSlotsResponse;
-import com.keunsori.keunsoriserver.domain.admin.reservation.service.AdminReservationService;
+import com.keunsori.keunsoriserver.domain.reservation.dto.response.DailyUnavailableSlotsResponse;
 import jakarta.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
@@ -31,7 +30,6 @@ import lombok.RequiredArgsConstructor;
 public class ReservationController {
 
     private final ReservationService reservationService;
-    private final AdminReservationService adminReservationService;
 
     @GetMapping("/list")
     public ResponseEntity<List<ReservationResponse>> findAllReservations(@RequestParam("month") String month) {
@@ -74,7 +72,7 @@ public class ReservationController {
     // 예약 신청 페이지 가능한 날짜 반환
     @GetMapping
     public ResponseEntity<List<DailyUnavailableSlotsResponse>> findMonthlySchedule(@RequestParam("month") String month){
-        List<DailyUnavailableSlotsResponse> responses = adminReservationService.findDailyUnavailableSlotsForTwoMonths(month);
+        List<DailyUnavailableSlotsResponse> responses = reservationService.findDailyUnavailableSlotsForTwoMonths(month);
         return ResponseEntity.ok().body(responses);
     }
 }

@@ -1,4 +1,4 @@
-package com.keunsori.keunsoriserver.domain.admin.reservation.dto.response;
+package com.keunsori.keunsoriserver.domain.reservation.dto.response;
 
 import java.time.LocalDate;
 import java.util.List;

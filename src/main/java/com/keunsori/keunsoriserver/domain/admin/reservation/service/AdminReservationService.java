@@ -1,7 +1,6 @@
 package com.keunsori.keunsoriserver.domain.admin.reservation.service;
 
 import com.keunsori.keunsoriserver.domain.admin.reservation.domain.WeeklySchedule;
-import com.keunsori.keunsoriserver.domain.admin.reservation.dto.response.DailyUnavailableSlotsResponse;
 import com.keunsori.keunsoriserver.domain.admin.reservation.dto.response.RegularReservationResponse;
 import com.keunsori.keunsoriserver.domain.admin.reservation.domain.DailySchedule;
 import com.keunsori.keunsoriserver.domain.admin.reservation.domain.RegularReservation;
@@ -183,16 +182,6 @@ public class AdminReservationService {
                 .map(this::convertDateToDailyAvailableResponse).toList();
     }
 
-    // 예약 가능한 시간 테이블 반환
-    public List<DailyUnavailableSlotsResponse> findDailyUnavailableSlotsForTwoMonths(String yearMonth) {
-
-        LocalDate start = DateUtil.parseMonthToFirstDate(yearMonth);
-        LocalDate end = start.plusMonths(2);
-
-        return Stream.iterate(start, date -> date.isBefore(end), date -> date.plusDays(1))
-                .map(this::convertDateToDailyUnavailableSlotsResponse).toList();
-    }
-
     // 정기 예약 생성
     @Transactional
     public void createRegularReservations(List<RegularReservationCreateRequest> requests){
@@ -269,67 +258,6 @@ public class AdminReservationService {
                 .orElseGet(() -> weeklyScheduleRepository.findByDayOfWeek(date.getDayOfWeek())
                         .map(schedule -> DailyAvailableResponse.of(date, schedule))
                         .orElseGet(() -> DailyAvailableResponse.createInactiveDate(date)));
-    }
-
-    // 하루의 예약 불가능 시간 슬롯 Dto 반환
-    private DailyUnavailableSlotsResponse convertDateToDailyUnavailableSlotsResponse(LocalDate date) {
-        List<Reservation> reservations = reservationRepository.findAllByDate(date);
-
-        // 일간 스케줄이 있을 경우 계산, 없을 경우 주간 스케줄로 계산
-        return dailyScheduleRepository.findByDate(date)
-                .map(dailySchedule -> {
-                    List<Integer> unavailableSlots = generateUnavailableSlots(
-                            dailySchedule.getStartTime(),
-                            dailySchedule.getEndTime(),
-                            reservations
-                    );
-                    return DailyUnavailableSlotsResponse.of(date, dailySchedule.isActive(), unavailableSlots);
-                })
-                .orElseGet(() -> {
-                    WeeklySchedule weeklySchedule = weeklyScheduleRepository.findByDayOfWeek(date.getDayOfWeek())
-                            .orElseThrow(() -> new ReservationException(WEEKLY_SCHEDULE_NOT_FOUND));
-                    List<Integer> unavailableSlots = generateUnavailableSlots(
-                            weeklySchedule.getStartTime(),
-                            weeklySchedule.getEndTime(),
-                            reservations
-                    );
-                    return DailyUnavailableSlotsResponse.of(date, weeklySchedule.isActive(), unavailableSlots);
-                });
-    }
-
-    private List<Integer> generateUnavailableSlots(LocalTime start, LocalTime end, List<Reservation> reservations) {
-        Set<Integer> unavailable = new HashSet<>();
-        int scheduleStartIndex = toStartIndex(start);
-        int scheduleEndIndex = toEndIndex(end);
-
-        for (int i = 0; i < scheduleStartIndex; i++) {
-            unavailable.add(i);
-        }
-        for (int i = scheduleEndIndex; i < 48; i++) {
-            unavailable.add(i);
-        }
-
-        for (Reservation reservation : reservations) {
-            int startIndex = toStartIndex(reservation.getStartTime());
-            int endIndex = toEndIndex(reservation.getEndTime());
-            for (int i = startIndex; i < endIndex; i++) {
-                if (i >= 0 && i < 48) {
-                    unavailable.add(i);
-                }
-            }
-        }
-
-        List<Integer> result = new ArrayList<>(unavailable);
-        Collections.sort(result);
-        return result;
-    }
-
-    private int toStartIndex(LocalTime time) {
-        return time.getHour() * 2 + (time.getMinute() >= 30 ? 1 : 0);
-    }
-
-    private int toEndIndex(LocalTime time) {
-        return time.getHour() * 2 + (time.getMinute() > 0 ? (time.getMinute() > 30 ? 2 : 1) : 0);
     }
 
     // 검증 메서드
