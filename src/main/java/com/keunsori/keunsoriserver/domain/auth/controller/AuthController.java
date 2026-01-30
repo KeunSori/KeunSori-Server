@@ -47,7 +47,7 @@ public class AuthController {
     }
 
     @GetMapping("/me")
-    @Operation(summary = "클라이언트가 로그인 상태인지 검증합니다.")
+    @Operation(summary = "클라이언트가 로그인 상태일 경우 권한을 반환합니다.")
     public ResponseEntity<AuthCheckResponse> checkAuth(){
         AuthCheckResponse response = authService.checkAuth();
         return ResponseEntity.ok(response);
