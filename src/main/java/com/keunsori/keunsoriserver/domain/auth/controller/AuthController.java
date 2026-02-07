@@ -2,6 +2,7 @@ package com.keunsori.keunsoriserver.domain.auth.controller;
 
 import com.keunsori.keunsoriserver.domain.auth.dto.request.PasswordUpdateLinkSendRequest;
 import com.keunsori.keunsoriserver.domain.auth.dto.request.PasswordUpdateRequest;
+import com.keunsori.keunsoriserver.domain.auth.dto.response.AuthCheckResponse;
 import com.keunsori.keunsoriserver.domain.auth.login.dto.LoginRequest;
 import com.keunsori.keunsoriserver.domain.auth.login.dto.LoginResponse;
 import com.keunsori.keunsoriserver.domain.auth.service.AuthService;
@@ -46,8 +47,9 @@ public class AuthController {
     }
 
     @GetMapping("/me")
-    @Operation(summary = "클라이언트가 로그인 상태인지 검증합니다.")
-    public ResponseEntity<Void> checkAuth(){
-        return ResponseEntity.ok().build();
+    @Operation(summary = "클라이언트가 로그인 상태일 경우 권한을 반환합니다.")
+    public ResponseEntity<AuthCheckResponse> checkAuth(){
+        AuthCheckResponse response = authService.checkAuth();
+        return ResponseEntity.ok(response);
     }
 }

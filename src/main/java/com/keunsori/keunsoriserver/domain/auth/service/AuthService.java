@@ -1,6 +1,7 @@
 package com.keunsori.keunsoriserver.domain.auth.service;
 
 import com.keunsori.keunsoriserver.domain.auth.dto.request.PasswordUpdateRequest;
+import com.keunsori.keunsoriserver.domain.auth.dto.response.AuthCheckResponse;
 import com.keunsori.keunsoriserver.domain.auth.login.dto.LoginRequest;
 import com.keunsori.keunsoriserver.domain.auth.login.dto.LoginResponse;
 import com.keunsori.keunsoriserver.domain.auth.repository.RefreshTokenRepository;
@@ -16,12 +17,19 @@ import jakarta.servlet.http.HttpServletResponse;
 import com.keunsori.keunsoriserver.global.util.EmailUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.STUDENT_ID_NOT_EXISTS;
 import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.*;
+
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -90,5 +98,16 @@ public class AuthService {
         member.updatePassword(encodedPassword);
 
         log.info("[AuthService] 링크를 통한 비밀번호 변경: studentId: {}", studentId);
+    }
+
+    public AuthCheckResponse checkAuth() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        String role = auth.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .findFirst()
+                .orElse(null);
+
+        return new AuthCheckResponse(role);
     }
 }

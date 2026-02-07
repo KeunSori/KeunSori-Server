@@ -30,7 +30,23 @@ public class AuthApiTest extends ApiTest {
                 .when()
                 .get("/auth/me")
                 .then()
-                .statusCode(SC_OK);
+                .statusCode(SC_OK)
+                .body("role", equalTo("일반"));
+    }
+
+    @Test
+    void 관리자_계정_로그인_되어있는_경우_테스트() throws JsonProcessingException {
+        login_with_admin_member();
+        String adminAuthorizationValue = "Bearer " + adminToken;
+
+        given()
+                .header(AUTHORIZATION, adminAuthorizationValue)
+                .cookie("Access-Token", adminToken)
+                .when()
+                .get("/auth/me")
+                .then()
+                .statusCode(SC_OK)
+                .body("role", equalTo("관리자"));
     }
 
     @Test
