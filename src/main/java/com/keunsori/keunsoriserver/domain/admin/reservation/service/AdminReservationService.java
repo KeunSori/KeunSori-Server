@@ -119,7 +119,6 @@ public class AdminReservationService {
                 .toList();
     }
 
-
     // 주간 스케줄 저장
     @Transactional
     public void saveWeeklySchedule(List<WeeklyScheduleUpdateRequest> requests) {
@@ -175,21 +174,12 @@ public class AdminReservationService {
         reservationRepository.deleteAll(reservations);
     }
 
-    public List<DailyAvailableResponse> findDailyAvailableByMonth(String yearMonth) {
-
+    public List<DailyAvailableResponse> findDailyAvailableForTwoMonths(String yearMonth) {
         LocalDate start = DateUtil.parseMonthToFirstDate(yearMonth);
         LocalDate end = start.plusMonths(2);
 
         return Stream.iterate(start, date -> date.isBefore(end), date -> date.plusDays(1))
                 .map(this::convertDateToDailyAvailableResponse).toList();
-    }
-
-    private DailyAvailableResponse convertDateToDailyAvailableResponse(LocalDate date) {
-        return dailyScheduleRepository.findByDate(date)
-                .map(DailyAvailableResponse::from)
-                .orElseGet(() -> weeklyScheduleRepository.findByDayOfWeek(date.getDayOfWeek())
-                        .map(schedule -> DailyAvailableResponse.of(date, schedule))
-                        .orElseGet(() -> DailyAvailableResponse.createInactiveDate(date)));
     }
 
     // 정기 예약 생성
@@ -261,6 +251,14 @@ public class AdminReservationService {
         reservationRepository.saveAll(news);
     }
 
+    // 하루의 연습실 이용 가능 시간 반환
+    private DailyAvailableResponse convertDateToDailyAvailableResponse(LocalDate date) {
+        return dailyScheduleRepository.findByDate(date)
+                .map(DailyAvailableResponse::from)
+                .orElseGet(() -> weeklyScheduleRepository.findByDayOfWeek(date.getDayOfWeek())
+                        .map(schedule -> DailyAvailableResponse.of(date, schedule))
+                        .orElseGet(() -> DailyAvailableResponse.createInactiveDate(date)));
+    }
 
     // 검증 메서드
     private void validateNotPastDateSchedule(DailySchedule schedule){

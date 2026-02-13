@@ -4,10 +4,12 @@ import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.ANOTHER_
 import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.INVALID_RESERVATION_TIME;
 import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.RESERVATION_ALREADY_COMPLETED;
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.*;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.HttpHeaders.LOCATION;
 
+import com.keunsori.keunsoriserver.admin.init.ApiTestWithWeeklyScheduleInit;
 import com.keunsori.keunsoriserver.domain.reservation.domain.Reservation;
 import com.keunsori.keunsoriserver.domain.reservation.domain.vo.ReservationType;
 import com.keunsori.keunsoriserver.domain.reservation.domain.vo.Session;
@@ -22,14 +24,14 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.keunsori.keunsoriserver.common.ApiTest;
 import com.keunsori.keunsoriserver.domain.reservation.dto.requset.ReservationCreateRequest;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.stream.Stream;
 
-public class ReservationApiTest extends ApiTest {
+public class ReservationApiTest extends ApiTestWithWeeklyScheduleInit {
 
     private String authorizationValue;
 
@@ -472,5 +474,22 @@ public class ReservationApiTest extends ApiTest {
                         jsonPath().get("message");
 
         Assertions.assertThat(errorMessage).isEqualTo(RESERVATION_ALREADY_COMPLETED);
+    }
+
+    @Test
+    void 예약_가능한_시간_테이블_반환에_성공한다(){
+        String yearMonth = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMM"));
+
+        given().
+                header(AUTHORIZATION, authorizationValue).
+                header(CONTENT_TYPE, "application/json").
+                queryParam("month", yearMonth).
+                when().
+                get("/reservation").
+                then().
+                statusCode(200)
+                .body("[0].date", notNullValue())
+                .body("[0].unavailableSlots.size()", equalTo(22)) // ApiTestWithWeeklyScheduleInit 수정 시 반영 필요
+                .body("[0].unavailableSlots", everyItem(allOf(greaterThanOrEqualTo(0), lessThan(48))));
     }
 }
