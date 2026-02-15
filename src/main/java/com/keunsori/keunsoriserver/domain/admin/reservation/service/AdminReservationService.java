@@ -1,15 +1,13 @@
 package com.keunsori.keunsoriserver.domain.admin.reservation.service;
 
 import com.keunsori.keunsoriserver.domain.admin.reservation.domain.WeeklySchedule;
+import com.keunsori.keunsoriserver.domain.admin.reservation.dto.request.*;
 import com.keunsori.keunsoriserver.domain.admin.reservation.dto.response.RegularReservationResponse;
 import com.keunsori.keunsoriserver.domain.admin.reservation.domain.DailySchedule;
 import com.keunsori.keunsoriserver.domain.admin.reservation.domain.RegularReservation;
 import com.keunsori.keunsoriserver.domain.admin.reservation.domain.validator.RegularReservationValidator;
-import com.keunsori.keunsoriserver.domain.admin.reservation.dto.request.DailyScheduleUpdateOrCreateRequest;
-import com.keunsori.keunsoriserver.domain.admin.reservation.dto.request.RegularReservationCreateRequest;
-import com.keunsori.keunsoriserver.domain.admin.reservation.dto.request.WeeklyScheduleManagementRequest;
-import com.keunsori.keunsoriserver.domain.admin.reservation.dto.request.WeeklyScheduleUpdateRequest;
 import com.keunsori.keunsoriserver.domain.admin.reservation.dto.response.DailyAvailableResponse;
+import com.keunsori.keunsoriserver.domain.admin.reservation.dto.response.RegularReservationUpdateResponse;
 import com.keunsori.keunsoriserver.domain.admin.reservation.dto.response.WeeklyScheduleResponse;
 import com.keunsori.keunsoriserver.domain.admin.reservation.repository.DailyScheduleRepository;
 import com.keunsori.keunsoriserver.domain.admin.reservation.repository.RegularReservationRepository;
@@ -20,6 +18,7 @@ import com.keunsori.keunsoriserver.domain.reservation.domain.Reservation;
 import com.keunsori.keunsoriserver.domain.reservation.domain.validator.ReservationValidator;
 import com.keunsori.keunsoriserver.domain.reservation.repository.ReservationRepository;
 import com.keunsori.keunsoriserver.global.exception.MemberException;
+import com.keunsori.keunsoriserver.global.exception.RegularReservationException;
 import com.keunsori.keunsoriserver.global.exception.ReservationException;
 import com.keunsori.keunsoriserver.global.util.DateUtil;
 import com.keunsori.keunsoriserver.global.util.MemberUtil;
@@ -259,6 +258,71 @@ public class AdminReservationService {
                     .build());
         }
         reservationRepository.saveAll(news);
+    }
+
+    private void generateDailyReservationsFrom(RegularReservation regularReservation, LocalDate fromDate) {
+        LocalDate start = regularReservation.getApplyStartDate();
+        LocalDate end = regularReservation.getApplyEndDate();
+
+        if(end.isBefore(fromDate)) return;
+        if (start.isBefore(fromDate)) start = fromDate;
+
+        LocalDate date = start;
+        while (date.getDayOfWeek() != regularReservation.getDayOfWeek()) date = date.plusDays(1);
+        if (date.isAfter(end)) return;
+
+        List<Reservation> news = new ArrayList<>();
+        for (; !date.isAfter(end); date = date.plusWeeks(1)) {
+            news.add(Reservation.builder()
+                    .reservationType(regularReservation.getReservationType())
+                    .session(regularReservation.getSession())
+                    .date(date)
+                    .startTime(regularReservation.getStartTime())
+                    .endTime(regularReservation.getEndTime())
+                    .member(regularReservation.getMember())
+                    .regularReservation(regularReservation)
+                    .build());
+        }
+        reservationRepository.saveAll(news);
+    }
+
+    // 정기 예약 수정
+    @Transactional
+    public void updateRegularReservations(List<RegularReservationUpdateRequest> requests){
+        if (requests == null || requests.isEmpty()) {
+            throw new RegularReservationException(EMPTY_MANAGEMENT_REQUEST);
+        }
+
+        List<Long> ids = requests.stream()
+                .map(RegularReservationUpdateRequest::regularReservationId)
+                .distinct()
+                .toList();
+
+        List<RegularReservation> found = regularReservationRepository.findAllById(ids);
+
+        if (found.size() != ids.size()) {
+            throw new RegularReservationException(PARTIAL_REGULAR_RESERVATION_MISSING);
+        }
+
+        Map<Long, RegularReservation> regularReservationMap = found.stream()
+                .collect(Collectors.toMap(RegularReservation::getId, regularReservation -> regularReservation));
+
+        regularReservationValidator.validateNoOverlapAmongUpdates(requests, regularReservationMap);
+
+        LocalDate effectiveDate = LocalDate.now();
+
+        for (RegularReservationUpdateRequest req : requests) {
+            RegularReservation regularReservation = regularReservationMap.get(req.regularReservationId());
+
+            regularReservationValidator.validateUpdateRegularReservationTime(regularReservation, req);
+
+            regularReservation.updateTime(req.regularReservationStartTime(), req.regularReservationEndTime());
+
+            reservationRepository.deleteByRegularReservationAndDateGreaterThanEqual(regularReservation, effectiveDate);
+
+            generateDailyReservationsFrom(regularReservation, effectiveDate);
+
+        }
     }
 
 

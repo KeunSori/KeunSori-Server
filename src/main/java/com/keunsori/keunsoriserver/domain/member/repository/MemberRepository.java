@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
-public interface MemberRepository extends JpaRepository<Member, Long> {
+public interface    MemberRepository extends JpaRepository<Member, Long> {
 
     Optional<Member> findByStudentId(String studentId);
     Optional<Member> findByStudentIdIgnoreCase(String studentId);

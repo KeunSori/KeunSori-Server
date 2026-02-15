@@ -92,4 +92,10 @@ public class RegularReservation {
     public boolean isOutOfScheduleTime(LocalTime scheduleStartTime, LocalTime scheduleEndTime) {
         return this.startTime.isBefore(scheduleStartTime) || this.endTime.isAfter(scheduleEndTime);
     }
+
+    // 정기예약 시간 업데이트
+    public void updateTime(LocalTime startTime, LocalTime endTime) {
+        this.startTime = startTime;
+        this.endTime = endTime;
+    }
 }
