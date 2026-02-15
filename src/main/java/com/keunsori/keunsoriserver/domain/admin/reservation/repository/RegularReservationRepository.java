@@ -40,4 +40,24 @@ public interface RegularReservationRepository extends JpaRepository<RegularReser
                                      @Param("end") LocalTime endTime,
                                      @Param ("applyStartDate") LocalDate applyStartDate,
                                      @Param ("applyEndDate") LocalDate applyEndDate);
+
+    @Query("""
+            SELECT COUNT(r) > 0
+            FROM RegularReservation r
+            WHERE r.id <> :id
+            AND r.dayOfWeek = :day
+            AND r.session = :session
+            AND r.endTime > :start
+            AND r.startTime < :end
+            AND r.applyEndDate >= :applyStartDate
+            AND r.applyStartDate <= :applyEndDate
+            """)
+    boolean existsOverlapOnTemplatesExcludingId(@Param("id") Long id,
+                                                @Param("day") DayOfWeek dayOfWeek,
+                                                @Param("session") Session session,
+                                                @Param("start") LocalTime startTime,
+                                                @Param("end") LocalTime endTime,
+                                                @Param("applyStartDate") LocalDate applyStartDate,
+                                                @Param("applyEndDate") LocalDate applyEndDate);
+
 }
