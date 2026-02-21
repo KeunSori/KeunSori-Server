@@ -1,8 +1,10 @@
 package com.keunsori.keunsoriserver.domain.admin.reservation.controller;
 
 import com.keunsori.keunsoriserver.domain.admin.reservation.dto.request.DailyScheduleUpdateOrCreateRequest;
+import com.keunsori.keunsoriserver.domain.admin.reservation.dto.request.RegularReservationUpdateRequest;
 import com.keunsori.keunsoriserver.domain.admin.reservation.dto.request.WeeklyScheduleManagementRequest;
 import com.keunsori.keunsoriserver.domain.admin.reservation.dto.response.DailyAvailableResponse;
+import com.keunsori.keunsoriserver.domain.admin.reservation.dto.response.RegularReservationUpdateResponse;
 import com.keunsori.keunsoriserver.domain.admin.reservation.dto.response.WeeklyScheduleResponse;
 import com.keunsori.keunsoriserver.domain.admin.reservation.service.AdminReservationService;
 import jakarta.validation.Valid;
@@ -58,6 +60,13 @@ public class AdminReservationController {
     @DeleteMapping
     public ResponseEntity<Void> deleteReservationsByAdmin(@RequestBody List<Long> reservationIds) {
         adminReservationService.deleteReservationsByAdmin(reservationIds);
+        return ResponseEntity.noContent().build();
+    }
+
+    // 정기 예약 수정
+    @PutMapping("/regular-reservations/time")
+    public ResponseEntity<Void> updateRegularReservations(@Valid @RequestBody List<RegularReservationUpdateRequest> requests) {
+        adminReservationService.updateRegularReservations(requests);
         return ResponseEntity.noContent().build();
     }
 }

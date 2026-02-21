@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.keunsori.keunsoriserver.admin.init.ApiTestWithWeeklyScheduleInit;
 import com.keunsori.keunsoriserver.admin.member.fixture.MemberFixture;
 import com.keunsori.keunsoriserver.admin.reservation.fixture.RegularReservationFixture;
+import com.keunsori.keunsoriserver.domain.admin.reservation.domain.RegularReservation;
 import com.keunsori.keunsoriserver.domain.admin.reservation.dto.request.DailyScheduleUpdateOrCreateRequest;
 import com.keunsori.keunsoriserver.domain.admin.reservation.dto.request.RegularReservationCreateRequest;
 import com.keunsori.keunsoriserver.domain.admin.reservation.dto.request.WeeklyScheduleManagementRequest;
@@ -26,8 +27,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.temporal.TemporalAdjuster;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.IntStream;
 
 import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.*;
 import static io.restassured.RestAssured.given;
@@ -239,6 +243,57 @@ public class AdminReservationApiTest extends ApiTestWithWeeklyScheduleInit {
                         jsonPath().get("message");
 
         Assertions.assertThat(errorMessage).isEqualTo(INVALID_SCHEDULE_TIME);
+    }
+
+    @Test
+    void 주간_설정_시_범위_밖_예약은_삭제된다() throws JsonProcessingException {
+        List<Reservation> reservationList1 = IntStream.range(1, 8)
+                .mapToObj(i -> Reservation.builder()
+                        .session(Session.ALL)
+                        .reservationType(ReservationType.TEAM)
+                        .date(LocalDate.now().plusDays(i))
+                        .startTime(LocalTime.of(12, 0))
+                        .endTime(LocalTime.of(14, 0))
+                        .build())
+                .toList();
+        List<Reservation> reservationList2 = IntStream.range(1, 8)
+                .mapToObj(i -> Reservation.builder()
+                        .session(Session.ALL)
+                        .reservationType(ReservationType.TEAM)
+                        .date(LocalDate.now().plusDays(i))
+                        .startTime(LocalTime.of(20, 0))
+                        .endTime(LocalTime.of(22, 0))
+                        .build())
+                .toList();
+        reservationRepository.saveAll(reservationList1);
+        reservationRepository.saveAll(reservationList2);
+
+        List<Reservation> beforeUpdateReservation = reservationRepository.findByDateGreaterThanEqual(LocalDate.now());
+        Assertions.assertThat(beforeUpdateReservation).hasSize(14);
+
+        List<WeeklyScheduleUpdateRequest> weeklyScheduleRequests = List.of(
+                new WeeklyScheduleUpdateRequest(0, false, LocalTime.of(10, 0), LocalTime.of(23, 0)),
+                new WeeklyScheduleUpdateRequest(1, true,  LocalTime.of(10, 0), LocalTime.of(20, 0)),
+                new WeeklyScheduleUpdateRequest(2, false, LocalTime.of(10, 0), LocalTime.of(23, 0)),
+                new WeeklyScheduleUpdateRequest(3, true, LocalTime.of(10, 0), LocalTime.of(21, 0)),
+                new WeeklyScheduleUpdateRequest(4, false, LocalTime.of(10, 0), LocalTime.of(23, 0)),
+                new WeeklyScheduleUpdateRequest(5, false, LocalTime.of(10, 0), LocalTime.of(23, 0)),
+                new WeeklyScheduleUpdateRequest(6, true, LocalTime.of(12, 0), LocalTime.of(20, 0))
+        );
+
+        WeeklyScheduleManagementRequest request = new WeeklyScheduleManagementRequest(weeklyScheduleRequests, null, null);
+
+        given().
+                header(AUTHORIZATION, adminAuth).
+                header(CONTENT_TYPE, "application/json").
+                body(mapper.writeValueAsString(request)).
+                when().
+                put("/admin/reservation/weekly-schedule/management").
+                then().
+                statusCode(HttpStatus.SC_OK);
+
+        List<Reservation> remainedReservation = reservationRepository.findByDateGreaterThanEqual(LocalDate.now());
+        Assertions.assertThat(remainedReservation).hasSize(3);
     }
 
     @Test
@@ -547,5 +602,90 @@ public class AdminReservationApiTest extends ApiTestWithWeeklyScheduleInit {
         List<Long> mondayIds = responseJson.getList("find { it.dayOfWeekNum == 1 }.regularReservations.regularReservationId", Long.class);
 
         Assertions.assertThat(mondayIds).containsOnly(id1, id2, id3);
+    }
+
+    @Test
+    void 정기예약_시간수정_성공() throws JsonProcessingException {
+        DayOfWeek day = DayOfWeek.MONDAY;
+
+        WeeklyScheduleUpdateRequest schedule = new WeeklyScheduleUpdateRequest(
+                day.getValue() % 7, true, LocalTime.of(9,0), LocalTime.of(23,0)
+        );
+
+        // today 기준으로 미래 기간
+        LocalDate today = LocalDate.now();
+        LocalDate applyStart = today.minusDays(3);
+        LocalDate applyEnd = today.plusWeeks(3);
+
+        RegularReservationCreateRequest createRequest = new RegularReservationCreateRequest(
+                "TEAM",
+                "ALL",
+                day.toString(),
+                "시간수정테스트팀",
+                LocalTime.of(10, 0),
+                LocalTime.of(11, 0),
+                "C000001",
+                applyStart,
+                applyEnd
+        );
+
+        WeeklyScheduleManagementRequest payload = new WeeklyScheduleManagementRequest(
+                List.of(schedule),
+                List.of(createRequest),
+                List.of()
+        );
+
+        given()
+                .header(AUTHORIZATION, adminAuth)
+                .header(CONTENT_TYPE,"application/json")
+                .body(mapper.writeValueAsString(payload))
+        .when()
+                .put("/admin/reservation/weekly-schedule/management")
+        .then()
+                .statusCode(HttpStatus.SC_OK);
+
+        RegularReservation rr = regularReservationRepository.findAllAppliedFromToday().stream()
+                .filter(r -> r.getDayOfWeek() == day)
+                .filter(r -> r.getStartTime().equals(LocalTime.of(10, 0)) && r.getEndTime().equals(LocalTime.of(11, 0)))
+                .findFirst()
+                .orElseThrow();
+
+        Long rrId = rr.getId();
+
+        List<Reservation> before = reservationRepository.findByDateGreaterThanEqual(today).stream()
+                .filter(r -> r.getRegularReservation() != null && r.getRegularReservation().getId().equals(rrId))
+                .toList();
+        Assertions.assertThat(before).isNotEmpty();
+        Assertions.assertThat(before).allMatch(r ->
+                r.getStartTime().equals(LocalTime.of(10, 0)) && r.getEndTime().equals(LocalTime.of(11, 0))
+        );
+
+        // when: 정기예약 시간 수정 API 호출
+        var updateReq = List.of(new com.keunsori.keunsoriserver.domain.admin.reservation.dto.request.RegularReservationUpdateRequest(
+                rrId,
+                LocalTime.of(12, 0),
+                LocalTime.of(13, 0)
+        ));
+        given()
+                .header(AUTHORIZATION, adminAuth)
+                .header(CONTENT_TYPE, "application/json")
+                .body(mapper.writeValueAsString(updateReq))
+        .when()
+                .put("/admin/reservation/regular-reservations/time")
+                .then()
+        .statusCode(HttpStatus.SC_NO_CONTENT);
+
+        RegularReservation updated = regularReservationRepository.findById(rrId).orElseThrow();
+        Assertions.assertThat(updated.getStartTime()).isEqualTo(LocalTime.of(12, 0));
+        Assertions.assertThat(updated.getEndTime()).isEqualTo(LocalTime.of(13, 0));
+
+        List<Reservation> after = reservationRepository.findByDateGreaterThanEqual(today).stream()
+                .filter(r -> r.getRegularReservation() != null && r.getRegularReservation().getId().equals(rrId))
+                .toList();
+
+        Assertions.assertThat(after).isNotEmpty();
+        Assertions.assertThat(after).allMatch(r ->
+                r.getStartTime().equals(LocalTime.of(12, 0)) && r.getEndTime().equals(LocalTime.of(13, 0))
+        );
     }
 }

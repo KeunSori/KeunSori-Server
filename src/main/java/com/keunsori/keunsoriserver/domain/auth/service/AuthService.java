@@ -1,6 +1,7 @@
 package com.keunsori.keunsoriserver.domain.auth.service;
 
 import com.keunsori.keunsoriserver.domain.auth.dto.request.PasswordUpdateRequest;
+import com.keunsori.keunsoriserver.domain.auth.dto.response.AuthCheckResponse;
 import com.keunsori.keunsoriserver.domain.auth.login.dto.LoginRequest;
 import com.keunsori.keunsoriserver.domain.auth.login.dto.LoginResponse;
 import com.keunsori.keunsoriserver.domain.auth.repository.RefreshTokenRepository;
@@ -9,19 +10,26 @@ import com.keunsori.keunsoriserver.domain.member.domain.Member;
 import com.keunsori.keunsoriserver.domain.member.repository.MemberRepository;
 import com.keunsori.keunsoriserver.global.exception.MemberException;
 import com.keunsori.keunsoriserver.global.properties.JwtProperties;
+import com.keunsori.keunsoriserver.global.properties.UrlProperties;
 import com.keunsori.keunsoriserver.global.util.CookieUtil;
 import com.keunsori.keunsoriserver.global.util.TokenUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import com.keunsori.keunsoriserver.global.util.EmailUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static com.keunsori.keunsoriserver.global.constant.UrlConstant.PASSWORD_CHANGE_LINK;
 import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.STUDENT_ID_NOT_EXISTS;
 import static com.keunsori.keunsoriserver.global.exception.ErrorMessage.*;
+
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -34,6 +42,7 @@ public class AuthService {
     private final MemberRepository memberRepository;
     private final EmailUtil emailUtil;
     private final PasswordEncoder passwordEncoder;
+    private final UrlProperties urlProperties;
 
     public LoginResponse login(LoginRequest loginRequest, HttpServletResponse response) {
         Member member = memberRepository.findByStudentId(loginRequest.studentId())
@@ -71,7 +80,7 @@ public class AuthService {
         member.validateEmail(request.email());
 
         String token = tokenUtil.generatePasswordUpdateToken(member.getStudentId());
-        String passwordChangeLink = PASSWORD_CHANGE_LINK + "?key=" + token;
+        String passwordChangeLink = urlProperties.getPasswordChangePath() + "?key=" + token;
         emailUtil.sendPasswordInitializeLink(request.email(), passwordChangeLink);
 
         log.info("[AuthService] 비밀번호 재설정 이메일 전송ㅇ: studentId: {}", request.studentId());
@@ -89,5 +98,16 @@ public class AuthService {
         member.updatePassword(encodedPassword);
 
         log.info("[AuthService] 링크를 통한 비밀번호 변경: studentId: {}", studentId);
+    }
+
+    public AuthCheckResponse checkAuth() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        String role = auth.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .findFirst()
+                .orElse(null);
+
+        return new AuthCheckResponse(role);
     }
 }

@@ -23,6 +23,8 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
 
     List<Reservation> findAllByDateBetweenOrderByDateAscStartTimeAsc(LocalDate start, LocalDate end);
 
+    List<Reservation> findByDateGreaterThanEqual(LocalDate date);
+
     void deleteAllByDate(LocalDate date);
 
     void deleteAllByRegularReservation(RegularReservation regularReservation);
@@ -72,4 +74,6 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
         AND r.endTime > :startTime
 """)
     void deleteAllByDateInAndTimeRange(@Param("dates") List<LocalDate> dates, @Param("startTime") LocalTime startTime, @Param("endTime") LocalTime endTime);
+
+    void deleteByRegularReservationAndDateGreaterThanEqual(RegularReservation regularReservation, LocalDate date);
 }

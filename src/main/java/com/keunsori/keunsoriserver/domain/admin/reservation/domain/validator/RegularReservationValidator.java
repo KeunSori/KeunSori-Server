@@ -2,6 +2,7 @@ package com.keunsori.keunsoriserver.domain.admin.reservation.domain.validator;
 
 import com.keunsori.keunsoriserver.domain.admin.reservation.domain.RegularReservation;
 import com.keunsori.keunsoriserver.domain.admin.reservation.dto.request.RegularReservationCreateRequest;
+import com.keunsori.keunsoriserver.domain.admin.reservation.dto.request.RegularReservationUpdateRequest;
 import com.keunsori.keunsoriserver.domain.admin.reservation.repository.RegularReservationRepository;
 import com.keunsori.keunsoriserver.domain.admin.reservation.domain.WeeklySchedule;
 import com.keunsori.keunsoriserver.domain.admin.reservation.repository.WeeklyScheduleRepository;
@@ -157,6 +158,75 @@ public class RegularReservationValidator {
 
     private boolean isTimeOverlap(LocalTime startTime1, LocalTime endTime1, LocalTime startTime2, LocalTime endTime2) {
         return startTime1.isBefore(endTime2) && startTime2.isBefore(endTime1);
+    }
+
+    // 정기 예약 시간 수정 검증 메서드
+    public void validateUpdateRegularReservationTime(RegularReservation regularReservation, RegularReservationUpdateRequest request){
+        validateTimeRange(request.regularReservationStartTime(), request.regularReservationEndTime());
+
+        WeeklySchedule weeklySchedule = validateDayIsActive(regularReservation.getDayOfWeek());
+        weeklySchedule.validateTimeWithin(request.regularReservationStartTime(), request.regularReservationEndTime());
+
+        boolean exists = regularReservationRepository.existsOverlapOnTemplatesExcludingId(
+                regularReservation.getId(),
+                regularReservation.getDayOfWeek(),
+                regularReservation.getSession(),
+                request.regularReservationStartTime(),
+                request.regularReservationEndTime(),
+                regularReservation.getApplyStartDate(),
+                regularReservation.getApplyEndDate()
+
+        );
+        if (exists) {
+            throw new ReservationException(ANOTHER_REGULAR_RESERVATION_ALREADY_EXISTS);
+        }
+    }
+
+    public void validateNoOverlapAmongUpdates(
+            List<RegularReservationUpdateRequest> requests,
+            Map<Long, RegularReservation> rrMap
+    ) {
+        if (requests == null || requests.size() <= 1)
+            return;
+
+        Map<DaySessionKey, List<RegularReservationUpdateRequest>> byDayAndSession =
+                requests.stream().collect(Collectors.groupingBy(req -> {
+                    RegularReservation rr = rrMap.get(req.regularReservationId());
+                    return new DaySessionKey(rr.getDayOfWeek(), rr.getSession());
+                }));
+
+        for (Map.Entry<DaySessionKey, List<RegularReservationUpdateRequest>> entry : byDayAndSession.entrySet()) {
+
+            List<RegularReservationUpdateRequest> group = entry.getValue();
+
+            group.sort(Comparator
+                    .comparing(RegularReservationUpdateRequest::regularReservationStartTime)
+                    .thenComparing(RegularReservationUpdateRequest::regularReservationEndTime));
+
+            for (int i = 0; i < group.size() - 1; i++) {
+                RegularReservationUpdateRequest aReq = group.get(i);
+                RegularReservationUpdateRequest bReq = group.get(i + 1);
+
+                RegularReservation a = rrMap.get(aReq.regularReservationId());
+                RegularReservation b = rrMap.get(bReq.regularReservationId());
+
+                boolean dateOverlap = hasDateOverlap(
+                        a.getApplyStartDate(), a.getApplyEndDate(),
+                        b.getApplyStartDate(), b.getApplyEndDate()
+                );
+
+                if (!dateOverlap) continue;
+
+                boolean timeOverlap = isTimeOverlap(
+                        aReq.regularReservationStartTime(), aReq.regularReservationEndTime(),
+                        bReq.regularReservationStartTime(), bReq.regularReservationEndTime()
+                );
+
+                if (timeOverlap) {
+                    throw new ReservationException(ANOTHER_REGULAR_RESERVATION_ALREADY_EXISTS);
+                }
+            }
+        }
     }
 }
 
