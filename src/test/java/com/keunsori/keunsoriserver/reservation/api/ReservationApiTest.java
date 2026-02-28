@@ -8,6 +8,7 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.HttpHeaders.LOCATION;
 
+import com.keunsori.keunsoriserver.admin.init.ApiTestWithWeeklyScheduleInit;
 import com.keunsori.keunsoriserver.domain.reservation.domain.Reservation;
 import com.keunsori.keunsoriserver.domain.reservation.domain.vo.ReservationType;
 import com.keunsori.keunsoriserver.domain.reservation.domain.vo.Session;
@@ -22,14 +23,13 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.keunsori.keunsoriserver.common.ApiTest;
 import com.keunsori.keunsoriserver.domain.reservation.dto.requset.ReservationCreateRequest;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.stream.Stream;
 
-public class ReservationApiTest extends ApiTest {
+public class ReservationApiTest extends ApiTestWithWeeklyScheduleInit {
 
     private String authorizationValue;
 

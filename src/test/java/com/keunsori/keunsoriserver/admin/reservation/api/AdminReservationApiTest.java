@@ -9,6 +9,7 @@ import com.keunsori.keunsoriserver.domain.admin.reservation.dto.request.DailySch
 import com.keunsori.keunsoriserver.domain.admin.reservation.dto.request.RegularReservationCreateRequest;
 import com.keunsori.keunsoriserver.domain.admin.reservation.dto.request.WeeklyScheduleManagementRequest;
 import com.keunsori.keunsoriserver.domain.admin.reservation.dto.request.WeeklyScheduleUpdateRequest;
+import com.keunsori.keunsoriserver.domain.admin.reservation.repository.DailyScheduleRepository;
 import com.keunsori.keunsoriserver.domain.admin.reservation.repository.RegularReservationRepository;
 import com.keunsori.keunsoriserver.domain.member.domain.Member;
 import com.keunsori.keunsoriserver.domain.member.repository.MemberRepository;
@@ -27,8 +28,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.temporal.TemporalAdjuster;
-import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -44,6 +43,9 @@ public class AdminReservationApiTest extends ApiTestWithWeeklyScheduleInit {
 
     @Autowired
     MemberRepository memberRepository;
+
+    @Autowired
+    DailyScheduleRepository dailyScheduleRepository;
 
     @Autowired
     ReservationRepository reservationRepository;
