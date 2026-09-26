@@ -1,5 +1,5 @@
 spring:
   datasource:
-    url: "jdbc:mysql://${DATABASE_HOST}:${DATABASE_PORT:3306}/${DATABASE_NAME}"
+    url: "jdbc:postgresql://${DATABASE_HOST}:${DATABASE_PORT:5432}/${DATABASE_NAME}?sslmode=require"
     username: "${DATABASE_USERNAME}"
     password: "${DATABASE_PASSWORD}"
