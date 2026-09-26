@@ -4,9 +4,9 @@ on:
       - develop
 
 # TEST 용으로 PR 에서도 활성화 되도록 함
-#  pull_request:
-#    branches:
-#      - develop
+  pull_request:
+    branches:
+      - develop
 
 jobs:
   build_application:
@@ -53,10 +53,10 @@ jobs:
       - name: Access to EC2
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.EC2_HOST }}
-          port: ${{ secrets.EC2_PORT }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          host: ${{ secrets.OCI_HOST }}
+          port: ${{ secrets.OCI_PORT }}
+          username: ${{ secrets.OCI_USERNAME }}
+          key: ${{ secrets.OCI_SECRET }}
           script: |
             echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
             sudo docker pull ${{ secrets.DOCKER_IMAGE_TAG }}
