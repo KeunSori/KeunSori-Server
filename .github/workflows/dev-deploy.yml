@@ -50,7 +50,7 @@ jobs:
           tags: ${{ secrets.DOCKER_IMAGE_TAG }}
 
       # Deploy
-      - name: Access to EC2
+      - name: Access to OCI
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.OCI_HOST }}
