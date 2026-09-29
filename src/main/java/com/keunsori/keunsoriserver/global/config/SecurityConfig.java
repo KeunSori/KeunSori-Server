@@ -7,9 +7,13 @@ import static org.springframework.security.config.Customizer.withDefaults;
 import com.keunsori.keunsoriserver.global.security.JwtAuthenticationFilter;
 
 import java.util.List;
+
+import com.keunsori.keunsoriserver.global.security.JwtExceptionFilter;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -35,7 +39,7 @@ public class SecurityConfig  {
 
     //보안 설정(JWT 인증 및 권한)
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter, JwtExceptionFilter jwtExceptionFilter) throws Exception {
        http
                .cors(withDefaults())
                .csrf(AbstractHttpConfigurer::disable)  // CSRF 비활성화
@@ -61,10 +65,17 @@ public class SecurityConfig  {
 
                        // 나머지 요청은 인증 필요
                        .anyRequest().authenticated())
-
+               .exceptionHandling(exception -> exception
+                       .authenticationEntryPoint((request, response, authException) -> {
+                           response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                           response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                           response.setCharacterEncoding("UTF-8");
+                           response.getWriter().write("{\"message\": \"인증에 실패하였습니다.\"}");
+                       })
+               )
                // JWT 필터 추가
-               .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-
+               .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+               .addFilterBefore(jwtExceptionFilter, JwtAuthenticationFilter.class);
         return http.build();
     }
 
