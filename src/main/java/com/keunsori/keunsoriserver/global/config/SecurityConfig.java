@@ -47,8 +47,12 @@ public class SecurityConfig  {
 
                        // 인증 없이 로그인,회원가입은 가능.
                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                       .requestMatchers("/auth/**", "/email/**").permitAll()
+                       .requestMatchers("/auth/login", "/auth/password/update-link/send",
+                               "/auth/password", "/email/**").permitAll()
                        .requestMatchers("/signup").permitAll()
+
+                       // 로그아웃은 로그인 이후 가능
+                       .requestMatchers("/auth/logout").hasAnyAuthority("일반", "관리자")
 
                        // 회원 관련된 건 일반 권한 필요
                        .requestMatchers("/members/**").hasAuthority("일반")
