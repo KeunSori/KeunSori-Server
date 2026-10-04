@@ -32,6 +32,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -179,16 +180,26 @@ public class AdminReservationService {
         LocalDate start = DateUtil.parseMonthToFirstDate(yearMonth);
         LocalDate end = start.plusMonths(2);
 
-        return Stream.iterate(start, date -> date.isBefore(end), date -> date.plusDays(1))
-                .map(this::convertDateToDailyAvailableResponse).toList();
-    }
+        Map<LocalDate, DailySchedule> dailySchedules = dailyScheduleRepository.findAllByDateBetween(start, end).stream()
+                .collect(Collectors.toMap(DailySchedule::getDate, Function.identity()));
 
-    private DailyAvailableResponse convertDateToDailyAvailableResponse(LocalDate date) {
-        return dailyScheduleRepository.findByDate(date)
-                .map(DailyAvailableResponse::from)
-                .orElseGet(() -> weeklyScheduleRepository.findByDayOfWeek(date.getDayOfWeek())
-                        .map(schedule -> DailyAvailableResponse.of(date, schedule))
-                        .orElseGet(() -> DailyAvailableResponse.createInactiveDate(date)));
+        Map<DayOfWeek, WeeklySchedule> weeklySchedule = weeklyScheduleRepository.findAll().stream()
+                .collect(Collectors.toMap(WeeklySchedule::getDayOfWeek, Function.identity()));
+
+        return Stream.iterate(start, date -> date.isBefore(end), date -> date.plusDays(1))
+                .map(date -> {
+                    DailySchedule dailySchedule = dailySchedules.get(date);
+                    if (dailySchedule != null) {
+                        return DailyAvailableResponse.from(dailySchedule);
+                    }
+
+                    WeeklySchedule dayOfWeekSchedule = weeklySchedule.get(date.getDayOfWeek());
+                    if (dayOfWeekSchedule != null) {
+                        return DailyAvailableResponse.of(date, dayOfWeekSchedule);
+                    }
+
+                    return DailyAvailableResponse.createInactiveDate(date);
+                }).toList();
     }
 
     // 정기 예약 생성

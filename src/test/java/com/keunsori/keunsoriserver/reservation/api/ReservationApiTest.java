@@ -12,6 +12,10 @@ import com.keunsori.keunsoriserver.domain.reservation.domain.Reservation;
 import com.keunsori.keunsoriserver.domain.reservation.domain.vo.ReservationType;
 import com.keunsori.keunsoriserver.domain.reservation.domain.vo.Session;
 import com.keunsori.keunsoriserver.domain.reservation.repository.ReservationRepository;
+import com.keunsori.keunsoriserver.domain.admin.reservation.domain.DailySchedule;
+import com.keunsori.keunsoriserver.domain.admin.reservation.domain.WeeklySchedule;
+import com.keunsori.keunsoriserver.domain.admin.reservation.repository.DailyScheduleRepository;
+import com.keunsori.keunsoriserver.domain.admin.reservation.repository.WeeklyScheduleRepository;
 import org.apache.http.HttpStatus;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,11 +26,14 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.keunsori.keunsoriserver.common.ApiTest;
+import com.keunsori.keunsoriserver.domain.admin.reservation.dto.response.DailyAvailableResponse;
 import com.keunsori.keunsoriserver.domain.reservation.dto.requset.ReservationCreateRequest;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.stream.Stream;
 
 public class ReservationApiTest extends ApiTest {
@@ -35,6 +42,12 @@ public class ReservationApiTest extends ApiTest {
 
     @Autowired
     private ReservationRepository reservationRepository;
+
+    @Autowired
+    private DailyScheduleRepository dailyScheduleRepository;
+
+    @Autowired
+    private WeeklyScheduleRepository weeklyScheduleRepository;
 
     @BeforeEach
     void login() throws JsonProcessingException {
@@ -51,6 +64,53 @@ public class ReservationApiTest extends ApiTest {
                 get("/reservation/my").
         then().
                 statusCode(HttpStatus.SC_OK);
+    }
+
+    @Test
+    void 예약_가능_날짜는_일별_설정을_우선하고_주간_설정과_기본_비활성_값을_반환한다() throws JsonProcessingException {
+        LocalDate dailyScheduleDate = LocalDate.of(2999, 1, 6);
+        LocalDate weeklyScheduleDate = dailyScheduleDate.plusWeeks(1);
+        LocalDate inactiveDate = dailyScheduleDate.plusDays(1);
+
+        dailyScheduleRepository.save(DailySchedule.builder()
+                .date(dailyScheduleDate)
+                .isActive(false)
+                .startTime(LocalTime.of(12, 0))
+                .endTime(LocalTime.of(18, 0))
+                .build());
+        weeklyScheduleRepository.save(WeeklySchedule.builder()
+                .dayOfWeek(dailyScheduleDate.getDayOfWeek())
+                .isActive(true)
+                .startTime(LocalTime.of(10, 0))
+                .endTime(LocalTime.of(22, 0))
+                .build());
+
+        String responseBody = given()
+                .header(AUTHORIZATION, authorizationValue)
+                .param("month", "299901")
+                .when()
+                .get("/reservation")
+                .then()
+                .statusCode(HttpStatus.SC_OK)
+                .extract()
+                .asString();
+
+        List<DailyAvailableResponse> responses = mapper.readValue(responseBody, new TypeReference<>() {});
+
+        Assertions.assertThat(responses).hasSize(59);
+        Assertions.assertThat(findSchedule(responses, dailyScheduleDate))
+                .isEqualTo(new DailyAvailableResponse(dailyScheduleDate, false, "12:00", "18:00"));
+        Assertions.assertThat(findSchedule(responses, weeklyScheduleDate))
+                .isEqualTo(new DailyAvailableResponse(weeklyScheduleDate, true, "10:00", "22:00"));
+        Assertions.assertThat(findSchedule(responses, inactiveDate))
+                .isEqualTo(new DailyAvailableResponse(inactiveDate, false, "10:00", "23:00"));
+    }
+
+    private DailyAvailableResponse findSchedule(List<DailyAvailableResponse> responses, LocalDate date) {
+        return responses.stream()
+                .filter(response -> response.date().equals(date))
+                .findFirst()
+                .orElseThrow();
     }
 
     @Test
